@@ -40,6 +40,14 @@ public class MemberService {
 	public List<Member> getAllMembers() {
         return mRepos.findAll();
     }
+	
+	public Member getMemberByIdentity(String identity) {
+		Optional<Member> op = mRepos.findByMIdentity(identity);
+        if(op.isPresent()) {
+        	return op.get();
+        }
+        return null;
+	}
 	public void deleteById(Integer id) {
 		mRepos.deleteById(id);
 	}
