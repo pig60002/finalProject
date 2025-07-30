@@ -1,6 +1,8 @@
 package com.bank.account.service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,9 @@ public class AccountServcie {
 	
 	@Autowired
 	private AccountRepository accountRepos;
+	
+	@Autowired
+	private SerialControlService scService;
 	
 	// 獲得個人所有帳戶
 	public List<Account> getAccountsByMId(Integer mid){
@@ -37,7 +42,41 @@ public class AccountServcie {
 		return total;
 	}
 	
-	// 
+	// 新增帳戶
+	public Account insertAccount(Integer mid, String accountName, String currency ) {
+		Account insertBean = new Account();
+		
+		// 獲得帳戶流水號
+		String accountid = scService.getSCNB("account", "100");
+		
+		insertBean.setAccountId(accountid);
+		insertBean.setmId(mid);
+		insertBean.setAccountName(accountName);
+		insertBean.setCurrency(currency);
+		insertBean.setBalance(BigDecimal.ZERO);
+		insertBean.setOpenedDate(LocalDate.now());
+		insertBean.setStatus("啟用");
+		
+		return accountRepos.save(insertBean);
+	}
 	
+	// 修改帳戶狀態
+	public int updateAccountStatus(String status, String memo, Integer operatorId, String accountId) {
+		int updateRS = accountRepos.updateAccountStatus(status, memo, operatorId, LocalDateTime.now(), accountId);
+		
+		if(updateRS > 0) {
+			System.out.println("修改帳戶狀態成功");
+		} else {
+			System.out.println("修改帳戶狀態失敗");
+		}
+		
+		return updateRS;
+	}
 	
+	// 修改帳戶餘額 (提款)
+//	public int updateAccountBalance(BigDecimal amount) {
+		
+		
+		
+//	}
 }
