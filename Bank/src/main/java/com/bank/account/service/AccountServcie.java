@@ -1,6 +1,8 @@
 package com.bank.account.service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +19,17 @@ public class AccountServcie {
 	@Autowired
 	private AccountRepository accountRepos;
 	
+	@Autowired
+	private SerialControlService scService;
+	
 	// 獲得個人所有帳戶
 	public List<Account> getAccountsByMId(Integer mid){
 		return accountRepos.findByMId(mid);
+	}
+	
+	// 依帳號查詢帳戶
+	public Account getAccountByAccountId(String accountId) {
+		return accountRepos.findByAccountId(accountId);
 	}
 	
 	// 獲得個人的資產總額(個人所有帳戶的加總)
@@ -37,7 +47,59 @@ public class AccountServcie {
 		return total;
 	}
 	
-	// 
+	// 新增帳戶
+	public Account insertAccount(Integer mid, String accountName, String currency ) {
+		Account insertBean = new Account();
+		
+		// 獲得帳戶流水號
+		String accountid = scService.getSCNB("account", "100");
+		
+		insertBean.setAccountId(accountid);
+		insertBean.setmId(mid);
+		insertBean.setAccountName(accountName);
+		insertBean.setCurrency(currency);
+		insertBean.setBalance(BigDecimal.ZERO);
+		insertBean.setOpenedDate(LocalDate.now());
+		insertBean.setStatus("啟用");
+		
+		return accountRepos.save(insertBean);
+	}
 	
+	// 修改帳戶狀態
+	public int updateAccountStatus(String status, String memo, Integer operatorId, String accountId) {
+		int updateRS = accountRepos.updateAccountStatus(status, memo, operatorId, LocalDateTime.now(), accountId);
+		
+		if(updateRS > 0) {
+			System.out.println("修改帳戶狀態成功");
+		} else {
+			System.out.println("修改帳戶狀態失敗");
+		}
+		
+		return updateRS;
+	}
 	
+	// 修改帳戶餘額 (提款/存款)
+	public int updateAccountBalance(String accountId , String transactionType , BigDecimal amount) {
+		
+		Account accountRS = accountRepos.findByAccountId(accountId);
+		if( accountRS != null ) {
+			
+			if( "提款".equals(transactionType) ) {
+				// .subtract() 減法
+				BigDecimal newBalance = accountRS.getBalance().subtract(amount);
+				
+				accountRepos.updateAccountBalance(newBalance, accountId);
+			} else if ("存款".equals(transactionType)) {
+				// .add() 加法 
+				BigDecimal newBalance = accountRS.getBalance().add(amount);
+
+				accountRepos.updateAccountBalance(newBalance, accountId);
+			}	
+			
+			
+		}
+		
+		
+		return 0;
+	}
 }
