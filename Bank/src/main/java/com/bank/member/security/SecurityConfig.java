@@ -36,12 +36,8 @@ public class SecurityConfig {
 
 		// 設定開放的 URL，無須登入
 		List<String> allowedURL = List.of(
-				"/.well-known/**", // Chrome 開發工具開啟時會發出請求
-				"/favicon.ico",
-				"/test/**",
-				"/api/auth/**",
-				"/api/product/**",
-				"/api/**");
+				"/auth/**" // Chrome 開發工具開啟時會發出請求
+				);
 
 		return http // 使用 HttpSecurity http 物件展開串聯設定
 				.cors(cros -> cros.configurationSource(request -> corsConfiguration)) // 使用自訂的 corsConfiguration

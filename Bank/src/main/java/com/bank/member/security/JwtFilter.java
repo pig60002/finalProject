@@ -1,11 +1,16 @@
 package com.bank.member.security;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.bank.member.bean.Member;
+import com.bank.member.service.MemberService;
 import com.bank.utils.JwtUtil;
 
 import jakarta.servlet.FilterChain;
@@ -18,6 +23,9 @@ public class JwtFilter extends OncePerRequestFilter{
 	
 	@Autowired
 	private JwtUtil jwtUtil;
+	
+	@Autowired
+	private MemberService memberService;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -33,17 +41,18 @@ public class JwtFilter extends OncePerRequestFilter{
 	            String token = authHeader.substring(7);
 	            
 	            if (jwtUtil.isTokenValid(token)) {
-	                String userId = jwtUtil.getValue(token,"");
+	                String userId = JwtUtil.getSubject(token);
+	                Member member = memberService.getMemberById(Integer.parseInt(userId) );
 
 	                UsernamePasswordAuthenticationToken authentication =
-	                        new UsernamePasswordAuthenticationToken(userId, null, List.of());
+	                        new UsernamePasswordAuthenticationToken(member, null, List.of());
 	                SecurityContextHolder.getContext().setAuthentication(authentication);
 	            }
 	        }
 
-	        chain.doFilter(request, response);
+	        filterChain.doFilter(request, response);
 	    }
 		
 	}
 
-}
+

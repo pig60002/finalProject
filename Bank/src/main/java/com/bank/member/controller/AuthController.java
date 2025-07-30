@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.bank.member.bean.Member;
+import com.bank.member.bean.MemberDto;
 import com.bank.member.service.MemberService;
 import com.bank.utils.JwtUtil;
 
@@ -20,6 +21,7 @@ public class AuthController {
 	  @Autowired
 	  private MemberService memberService;
 	  
+	  
 	  @PostMapping("/login")
 	    public ResponseEntity<?> login(@RequestBody LoginRequest login) {
 	        // 假設帳密驗證成功（這裡沒用資料庫，為了簡單）
@@ -29,7 +31,9 @@ public class AuthController {
 		  
 	        if (member.getmAccount().equals(login.mAccount) && member.getmPassword().equals(login.mPassword)) {
 	            String token = jwtUtil.generateToken(member.getmId()); // 模擬 userId 為 1001
-	            return ResponseEntity.ok().header("Authorization", "Bearer " + token).body(member);
+	            MemberDto mDto = new MemberDto(member,token);
+	            
+	            return ResponseEntity.ok().header("Authorization", "Bearer " + token).body(mDto);
 	        }
 
 	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("帳密錯誤");
