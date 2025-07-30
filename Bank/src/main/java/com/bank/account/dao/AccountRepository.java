@@ -31,5 +31,6 @@ public interface AccountRepository extends JpaRepository<Account, String> {
 	int updateAccountBalance(@Param("balance")   BigDecimal balance,
 							 @Param("accountId") String accountId);
 	
-	
+	// 依帳號查詢帳戶
+	Account findByAccountId(String accountId);
 }

@@ -27,6 +27,11 @@ public class AccountServcie {
 		return accountRepos.findByMId(mid);
 	}
 	
+	// 依帳號查詢帳戶
+	public Account getAccountByAccountId(String accountId) {
+		return accountRepos.findByAccountId(accountId);
+	}
+	
 	// 獲得個人的資產總額(個人所有帳戶的加總)
 	public BigDecimal getTotalBalance(Integer mid) {
 		
@@ -73,10 +78,28 @@ public class AccountServcie {
 		return updateRS;
 	}
 	
-	// 修改帳戶餘額 (提款)
-//	public int updateAccountBalance(BigDecimal amount) {
+	// 修改帳戶餘額 (提款/存款)
+	public int updateAccountBalance(String accountId , String transactionType , BigDecimal amount) {
+		
+		Account accountRS = accountRepos.findByAccountId(accountId);
+		if( accountRS != null ) {
+			
+			if( "提款".equals(transactionType) ) {
+				// .subtract() 減法
+				BigDecimal newBalance = accountRS.getBalance().subtract(amount);
+				
+				accountRepos.updateAccountBalance(newBalance, accountId);
+			} else if ("存款".equals(transactionType)) {
+				// .add() 加法 
+				BigDecimal newBalance = accountRS.getBalance().add(amount);
+
+				accountRepos.updateAccountBalance(newBalance, accountId);
+			}	
+			
+			
+		}
 		
 		
-		
-//	}
+		return 0;
+	}
 }

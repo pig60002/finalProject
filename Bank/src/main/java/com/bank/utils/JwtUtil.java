@@ -5,8 +5,11 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 
 import javax.crypto.SecretKey;
-import java.util.Date;
 
+import org.springframework.stereotype.Component;
+
+import java.util.Date;
+@Component
 public class JwtUtil {
 
 	private static final SecretKey SECRET_KEY = Keys
