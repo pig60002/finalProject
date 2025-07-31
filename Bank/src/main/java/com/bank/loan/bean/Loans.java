@@ -17,19 +17,19 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "loans")
-public class Loans implements java.io.Serializable{
-	private static final long serialVersionUID = 1L;
+public class Loans {
+	
 	@Id
     @Column(name = "loan_id")
 	private String loanId;                // 貸款唯一識別碼
 	@Column(name = "m_id")
-	private int mid;                      // 顧客 ID（對應 member 的主鍵）
+	private int mId;                      // 顧客 ID（對應 member 的主鍵）
 	@Column(name = "loan_type_id")
 	private String loanTypeId;           // 貸款類型 ID
 	@Column(name = "loan_term_id")
 	private String loanTermId;           // 期數分類 ID
 	@Column(name = "loan_term")
-	private int loanTerm;                      // 顧客 ID（對應 member 的主鍵）
+	private int loanTerm;                // 貸款期數（通常以月為單位）
 	@Column(name = "loan_amount")
 	private BigDecimal loanAmount;      // 貸款金額
 	@Column(name = "interest_rate")
@@ -63,7 +63,7 @@ public class Loans implements java.io.Serializable{
 	
 	// getting
 	public String getLoanId() { return loanId; }
-	public int getMid() { return mid; }
+	public int getMid() { return mId; }
 	public String getLoanTypeId() { return loanTypeId; }
 	public String getLoanTermId() { return loanTermId; }
 	public int getLoanTerm() { return loanTerm; }
@@ -79,7 +79,7 @@ public class Loans implements java.io.Serializable{
 
 	// setting
 	public void setLoanId(String loanId) { this.loanId = loanId; }
-	public void setMid(int mid) { this.mid = mid; }
+	public void setMid(int mId) { this.mId = mId; }
 	public void setLoanTypeId(String loanTypeId) { this.loanTypeId = loanTypeId; }
 	public void setLoanTermId(String loanTermId) { this.loanTermId = loanTermId; }
 	public void setLoanTerm(int loanTerm) { this.loanTerm = loanTerm; }

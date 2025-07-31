@@ -17,8 +17,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "credit_review_logs")
-public class CreditReviewLogs implements java.io.Serializable {
-	private static final long serialVersionUID = 1L;
+public class CreditReviewLogs {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
