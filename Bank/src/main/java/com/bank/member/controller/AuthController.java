@@ -43,6 +43,26 @@ public class AuthController {
 	    	public String mIdentity;
 	    	public String mAccount;
 	    	public String mPassword;
+			public String getmIdentity() {
+				return mIdentity;
+			}
+			public void setmIdentity(String mIdentity) {
+				this.mIdentity = mIdentity;
+			}
+			public String getmAccount() {
+				return mAccount;
+			}
+			public void setmAccount(String mAccount) {
+				this.mAccount = mAccount;
+			}
+			public String getmPassword() {
+				return mPassword;
+			}
+			public void setmPassword(String mPassword) {
+				this.mPassword = mPassword;
+			}
+	    	
+	    	
 	    }
 
 }
