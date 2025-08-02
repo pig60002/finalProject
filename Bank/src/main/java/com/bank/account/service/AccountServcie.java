@@ -28,7 +28,7 @@ public class AccountServcie {
 	}
 	
 	// 依帳號查詢帳戶
-	public Account getAccountByAccountId(String accountId) {
+	public Account getByAccountId(String accountId) {
 		return accountRepos.findByAccountId(accountId);
 	}
 	
@@ -78,28 +78,12 @@ public class AccountServcie {
 		return updateRS;
 	}
 	
-	// 修改帳戶餘額 (提款/存款)
-	public int updateAccountBalance(String accountId , String transactionType , BigDecimal amount) {
-		
-		Account accountRS = accountRepos.findByAccountId(accountId);
-		if( accountRS != null ) {
-			
-			if( "提款".equals(transactionType) ) {
-				// .subtract() 減法
-				BigDecimal newBalance = accountRS.getBalance().subtract(amount);
-				
-				accountRepos.updateAccountBalance(newBalance, accountId);
-			} else if ("存款".equals(transactionType)) {
-				// .add() 加法 
-				BigDecimal newBalance = accountRS.getBalance().add(amount);
-
-				accountRepos.updateAccountBalance(newBalance, accountId);
-			}	
-			
-			
-		}
-		
-		
-		return 0;
+	// 修改帳戶餘額
+	public int updateAccountBalance(String accountId , BigDecimal newBalance) {
+		return accountRepos.updateAccountBalance(newBalance, accountId);
 	}
+	
+	// 
+	
+	
 }

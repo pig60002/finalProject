@@ -27,6 +27,7 @@ public interface AccountRepository extends JpaRepository<Account, String> {
 						  	@Param("accountId") String accountId);
 	
 	// 修改帳戶餘額
+	@Modifying
 	@Query("UPDATE Account a SET a.balance=:balance WHERE a.accountId=:accountId")
 	int updateAccountBalance(@Param("balance")   BigDecimal balance,
 							 @Param("accountId") String accountId);

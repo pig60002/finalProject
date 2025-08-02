@@ -79,6 +79,21 @@ public class Transactions {
 		this.status = status;
 		this.operatorId = operatorId;
 	}
+	
+
+	public Transactions(String transactionId, String accountId, String transactionType, String currency,
+			BigDecimal amount, LocalDateTime tx_time, String memo, String status, Integer operatorId) {
+		super();
+		this.transactionId = transactionId;
+		this.accountId = accountId;
+		this.transactionType = transactionType;
+		this.currency = currency;
+		this.amount = amount;
+		this.tx_time = tx_time;
+		this.memo = memo;
+		this.status = status;
+		this.operatorId = operatorId;
+	}
 
 	public String getTransactionId() {
 		return transactionId;
