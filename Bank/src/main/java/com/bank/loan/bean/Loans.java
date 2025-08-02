@@ -34,6 +34,8 @@ public class Loans {
 	private BigDecimal loanAmount;      // 貸款金額
 	@Column(name = "interest_rate")
 	private BigDecimal interestRate;    // 實際利率
+	@Column(name="repay_account_id")	
+	private String repayAccountId;		// 還款帳號
 	@Column(name = "loanstart_date")
 	private LocalDate loanstartDate;    // 貸款開始日期
 	@Column(name = "approval_status")
@@ -69,6 +71,7 @@ public class Loans {
 	public int getLoanTerm() { return loanTerm; }
 	public BigDecimal  getLoanAmount() { return loanAmount; }
 	public BigDecimal  getInterestRate() { return interestRate; }
+	public String  getRepayAccountId() { return repayAccountId; }
 	public LocalDate getLoanstartDate() { return loanstartDate; }
 	public String getApprovalStatus() { return approvalStatus; }
 	public LocalDateTime getCreatedAt() { return createdAt; }
@@ -85,6 +88,7 @@ public class Loans {
 	public void setLoanTerm(int loanTerm) { this.loanTerm = loanTerm; }
 	public void setLoanAmount(BigDecimal loanAmount) { this.loanAmount = loanAmount; }
 	public void setInterestRate(BigDecimal interestRate) { this.interestRate = interestRate; }
+	public void setRepayAccountId(String repayAccountId) { this.repayAccountId = repayAccountId; }
 	public void setLoanstartDate(LocalDate loanstartDate) { this.loanstartDate = loanstartDate; }
 	public void setApprovalStatus(String approvalStatus) { this.approvalStatus = approvalStatus; }
 	public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

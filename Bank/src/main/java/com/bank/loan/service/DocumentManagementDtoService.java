@@ -17,7 +17,7 @@ public class DocumentManagementDtoService {
 	@Autowired
 	private CreditReviewLogsRepository crlRepo;
 	
-	public DocumentManagementDto finByIdDto(Integer reviewId) {
+	public DocumentManagementDto findByIdDto(Integer reviewId) {
 		Optional<CreditReviewLogs> optional = crlRepo.findById(reviewId);
         if (optional.isPresent()) {
             return toDto(optional.get());

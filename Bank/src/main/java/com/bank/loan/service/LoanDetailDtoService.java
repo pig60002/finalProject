@@ -18,7 +18,7 @@ import com.bank.member.dao.MemberRepository;
 
 @Service
 @Transactional
-public class LoanDetailService {
+public class LoanDetailDtoService {
 	
 	@Autowired
 	private LoanRepository lRepo;
@@ -36,8 +36,12 @@ public class LoanDetailService {
      * 根據 loanId 回傳貸款詳細資料
      */
 	public LoanDetailDto findLoanDetailById(String loanId) {
+		
 		// 取得貸款主資料
-        Loans loan = lRepo.findById(loanId).get();
+		Loans loan = lRepo.findById(loanId).orElse(null);
+		if (loan == null) {
+		    return null;
+		}
 
         // 根據 loan 取得 member
         Member member = mRepo.findById(loan.getMid()).get();

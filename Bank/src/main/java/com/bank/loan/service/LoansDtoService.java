@@ -14,7 +14,7 @@ import com.bank.loan.dto.LoansDto;
 
 @Service
 @Transactional
-public class LoansService {
+public class LoansDtoService {
 
 	@Autowired
 	private LoanRepository lRepos;

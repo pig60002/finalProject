@@ -5,12 +5,10 @@ import com.bank.loan.dto.CreditReviewDto;
 import com.bank.loan.dto.DocumentManagementDto;
 import com.bank.loan.dto.LoanDetailDto;
 import com.bank.loan.dto.LoansDto;
-import com.bank.loan.dto.ReviewHistoryDto;
 import com.bank.loan.service.CreditReviewDtoService;
 import com.bank.loan.service.DocumentManagementDtoService;
-import com.bank.loan.service.LoanDetailService;
-import com.bank.loan.service.LoansService;
-import com.bank.loan.service.ReviewHistoryService;
+import com.bank.loan.service.LoanDetailDtoService;
+import com.bank.loan.service.LoansDtoService;
 
 import java.util.List;
 
@@ -24,19 +22,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 public class LoansController {
 
 	@Autowired
-	private LoansService lService;
+	private LoansDtoService lService;
 	
 	@Autowired
-	private LoanDetailService ldService;
+	private LoanDetailDtoService ldService;
 	
 	@Autowired
 	private CreditReviewDtoService adService;
 	
 	@Autowired
 	private DocumentManagementDtoService dmdService;
-	
-	@Autowired
-	private ReviewHistoryService rhService;
 	
 	@GetMapping("/loans")
 	public List<LoansDto> LoansAction() {
@@ -65,7 +60,7 @@ public class LoansController {
 	
 	@GetMapping("/document-management/{reviewId}")
 	public ResponseEntity<DocumentManagementDto> getDocumentManagementById(@PathVariable Integer reviewId){
-		DocumentManagementDto dto = dmdService.finByIdDto(reviewId);
+		DocumentManagementDto dto = dmdService.findByIdDto(reviewId);
 		
 		if(dto == null) {
 			return ResponseEntity.notFound().build();  // 找不到就回 404
@@ -73,19 +68,6 @@ public class LoansController {
 		
 		return ResponseEntity.ok(dto);  // 找到就回 200 與資料
 	}
-	
-	@GetMapping("/review/{reviewId}")
-	public ResponseEntity<ReviewHistoryDto> getReviewHistoryById(@PathVariable Integer reviewId) {
-		ReviewHistoryDto dto = rhService.findById(reviewId);
-		
-		if(dto == null){
-			return ResponseEntity.notFound().build();
-		}
-		
-		return ResponseEntity.ok(dto);
-	}
-	
-
 
 
 }

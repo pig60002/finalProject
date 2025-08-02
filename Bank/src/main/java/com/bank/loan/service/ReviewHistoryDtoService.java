@@ -12,7 +12,7 @@ import com.bank.loan.dto.ReviewHistoryDto;
 
 @Service
 @Transactional
-public class ReviewHistoryService {
+public class ReviewHistoryDtoService {
 	
 	@Autowired
 	private CreditReviewLogsRepository crlRepo;
@@ -28,6 +28,7 @@ public class ReviewHistoryService {
 	
 	public ReviewHistoryDto toDto(CreditReviewLogs review) {
 		ReviewHistoryDto dto = new ReviewHistoryDto();
+		dto.setReviewId(review.getReviewId());
 		dto.setReviewerId(review.getReviewerId());
 
 		if (review.getMember() != null) {
