@@ -30,6 +30,34 @@ public class Worker implements Serializable{
 	private String wAccount;
 	@Column(name = "w_Password")
 	private String wPassword;
+
+	public Integer getwId() {
+		return wId;
+	}
+	public void setwId(Integer wId) {
+		this.wId = wId;
+	}
+	public String getwName() {
+		return wName;
+	}
+	public void setwName(String wName) {
+		this.wName = wName;
+	}
+	public String getwAccount() {
+		return wAccount;
+	}
+	public void setwAccount(String wAccount) {
+		this.wAccount = wAccount;
+	}
+	public String getwPassword() {
+		return wPassword;
+	}
+	public void setwPassword(String wPassword) {
+		this.wPassword = wPassword;
+	}
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
 	
 	
 	/*@ManyToOne
@@ -38,30 +66,7 @@ public class Worker implements Serializable{
 	*/
 	
 
-	public Integer getWId() {
-		return wId;
-	}
-	public void setWId(Integer wId) {
-		this.wId = wId;
-	}
-	public String getWName() {
-		return wName;
-	}
-	public void setWName(String wName) {
-		this.wName = wName;
-	}
-	public String getWAccount() {
-		return wAccount;
-	}
-	public void setWAccount(String wAccount) {
-		this.wAccount = wAccount;
-	}
-	public String getWPassword() {
-		return wPassword;
-	}
-	public void setWPassword(String wPassword) {
-		this.wPassword = wPassword;
-	}
+	
 	/*
 	public Role getRole() {
 		return role;
