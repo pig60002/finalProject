@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import com.bank.account.bean.Account;
 import com.bank.member.bean.Member;
 
 import jakarta.persistence.Column;
@@ -58,6 +59,11 @@ public class Loans {
 	@ManyToOne
 	@JoinColumn(name = "loan_term_id", insertable = false, updatable = false)
 	private LoanTerm loanTermInfo;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "repay_account_id", referencedColumnName = "account_id", insertable = false, updatable = false)
+	private Account repayAccount;
+
 
     
 	public Loans() {

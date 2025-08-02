@@ -20,6 +20,7 @@ public class LoansDto {
 	private int loanTerm;                // 貸款期數（通常以月為單位）
 	private BigDecimal loanAmount;      // 貸款金額
 	private BigDecimal interestRate;    // 實際利率
+	private String repayAccountId;      // 還款帳戶ID
 	private LocalDate loanstartDate; 	// 貸款開始時間
 	private String approvalStatus;      // 審核狀態
 	private LocalDateTime createdAt;    // 建立時間
@@ -32,6 +33,7 @@ public class LoansDto {
         this.loanTerm = loan.getLoanTerm();
         this.loanAmount = loan.getLoanAmount();
         this.interestRate = loan.getInterestRate();
+        this.repayAccountId = loan.getRepayAccountId();
         this.loanstartDate = loan.getLoanstartDate();
         this.approvalStatus = loan.getApprovalStatus();
         this.createdAt = loan.getCreatedAt();

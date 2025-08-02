@@ -1,6 +1,7 @@
 package com.bank.loan.controller;
 
 import org.springframework.web.bind.annotation.RestController;
+
 import com.bank.loan.dto.CreditReviewDto;
 import com.bank.loan.dto.DocumentManagementDto;
 import com.bank.loan.dto.LoanDetailDto;
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 
 @RestController
-public class LoansController {
+public class LoanQueryController {
 
 	@Autowired
 	private LoansDtoService lService;
@@ -68,6 +69,5 @@ public class LoansController {
 		
 		return ResponseEntity.ok(dto);  // 找到就回 200 與資料
 	}
-
 
 }

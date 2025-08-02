@@ -5,13 +5,16 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.UUID;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.bank.account.bean.Account;
+import com.bank.account.dao.AccountRepository;
 import com.bank.loan.bean.LoanTerm;
 import com.bank.loan.bean.LoanType;
 import com.bank.loan.bean.Loans;
@@ -32,6 +35,13 @@ public class LoanService {
 
 	@Autowired
 	private LoanTermRepository loanTermRepo;
+	
+	@Autowired
+	private AccountRepository accountRepo;
+
+	public List<Account> getAccountsByMemberId(Integer mId) {
+	    return accountRepo.findByMId(mId);
+	}
 
 	/**
 	 * 根據貸款類型與期數生成結構化的 LoanId。 格式範例: 72 + loanTypeCode + termTypeCode + 5碼流水號 +
@@ -72,7 +82,7 @@ public class LoanService {
 		String prefix = bankCode + accountType + loanTypeCode + termTypeCode;
 
 		// 查詢現有最大流水號（從資料庫）
-		String maxSerial = loanRepo.findMaxSerialNoByPrefix(prefix);
+		String maxSerial = loanRepo.findMaxSerialNo();
 		int serial = (maxSerial == null) ? 1 : Integer.parseInt(maxSerial) + 1;
 		String serialFormatted = String.format("%05d", serial);
 
@@ -90,24 +100,40 @@ public class LoanService {
 		if (file == null || file.isEmpty()) {
 			throw new IllegalArgumentException("上傳的檔案為空");
 		}
-
-		// 設定資料夾與儲存路徑
-		String folderName = UUID.randomUUID().toString();
-		String baseUploadDir = "C:/loans/image/";
-		String uploadPath = baseUploadDir + folderName;
-		File dir = new File(uploadPath);
-		if (!dir.exists()) {
-			dir.mkdirs();
+		
+		// === 驗證帳戶使否屬於該會員 ===
+		Account selectedAccount = accountRepo.findByAccountId(dto.getRepayAccountId());
+		if (selectedAccount == null || !selectedAccount.getmId().equals(dto.getMId())) {
+		    throw new IllegalArgumentException("所選帳戶不存在或不屬於該會員");
 		}
 
-		// 處理檔案名稱並儲存
-		String originalFilename = file.getOriginalFilename();
-		String fileName = UUID.randomUUID().toString() + "_" + originalFilename;
-		File dest = new File(dir, fileName);
-		file.transferTo(dest);
+		// 設定資料夾與儲存路徑
+		String baseUploadDir = "C:/loans/incomeProof/";
+		String uploadPath = baseUploadDir; // 直接存放在 C:/loans/incomeProof/
+		File dir = new File(uploadPath);
+		if (!dir.exists()) {
+		    dir.mkdirs();
+		}
+		
+		// 取得檔案副檔名
+        String originalFilename = file.getOriginalFilename();
+        String fileExtension = "";
+        int dotIndex = originalFilename.lastIndexOf('.');
+        if (dotIndex >= 0) {
+            fileExtension = originalFilename.substring(dotIndex);
+        }
 
-		// 設定 DTO 中的檔案相對路徑
-		dto.setIncomeProofPath("uploads/" + folderName + "/" + fileName);
+
+		// 以 loanId + 建立時間 命名檔案
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        String loanId = generateStructuredLoanId(dto.getLoanTypeId(), dto.getLoanTerm());
+        String fileName = loanId + "_" + timestamp + fileExtension;
+
+        File dest = new File(dir, fileName);
+        file.transferTo(dest);
+
+        // 設定 DTO 中的檔案相對路徑（相對於你的 uploads 目錄）
+        dto.setIncomeProofPath("uploads/" + fileName);
 
 		// === 取得貸款類型與期數資訊（含利率） ===
 		LoanType loanType = loanTypeRepo.findById(dto.getLoanTypeId())
@@ -128,7 +154,7 @@ public class LoanService {
 		loan.setMid(dto.getMId());
 		loan.setLoanAmount(dto.getLoanAmount());
 		loan.setLoanstartDate(LocalDate.now());
-		loan.setApprovalStatus("待審核");
+		loan.setApprovalStatus("pending");
 		loan.setInterestRate(baseRate.add(adjustmentRate)); // 合併總利率
 		loan.setRepayAccountId(dto.getRepayAccountId());
 		loan.setProofDocumentUrl(dto.getIncomeProofPath());
