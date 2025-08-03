@@ -9,7 +9,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.bank.member.bean.Member;
 import com.bank.member.bean.MemberDto;
+import com.bank.member.bean.Worker;
+import com.bank.member.bean.WorkerDto;
 import com.bank.member.service.MemberService;
+import com.bank.member.service.WorkerService;
 import com.bank.utils.JwtUtil;
 
 @RestController
@@ -20,6 +23,9 @@ public class AuthController {
 	  private JwtUtil jwtUtil;
 	  @Autowired
 	  private MemberService memberService;
+	  
+	  @Autowired
+	  private WorkerService workerService;
 	  
 	  
 	  @PostMapping("/login")
@@ -64,5 +70,23 @@ public class AuthController {
 	    	
 	    	
 	    }
+	    @PostMapping("/backlogin")
+	    public ResponseEntity<?> backlogin(@RequestBody LoginRequest login) {
+	        // 假設帳密驗證成功（這裡沒用資料庫，為了簡單）
+		    Worker w = workerService.getWorkerByAccount(login.getmAccount());
+		    
+		    if(w==null) {return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("查無帳號");}
+		  
+	        if (w.getwAccount().equals(login.mAccount) && w.getwPassword().equals(login.mPassword)) {
+	            String token = jwtUtil.generateToken(w.getwId()); // 模擬 userId 為 1001
+	            WorkerDto wDto = new WorkerDto(w,token);
+	            
+	            return ResponseEntity.ok().header("Authorization", "Bearer " + token).body(wDto);
+	        }
+
+	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("帳密錯誤");
+	    }
+
+	   
 
 }

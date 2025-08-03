@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-
+import com.bank.member.bean.Member;
 import com.bank.member.bean.Worker;
 import com.bank.member.dao.WorkerRepository;
 
@@ -30,6 +30,13 @@ public class WorkerService {
 			return op.get();
 		}
 		return null;
+	}
+	public Worker getWorkerByAccount(String account) {
+		Optional<Worker> op = wRepos.findBywAccount(account);
+        if(op.isPresent()) {
+        	return op.get();
+        }
+        return null;
 	}
 	public List<Worker> getAllWorker() {
 		return wRepos.findAll();
