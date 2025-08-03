@@ -3,6 +3,7 @@ package com.bank.member.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,7 +18,7 @@ import com.bank.member.service.MemberService;
 
 @RestController
 @RequestMapping(path = "/member")
-public class memberController {
+public class MemberController {
 	@Autowired
 	private MemberService memberService;
 	
@@ -27,6 +28,9 @@ public class memberController {
 	}
 	@GetMapping("/{id}")
 	public Member getMemberById(@PathVariable Integer id) {
+		Member m = new Member();
+		m = (Member)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		m.getmId();
 	     return memberService.getMemberById(id);
 	}
 	@PostMapping("/member")
