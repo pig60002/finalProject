@@ -40,7 +40,7 @@ public class ReviewHistoryDtoService {
         }
 		
 		if (review.getReviewer() != null) {
-            dto.setReviewerId(review.getReviewer().getWId());
+            dto.setReviewerId(review.getReviewer().getwId());
         }
 		
 		dto.setReviewTime(review.getReviewTime());
