@@ -34,4 +34,6 @@ public interface AccountRepository extends JpaRepository<Account, String> {
 	
 	// 依帳號查詢帳戶
 	Account findByAccountId(String accountId);
+	
+	Account findByMIdAndAccountNameAndCurrency(Integer mId, String accountName,String Currency);
 }
