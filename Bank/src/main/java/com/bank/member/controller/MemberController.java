@@ -1,8 +1,12 @@
 package com.bank.member.controller;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bank.member.bean.Member;
@@ -51,5 +56,24 @@ public class MemberController {
 		}
 		memberService.deleteById(id);
 		return"已刪除"+id+"編號";
+	}
+	
+	@GetMapping("/search")
+	public ResponseEntity<Page<Member>> searchMembers(
+	    @RequestParam(required = false) String name,
+	    @RequestParam(required = false) String account,
+	    @RequestParam(required = false) String phone,
+	    @RequestParam(required = false) String email,
+	    @RequestParam(required = false) String gender,
+	    @RequestParam(required = false) Integer state,
+	    @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
+	    @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate,
+	    @RequestParam(defaultValue = "0") int page,
+	    @RequestParam(defaultValue = "10") int size
+	) {
+	    Page<Member> result = memberService.searchMembers(
+	        name, account, phone, email, gender, state, startDate, endDate, page, size
+	    );
+	    return ResponseEntity.ok(result);
 	}
 }

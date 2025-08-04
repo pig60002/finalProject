@@ -1,10 +1,15 @@
 package com.bank.member.service;
 
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.bank.member.bean.Member;
@@ -51,5 +56,36 @@ public class MemberService {
 	public void deleteById(Integer id) {
 		mRepos.deleteById(id);
 	}
+	
+	public Page<Member> searchMembers(
+	        String name,
+	        String account,
+	        String phone,
+	        String email,
+	        String gender,
+	        Integer state,
+	        Date startDate,
+	        Date endDate,
+	        int page,
+	        int size
+	    ) {
+	        Pageable pageable = PageRequest.of(page, size, Sort.by("mId").ascending());
+
+	        return mRepos.searchByConditions(
+	            isBlank(name) ? null : name,
+	            isBlank(account) ? null : account,
+	            isBlank(phone) ? null : phone,
+	            isBlank(email) ? null : email,
+	            isBlank(gender) ? null : gender,
+	            state,
+	            startDate,
+	            endDate,
+	            pageable
+	        );
+	    }
+
+	    private boolean isBlank(String s) {
+	        return s == null || s.trim().isEmpty();
+	    }
 	
 }
