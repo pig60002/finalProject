@@ -43,8 +43,8 @@ public class FundAccountController {
 
 	// 新增基金帳戶
 	@PostMapping
-	public ResponseEntity<String> insertFundAccount(@RequestParam Integer memberId, @RequestParam String riskType) {
-		boolean success = fundAccountService.insert(memberId, riskType);
+	public ResponseEntity<String> createFundAccount(@RequestParam Integer memberId, @RequestParam String riskType) {
+		boolean success = fundAccountService.create(memberId, riskType);
 
 		if (success) {
 			return ResponseEntity.status(HttpStatus.CREATED).body("新增成功");

@@ -10,7 +10,6 @@ import com.bank.member.bean.Member;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +24,7 @@ public class FundAccountService {
 	@Autowired
 	private FundAccountRepository fundAccountRepository;
 
-	public List<FundAccountDto> fundaccountDto(List<FundAccount> fundAccounts) {
+	public List<FundAccountDto> fundAccountDto(List<FundAccount> fundAccounts) {
 		List<FundAccountDto> fundAccountDtos = new ArrayList<FundAccountDto>();
 
 		for (FundAccount fundAccount : fundAccounts) {
@@ -43,17 +42,17 @@ public class FundAccountService {
 
 	@Transactional(readOnly = true)
 	public List<FundAccountDto> getAll() {
-		return fundaccountDto(fundAccountRepository.findAll());
+		return fundAccountDto(fundAccountRepository.findAll());
 	}
 
 	@Transactional(readOnly = true)
 	public List<FundAccountDto> getByStatus(String status) {
-		return fundaccountDto(fundAccountRepository.findByStatus(status));
+		return fundAccountDto(fundAccountRepository.findByStatus(status));
 	}
 
 //	@Transactional(readOnly = true)
 //	public List<FundAccountDto> getByName(String name) {
-//		return fundaccountDto(fundAccountRepository.findByMemberMNameContaining(name));
+//		return fundAccountDto(fundAccountRepository.findByMemberMNameContaining(name));
 //	}
 
 	@Transactional(readOnly = true)
@@ -62,14 +61,15 @@ public class FundAccountService {
 	}
 
 	@Transactional
-	public boolean insert(Integer memberId, String riskType) {
+	public boolean create(Integer memberId, String riskType) {
 		FundAccount fundAccount = new FundAccount();
 
 		Member member = new Member();
 		member.setmId(memberId);
 		fundAccount.setMember(member);
 		
-		Account account = accountRepository.findByMIdAndAccountNameAndCurrency(memberId, "活期存款", "NT");
+		Account account = accountRepository
+				.findByMIdAndAccountNameAndCurrency(memberId, "活期存款", "NT");
 		fundAccount.setAccount(account);
 
 		fundAccount.setRiskType(riskType);
@@ -80,14 +80,6 @@ public class FundAccountService {
 		return true;
 	}
 
-	@Transactional
-	public boolean delete(Integer id) {
-		if (!fundAccountRepository.existsById(id)) {
-			return false;
-		}
-		fundAccountRepository.deleteById(id);
-		return true;
-	}
 
 	@Transactional
 	public boolean update(Integer id, String riskType, String status) {
@@ -109,4 +101,12 @@ public class FundAccountService {
 		return true;
 	}
 
+	@Transactional
+	public boolean delete(Integer id) {
+		if (!fundAccountRepository.existsById(id)) {
+			return false;
+		}
+		fundAccountRepository.deleteById(id);
+		return true;
+	}
 }
