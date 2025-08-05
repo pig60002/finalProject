@@ -34,7 +34,7 @@ public class MemberController {
 	@GetMapping("/{id}")
 	public Member getMemberById(@PathVariable Integer id) {
 		Member m = new Member();
-		m = (Member)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		//m = (Member)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		m.getmId();
 	     return memberService.getMemberById(id);
 	}
@@ -66,11 +66,11 @@ public class MemberController {
 	    @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date birthday,
 	    @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
 	    @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate,
-	    @RequestParam(defaultValue = "0") int currentPage,
+	    @RequestParam(defaultValue = "1") int currentPage,
 	    @RequestParam(defaultValue = "10") int pageSize
 	) {
 	    Page<Member> result = memberService.searchMembers(
-	    		identity, name, state, birthday, startDate, endDate,currentPage, pageSize
+	    		identity, name, state, birthday, startDate, endDate,currentPage-1, pageSize
 	    );
 	    return ResponseEntity.ok(result);
 	}
