@@ -60,19 +60,17 @@ public class MemberController {
 	
 	@GetMapping("/search")
 	public ResponseEntity<Page<Member>> searchMembers(
+	    @RequestParam(required = false) String identity,
 	    @RequestParam(required = false) String name,
-	    @RequestParam(required = false) String account,
-	    @RequestParam(required = false) String phone,
-	    @RequestParam(required = false) String email,
-	    @RequestParam(required = false) String gender,
 	    @RequestParam(required = false) Integer state,
+	    @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date birthday,
 	    @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
 	    @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate,
-	    @RequestParam(defaultValue = "0") int page,
-	    @RequestParam(defaultValue = "10") int size
+	    @RequestParam(defaultValue = "0") int currentPage,
+	    @RequestParam(defaultValue = "10") int pageSize
 	) {
 	    Page<Member> result = memberService.searchMembers(
-	        name, account, phone, email, gender, state, startDate, endDate, page, size
+	    		identity, name, state, birthday, startDate, endDate,currentPage, pageSize
 	    );
 	    return ResponseEntity.ok(result);
 	}

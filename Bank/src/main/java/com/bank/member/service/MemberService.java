@@ -58,12 +58,10 @@ public class MemberService {
 	}
 	
 	public Page<Member> searchMembers(
+	        String identity,
 	        String name,
-	        String account,
-	        String phone,
-	        String email,
-	        String gender,
 	        Integer state,
+	        Date birthday,
 	        Date startDate,
 	        Date endDate,
 	        int page,
@@ -72,12 +70,10 @@ public class MemberService {
 	        Pageable pageable = PageRequest.of(page, size, Sort.by("mId").ascending());
 
 	        return mRepos.searchByConditions(
+	            isBlank(identity) ? null : identity,
 	            isBlank(name) ? null : name,
-	            isBlank(account) ? null : account,
-	            isBlank(phone) ? null : phone,
-	            isBlank(email) ? null : email,
-	            isBlank(gender) ? null : gender,
 	            state,
+	            birthday,
 	            startDate,
 	            endDate,
 	            pageable

@@ -15,23 +15,20 @@ public interface MemberRepository extends JpaRepository<Member, Integer> {
 	Optional<Member> findByMIdentity(String mIdentity);
 	
 	 @Query("SELECT m FROM Member m WHERE " +
+			   "(:identity IS NULL OR m.mIdentity =:identity) AND " +
 	           "(:name IS NULL OR m.mName LIKE %:name%) AND " +
-	           "(:account IS NULL OR m.mAccount LIKE %:account%) AND " +
-	           "(:phone IS NULL OR m.mPhone LIKE %:phone%) AND " +
-	           "(:email IS NULL OR m.mEmail LIKE %:email%) AND " +
-	           "(:gender IS NULL OR m.mGender = :gender) AND " +
 	           "(:state IS NULL OR m.mState = :state) AND " +
+	           "(:birthday IS NULL OR m.mBirthday = :birthday) AND " +
 	           "(:startDate IS NULL OR m.mBirthday >= :startDate) AND " +
 	           "(:endDate IS NULL OR m.mBirthday <= :endDate)")
 	    Page<Member> searchByConditions(
+	    	@Param("identity") String identity,
 	        @Param("name") String name,
-	        @Param("account") String account,
-	        @Param("phone") String phone,
-	        @Param("email") String email,
-	        @Param("gender") String gender,
 	        @Param("state") Integer state,
+	        @Param("birthday") Date birthday,
 	        @Param("startDate") Date startDate,
 	        @Param("endDate") Date endDate,
 	        Pageable pageable
 	    );
+
 }
