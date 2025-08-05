@@ -25,14 +25,14 @@ public class AccAppController {
 	private AccAppService accAppService;
 
 	// 查詢 "已審核"狀態 
-	@GetMapping("/account/application/getrwdone.controller")
+	@GetMapping("/account/application/getrwdone")
 	public List<AccountApplication> processGetAccAppReviewDoneAction(){
 		List<AccountApplication> list1 = accAppService.getAccAppByStatus("通過", "未通過");
 		return list1;
 	}
 
 	// 查詢 "未審核"狀態
-	@GetMapping("/account/application/getrwundone.controller")
+	@GetMapping("/account/application/getrwundone")
 	public List<AccountApplication> processGetAccAppReviewUnDoneAction() {
 		List<AccountApplication> list1 = accAppService.getAccAppByStatus("待審核", "待補件");
 		return list1;
