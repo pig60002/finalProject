@@ -26,8 +26,9 @@ public class AccountUtils {
 				
 				// 取得目前執行目錄
 				String userDir = System.getProperty("user.dir");
+				String userFolder = "accountImg";  // 假設這裡是要存 user1 的資料夾，可改成變數或參數
 				// 使用 Paths 建構跨平台的資料夾路徑 .get() 會自動處理路徑分隔符，確保 Linux/Mac/Windows 都適用
-		        Path uploadDir = Paths.get(userDir, "accountImg");
+		        Path uploadDir = Paths.get(userDir, "uploadImg", userFolder);
 				
 		        // 如果資料夾不存在，則建立
 		        if (!Files.exists(uploadDir)) {
