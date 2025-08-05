@@ -16,9 +16,14 @@ import com.bank.loan.dao.LoanRepository;
 import com.bank.loan.dao.CreditReviewLogsRepository;
 import com.bank.loan.dto.ReviewHistoryDto;
 
+/**
+ * LoanProcessingService 處理與貸款審核流程相關的邏輯，
+ * 包括上傳補件文件、變更審核狀態與儲存審核紀錄等。
+ */
 @Service
-public class LoanActionService {
+public class LoanProcessingService {
 
+    // 補件文件上傳的伺服器目錄
     private final String uploadDir = "C:/loans/incomeProof/";
 
     @Autowired
@@ -26,23 +31,32 @@ public class LoanActionService {
 
     @Autowired
     private CreditReviewLogsRepository crRepo;
-    
+
+    /**
+     * 定義貸款狀態的常數類別，避免硬編碼。
+     */
     public class LoanStatus {
         public static final String PENDING = "pending";         // 待審核
         public static final String SUPPLEMENT = "supplement";   // 補件中
         public static final String APPROVED = "approved";       // 審核通過
-        public static final String REJECTED = "rejected";       // 拒絕
+        public static final String REJECTED = "rejected";       // 審核拒絕
     }
 
-    // 1. 儲存補件檔案 & 更新 loans.proofDocumentUrl
+    /**
+     * 1. 儲存補件文件，並更新 Loans 表中的 proofDocumentUrl 與狀態。
+     *
+     * @param loanId 貸款編號
+     * @param file 使用者上傳的檔案
+     * @throws IOException 若檔案儲存失敗
+     */
     public void uploadProof(String loanId, MultipartFile file) throws IOException {
+        // 查詢貸款資料
         Loans loan = lRepo.findById(loanId)
                 .orElseThrow(() -> new RuntimeException("Loan not found"));
 
-        String timestamp = java.time.LocalDateTime.now()
-                .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+        // 建立唯一檔名，包含 loanId 與當前時間
+        String timestamp = LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
 
-        // 取得原始檔名的副檔名（含點號），例如 ".pdf"
         String originalFilename = file.getOriginalFilename();
         String extension = "";
         if (originalFilename != null && originalFilename.contains(".")) {
@@ -51,70 +65,89 @@ public class LoanActionService {
 
         String fileName = loanId + "_" + timestamp + extension;
 
+        // 建立儲存路徑
         Path path = Paths.get(uploadDir + fileName);
         Files.createDirectories(path.getParent());
         Files.write(path, file.getBytes());
 
+        // 更新貸款的補件文件路徑
         loan.setProofDocumentUrl(path.toString());
-        // 只允許補件中才更新狀態
+
+        // 如果目前狀態是補件中，改為待審核
         if (LoanStatus.SUPPLEMENT.equals(loan.getApprovalStatus())) {
             loan.setApprovalStatus(LoanStatus.PENDING);
             loan.setUpdatedAt(LocalDateTime.now());
         }
+
+        // 儲存更新後的貸款資料
         lRepo.save(loan);
-        
-     // 新增審核紀錄，記錄補件動作
+
+        // 新增一筆補件的審核紀錄
         CreditReviewLogs review = new CreditReviewLogs();
         review.setLoan(loan);
         review.setLoanId(loanId);
         review.setmId(loan.getMember().getmId());
-        review.setReviewerId(null);  // 這裡要傳前台登入者ID或固定ID
-        review.setCreditScore(null);       // 補件不一定有分數，可設null或0
+        review.setReviewerId(null);  // 補件動作無審核人，可設 null 或固定值
+        review.setCreditScore(null); // 補件時通常無信用分數
         review.setDecision("pending");
         review.setNotes("用戶上傳補件檔案");
         review.setReviewTime(LocalDateTime.now());
+
         crRepo.save(review);
     }
-    
-    
-    // 2. 更新審核狀態
+
+    /**
+     * 2. 更新貸款的審核狀態，並記錄此變更至 CreditReviewLogs。
+     *
+     * @param loanId 貸款編號
+     * @param newStatus 新狀態（需為合法狀態）
+     * @param reviewerId 審核人員 ID
+     */
     public void updateStatus(String loanId, String newStatus, Integer reviewerId) {
         Loans loan = lRepo.findById(loanId)
-            .orElseThrow(() -> new RuntimeException("Loan not found"));
+                .orElseThrow(() -> new RuntimeException("Loan not found"));
 
-        // 將 newStatus 轉小寫，確保大小寫一致
+        // 將狀態轉為小寫統一處理
         String normalizedStatus = newStatus.toLowerCase();
-        
-        // 驗證 newStatus 是否有效
+
+        // 驗證是否為有效狀態
         if (!normalizedStatus.equals(LoanStatus.PENDING) &&
             !normalizedStatus.equals(LoanStatus.SUPPLEMENT) &&
             !normalizedStatus.equals(LoanStatus.APPROVED) &&
             !normalizedStatus.equals(LoanStatus.REJECTED)) {
             throw new IllegalArgumentException("Invalid loan status: " + newStatus);
         }
-        
+
+        // 更新貸款狀態與修改時間
         loan.setApprovalStatus(normalizedStatus);
         loan.setUpdatedAt(LocalDateTime.now());
         lRepo.save(loan);
 
+        // 紀錄審核變更的歷程
         CreditReviewLogs log = new CreditReviewLogs();
         log.setLoanId(loanId);
         log.setLoan(loan);
         log.setmId(loan.getMember().getmId());
         log.setReviewerId(reviewerId);
-        log.setCreditScore(null);
+        log.setCreditScore(null); // 改狀態不一定與信用分數有關
         log.setDecision(newStatus);
         log.setNotes("狀態由審核人員變更為 " + newStatus);
         log.setReviewTime(LocalDateTime.now());
+
         crRepo.save(log);
     }
 
-    
-
-    // 3. 儲存一筆審核紀錄
+    /**
+     * 3. 儲存一筆完整的審核紀錄，包含分數與決策結果。
+     *
+     * @param loanId 貸款編號
+     * @param dto 前端傳入的審核紀錄資料（DTO）
+     */
     public void saveReview(String loanId, ReviewHistoryDto dto) {
-        Loans loan = lRepo.findById(loanId).orElseThrow(() -> new RuntimeException("Loan not found"));
+        Loans loan = lRepo.findById(loanId)
+                .orElseThrow(() -> new RuntimeException("Loan not found"));
 
+        // 組裝審核紀錄
         CreditReviewLogs review = new CreditReviewLogs();
         review.setLoan(loan);
         review.setLoanId(loanId);
@@ -123,11 +156,11 @@ public class LoanActionService {
         review.setCreditScore(dto.getCreditScore());
         review.setDecision(dto.getDecision());
         review.setNotes(dto.getNotes());
-        review.setReviewTime(java.time.LocalDateTime.now());
+        review.setReviewTime(LocalDateTime.now());
 
         crRepo.save(review);
 
-        // 若有需要更新 loan.approvalStatus
+        // 若決策結果有設定，也更新主貸款狀態
         if (dto.getDecision() != null) {
             loan.setApprovalStatus(dto.getDecision());
             loan.setUpdatedAt(LocalDateTime.now());
