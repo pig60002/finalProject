@@ -61,7 +61,7 @@ public class CardApplicationFrontController {
 		String fileName=UUID.randomUUID().toString()+"_"+file.getOriginalFilename();
 		File dest = new File(uploadPath,fileName);
 		file.transferTo(dest);
-		return "/uploadsCard/"+fileName;
+		return "/uploadsImg/creditCardImg"+fileName;
 	}
 	
 	//提交申請資料
