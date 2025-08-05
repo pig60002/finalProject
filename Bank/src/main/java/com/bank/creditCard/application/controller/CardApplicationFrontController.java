@@ -61,7 +61,8 @@ public class CardApplicationFrontController {
 		String fileName=UUID.randomUUID().toString()+"_"+file.getOriginalFilename();
 		File dest = new File(uploadPath,fileName);
 		file.transferTo(dest);
-		return "/uploadsCard/"+fileName;
+
+		return "/uploadImg/creditCardImg"+fileName;
 	}
 	
 	//提交申請資料
@@ -86,9 +87,10 @@ public class CardApplicationFrontController {
 //				return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
 //			            .body(Map.of("error", "尚未登入"));
 //			}
-			 Member member = new Member();
-			  member.setmId(1);
-			String uploadPath=request.getServletContext().getRealPath("")+File.separator+"upLoad";
+//			 Member member = new Member();
+//			  member.setmId(1);
+			
+			String uploadPath=System.getProperty("user.dir") + File.separator + "creditCardImg";
 			new File(uploadPath).mkdirs();
 			
 			String idFrontUrl=saveFile(idFront,uploadPath);
