@@ -45,13 +45,10 @@ public class CardApplicationBackController {
 		}
 	}
 	
-<<<<<<< HEAD
-	@PostMapping("/review")
-	public ResponseEntity<?> reviewApp() {
-=======
+
 	@GetMapping("/review")
 	public ResponseEntity reviewApp() {
->>>>>>> master
+
 		List<CardApplicationDTO> pendingList = cService.findPendingWithMemberInfo();
 		List<CardApplicationDTO> approvedList = cService.findApprovedWithMemberInfo();
 		

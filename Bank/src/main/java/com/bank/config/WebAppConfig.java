@@ -19,16 +19,7 @@ public class WebAppConfig implements WebMvcConfigurer {
 	
 	@Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // 第一個資料夾，映射到 /accountImg/user1/**
-        registry.addResourceHandler("/uploadsImg/creditCardImg/**")
-                .addResourceLocations("file:C:/bankSpringBoot/Bank/uploadsImg/creditCardImg/");
-
-        // 第二個資料夾，映射到 /accountImg/user2/**
-        registry.addResourceHandler("/accountImg/user2/**")
-                .addResourceLocations("file:C:/bankSpringBoot/Bank/accountImg/user2/");
-    }
-	
-=======
+       
         registry.addResourceHandler("/uploadImg/creditCardImg/**")
                 .addResourceLocations("file:C:/bankSpringBoot/Bank/uploadImg/creditCardImg/");
 
@@ -38,5 +29,5 @@ public class WebAppConfig implements WebMvcConfigurer {
     }
 	
 	
->>>>>>> master
+
 }

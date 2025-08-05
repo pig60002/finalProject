@@ -61,10 +61,8 @@ public class CardApplicationFrontController {
 		String fileName=UUID.randomUUID().toString()+"_"+file.getOriginalFilename();
 		File dest = new File(uploadPath,fileName);
 		file.transferTo(dest);
-<<<<<<< HEAD
-		return "/uploadsImg/creditCardImg"+fileName;
-=======
->>>>>>> master
+
+		return "/uploadImg/creditCardImg"+fileName;
 	}
 	
 	//提交申請資料
@@ -91,7 +89,7 @@ public class CardApplicationFrontController {
 //			}
 			 Member member = new Member();
 			  member.setmId(1);
-			String uploadPath=request.getServletContext().getRealPath("")+File.separator+"upLoad";
+			
 			String uploadPath=System.getProperty("user.dir") + File.separator + "creditCardImg";
 			new File(uploadPath).mkdirs();
 			
