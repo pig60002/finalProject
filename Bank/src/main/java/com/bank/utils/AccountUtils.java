@@ -27,7 +27,7 @@ public class AccountUtils {
 				// 取得目前執行目錄
 				String userDir = System.getProperty("user.dir");
 				// 使用 Paths 建構跨平台的資料夾路徑 .get() 會自動處理路徑分隔符，確保 Linux/Mac/Windows 都適用
-		        Path uploadDir = Paths.get(userDir, "upload-images");
+		        Path uploadDir = Paths.get(userDir, "accountImg");
 				
 		        // 如果資料夾不存在，則建立
 		        if (!Files.exists(uploadDir)) {
@@ -65,6 +65,7 @@ public class AccountUtils {
 		         *  targetPath.toFile() 是把 Path 轉成 File 物件。
 		         * */
 		        Path targetPath = uploadDir.resolve(newFileName);
+		        System.out.println("完整儲存路徑：" + targetPath.toAbsolutePath());
 		        try {
 					m.transferTo(targetPath.toFile());
 				} catch (IllegalStateException | IOException e) {
