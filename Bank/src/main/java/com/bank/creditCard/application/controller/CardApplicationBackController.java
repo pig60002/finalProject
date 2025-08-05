@@ -1,6 +1,6 @@
 package com.bank.creditCard.application.controller;
 
-import java.rmi.ServerError;
+
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -45,7 +45,7 @@ public class CardApplicationBackController {
 	}
 	
 	@PostMapping("/review")
-	public ResponseEntity reviewApp() {
+	public ResponseEntity<?> reviewApp() {
 		List<CardApplicationDTO> pendingList = cService.findPendingWithMemberInfo();
 		List<CardApplicationDTO> approvedList = cService.findApprovedWithMemberInfo();
 		
