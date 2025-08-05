@@ -9,6 +9,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -44,8 +45,13 @@ public class CardApplicationBackController {
 		}
 	}
 	
+<<<<<<< HEAD
 	@PostMapping("/review")
 	public ResponseEntity<?> reviewApp() {
+=======
+	@GetMapping("/review")
+	public ResponseEntity reviewApp() {
+>>>>>>> master
 		List<CardApplicationDTO> pendingList = cService.findPendingWithMemberInfo();
 		List<CardApplicationDTO> approvedList = cService.findApprovedWithMemberInfo();
 		

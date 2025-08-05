@@ -28,4 +28,15 @@ public class WebAppConfig implements WebMvcConfigurer {
                 .addResourceLocations("file:C:/bankSpringBoot/Bank/accountImg/user2/");
     }
 	
+=======
+        registry.addResourceHandler("/uploadImg/creditCardImg/**")
+                .addResourceLocations("file:C:/bankSpringBoot/Bank/uploadImg/creditCardImg/");
+
+        // 第二個資料夾，映射到 /accountImg/user2/**
+        registry.addResourceHandler("/uploadImg/accountImg/**")
+                .addResourceLocations("file:C:/bankSpringBoot/Bank/uploadImg/accountImg/");
+    }
+	
+	
+>>>>>>> master
 }

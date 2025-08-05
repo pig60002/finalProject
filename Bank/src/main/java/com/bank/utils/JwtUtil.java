@@ -5,8 +5,12 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 
 import javax.crypto.SecretKey;
+
+import org.springframework.stereotype.Component;
+
 import java.util.Date;
 
+@Component
 public class JwtUtil {
 
 	private static final SecretKey SECRET_KEY = Keys
@@ -27,4 +31,32 @@ public class JwtUtil {
 	public static String generateToken(Integer memberId) {
 		return generateToken(memberId.toString());
 	}
+	//解析token
+	private static Claims getClaims(String token) {
+		return Jwts.parser() // 使用 parser() 取得解析器
+				.verifyWith(SECRET_KEY) // 設定解密用密鑰
+				.build() // 建立解析器
+				.parseSignedClaims(token) // 解析 token
+				.getPayload(); // 取得解析後結果
+	}
+	//拿取token 
+	public static String getSubject(String token) {
+		return getClaims(token).getSubject();
+	}
+
+	/**
+	 * 從 token 中取得自定義的 payload
+	 */
+	//拿取自訂義 payload的值
+	public static String getValue(String token, String key) {
+		return (String) getClaims(token).get(key);
+	}
+	
+	//確認簽名是否正確
+	public static Boolean isTokenValid(String token) {
+		getClaims(token); // 若 token 有任何異常，則由 jjwt 套件直接拋出錯誤。
+
+		return true; // 能走到回傳表示驗證通過，token 合法
+	}
+
 }

@@ -12,40 +12,41 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bank.member.bean.Member;
-import com.bank.member.service.MemberService;
+import com.bank.member.bean.Worker;
+import com.bank.member.service.WorkerService;
 
 @RestController
-@RequestMapping(path = "/member")
-public class memberController {
-	@Autowired
-	private MemberService memberService;
+@RequestMapping(path = "/worker")
+public class WorkerController {
 	
-	@GetMapping("/memberAll")
-	public List<Member> getAllMembers() {
-	    return memberService.getAllMembers();
+	@Autowired
+	private WorkerService workerService;
+	
+	@GetMapping("/workerAll")
+	public List<Worker> getAllMembers() {
+	    return workerService.getAllWorker();
 	}
 	@GetMapping("/{id}")
-	public Member getMemberById(@PathVariable Integer id) {
-	     return memberService.getMemberById(id);
+	public Worker getMemberById(@PathVariable Integer id) {
+	     return workerService.getWorkerById(id);
 	}
-	@PostMapping("/member")
-	public Member createMember(@RequestBody Member member) {
-		
-	     return memberService.insertMember(member);
+	@PostMapping("/worker")
+	public Worker createWorker(@RequestBody Worker worker) {
+	     return workerService.inserWorker(worker);
 	}
 	@PutMapping("/{id}")
-	public Member updateMember(@PathVariable Integer id ,@RequestBody Member member) {
-		member.setmId(id);
-	    return memberService.updateMember(member);
+	public Worker updateWorker(@PathVariable Integer id ,@RequestBody Worker worker) {
+		worker.setwId(id);
+	    return workerService.updateWorker(worker);
 	}
 	@DeleteMapping("/{id}")
 	public String deleteMember(@PathVariable Integer id) {
-		Member member = memberService.getMemberById(id);
-		if(member == null) {
+		Worker worker = workerService.getWorkerById(id);
+		if(worker == null) {
 			return "刪除失敗";
 		}
-		memberService.deleteById(id);
+		workerService.deleteById(id);
 		return"已刪除"+id+"編號";
 	}
+	
 }
