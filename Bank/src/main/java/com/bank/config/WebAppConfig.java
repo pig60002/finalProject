@@ -2,6 +2,7 @@ package com.bank.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 
@@ -16,4 +17,17 @@ public class WebAppConfig implements WebMvcConfigurer {
 			.allowCredentials(false);
 	}
 	
+	@Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+       
+        registry.addResourceHandler("/uploadImg/creditCardImg/**")
+                .addResourceLocations("file:C:/bankSpringBoot/Bank/uploadImg/creditCardImg/");
+
+        // 第二個資料夾，映射到 /accountImg/user2/**
+        registry.addResourceHandler("/uploadImg/accountImg/**")
+                .addResourceLocations("file:C:/bankSpringBoot/Bank/uploadImg/accountImg/");
+    }
+	
+	
+
 }
