@@ -36,7 +36,9 @@ public class FundAccountController {
 
 	// 新增基金帳戶
 	@PostMapping
-	public ResponseEntity<String> createFundAccount(@RequestParam Integer memberId, @RequestParam String riskType) {
+	public ResponseEntity<String> createFundAccount(
+			@RequestParam Integer memberId, 
+			@RequestParam String riskType) {
 		boolean success = fundAccountService.create(memberId, riskType);
 
 		if (success) {
@@ -48,7 +50,8 @@ public class FundAccountController {
 
 	// 更新基金帳戶
 	@PatchMapping("/{id}")
-	public ResponseEntity<String> updateFundAccount(@PathVariable Integer id,
+	public ResponseEntity<String> updateFundAccount(
+			@PathVariable Integer id,
 			@RequestParam(required = false) String riskType,
 			@RequestParam(required = false) String status) {
 

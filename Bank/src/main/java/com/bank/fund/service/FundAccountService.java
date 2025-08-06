@@ -31,6 +31,7 @@ public class FundAccountService {
 			FundAccountDto fundAccountDto = new FundAccountDto();
 
 			fundAccountDto.setId(fundAccount.getId());
+			fundAccountDto.setMemberId(fundAccount.getMember().getmId());
 			fundAccountDto.setName(fundAccount.getMember().getmName());
 			fundAccountDto.setRiskType(fundAccount.getRiskType());
 			fundAccountDto.setStatus(fundAccount.getStatus());

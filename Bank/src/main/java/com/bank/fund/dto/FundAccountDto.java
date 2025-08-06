@@ -3,6 +3,7 @@ package com.bank.fund.dto;
 public class FundAccountDto {
 
 	private Integer id;
+	private Integer memberId;
 	private String name;
 	private String riskType;
 	private String status;
@@ -12,16 +13,18 @@ public class FundAccountDto {
 		// TODO Auto-generated constructor stub
 	}
 
-	public FundAccountDto(String name, String riskType, String status) {
+	public FundAccountDto(Integer memberId, String name, String riskType, String status) {
 		super();
+		this.memberId = memberId;
 		this.name = name;
 		this.riskType = riskType;
 		this.status = status;
 	}
 
-	public FundAccountDto(Integer id, String name, String riskType, String status) {
+	public FundAccountDto(Integer id, Integer memberId, String name, String riskType, String status) {
 		super();
 		this.id = id;
+		this.memberId = memberId;
 		this.name = name;
 		this.riskType = riskType;
 		this.status = status;
@@ -33,6 +36,14 @@ public class FundAccountDto {
 
 	public void setId(Integer id) {
 		this.id = id;
+	}
+
+	public Integer getMemberId() {
+		return memberId;
+	}
+
+	public void setMemberId(Integer memberId) {
+		this.memberId = memberId;
 	}
 
 	public String getName() {
