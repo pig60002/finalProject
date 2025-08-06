@@ -69,6 +69,7 @@ public class MemberController {
 	    @RequestParam(defaultValue = "1") int currentPage,
 	    @RequestParam(defaultValue = "10") int pageSize
 	) {
+		System.out.println(birthday);
 	    Page<Member> result = memberService.searchMembers(
 	    		identity, name, state, birthday, startDate, endDate,currentPage-1, pageSize
 	    );

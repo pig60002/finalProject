@@ -19,8 +19,8 @@ public interface MemberRepository extends JpaRepository<Member, Integer> {
 	           "(:name IS NULL OR m.mName LIKE %:name%) AND " +
 	           "(:state IS NULL OR m.mState = :state) AND " +
 	           "(:birthday IS NULL OR m.mBirthday = :birthday) AND " +
-	           "(:startDate IS NULL OR m.mBirthday >= :startDate) AND " +
-	           "(:endDate IS NULL OR m.mBirthday <= :endDate)")
+	           "(:startDate IS NULL OR m.creation >= :startDate) AND " +
+	           "(:endDate IS NULL OR m.creation <= :endDate)")
 	    Page<Member> searchByConditions(
 	    	@Param("identity") String identity,
 	        @Param("name") String name,
