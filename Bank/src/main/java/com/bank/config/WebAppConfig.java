@@ -33,6 +33,10 @@ public class WebAppConfig implements WebMvcConfigurer {
         // 第二個資料夾，映射到 /accountImg/user2/**
         registry.addResourceHandler("/uploadImg/accountImg/**")
                 .addResourceLocations("file:C:/bankSpringBoot/Bank/uploadImg/accountImg/");
+        
+        registry.addResourceHandler("/uploadImg/loanImg/**")
+        .addResourceLocations("file:C:/bankSpringBoot/Bank/uploadImg/loanImg/");
+
     }
 	
 	
