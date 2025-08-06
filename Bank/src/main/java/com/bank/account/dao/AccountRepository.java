@@ -36,4 +36,20 @@ public interface AccountRepository extends JpaRepository<Account, String> {
 	Account findByAccountId(String accountId);
 	
 	Account findByMIdAndAccountNameAndCurrency(Integer mId, String accountName,String Currency);
+
+	// 多欄位查詢帳戶
+	@Query("SELECT a FROM Account a WHERE (:mId IS NULL OR a.mId =:mId) AND "
+			+ "(:mIdentity IS NULL OR a.member.mIdentity LIKE %:mIdentity%) AND "
+			+ "(:mPhone IS NULL OR a.member.mPhone LIKE %:mPhone%) AND "
+			+ "(:mName IS NULL OR a.member.mName LIKE %:mName%) AND "
+			+ "(:accountId IS NULL OR a.accountId LIKE %:accountId%)")
+	List<Account> searchAccounts(@Param("mId") Integer mId,
+								 @Param("mIdentity") String mIdentity,
+								 @Param("mPhone") String mPhone,
+								 @Param("mName") String mName,
+								 @Param("accountId") String accountId);
+
+
+
 }
+
