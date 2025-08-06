@@ -45,7 +45,7 @@ public class SecurityConfig {
 				.authorizeHttpRequests(auth -> { // 設定權限主要位置
 
 					// 將 allowedURL 中的所有路徑設為無須登入即可訪問
-					
+					/*
 					for (String url : allowedURL) {
 						auth.requestMatchers(url).permitAll();
 					}
@@ -57,9 +57,9 @@ public class SecurityConfig {
 
 					// 除了開放的 api 以外，其他都要登入才能存取
 					auth.anyRequest().authenticated();
+					*/
 					
-					
-					//auth.anyRequest().permitAll();
+					auth.anyRequest().permitAll();
 
 				}) //
 				.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class) // 添加自訂過濾器
