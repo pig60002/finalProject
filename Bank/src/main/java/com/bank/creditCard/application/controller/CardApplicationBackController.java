@@ -27,7 +27,7 @@ public class CardApplicationBackController {
 	private CardApplicationService cService;
 	
 	@PostMapping("/updateStatus")
-	public ResponseEntity<?> updateStatus(@RequestParam("applicationId") int applicationId,@RequestParam("action") String action){
+	public ResponseEntity<?> updateStatus(@RequestParam("applicationId") int applicationId,@RequestParam("action") String action,@RequestParam(value = "reviewComment", required = false) String reviewComment){
 		
 		String status;
 		if("approve".equals(action)) {
@@ -37,7 +37,7 @@ public class CardApplicationBackController {
 		}else {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("未知的操作"+action);
 		}
-		boolean updated = cService.updateStatus(applicationId, status, LocalDateTime.now());
+		boolean updated = cService.updateStatus(applicationId, status, LocalDateTime.now(),reviewComment);
 		if(updated) {
 			return ResponseEntity.ok("成功");
 		}else {

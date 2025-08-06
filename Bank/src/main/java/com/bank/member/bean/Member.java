@@ -5,6 +5,8 @@ import java.util.Date;
 
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -47,12 +49,14 @@ public class Member implements Serializable{
 	@Column(name = "m_phone")
 	private String mPhone;
 	
+	@JsonFormat(pattern = "yyyy-MM-dd", timezone = "Asia/Taipei")
 	@Column(name = "m_birthday")
 	private Date mBirthday;
 	
 	@Column(name = "m_email")
 	private String mEmail;
 	
+	@JsonFormat(pattern = "yyyy-MM-dd", timezone = "Asia/Taipei")
 	@Column(name = "creation")
 	private Date creation;
 	

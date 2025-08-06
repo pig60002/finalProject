@@ -21,4 +21,5 @@ public class CardApplicationDTO {
     private LocalDateTime applyDate;
     private String status;
     private MemberDto member;
+    private String reviewComment;
 }

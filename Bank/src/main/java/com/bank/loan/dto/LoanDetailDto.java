@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,13 +18,17 @@ public class LoanDetailDto {
 	private String loanId;                // 貸款唯一識別碼
 	private int mId;                      // 顧客 ID（對應 member 的主鍵）
 	private String loanTypeId;           // 貸款類型 ID
+	private String loanTypeName;           // 顯示用貸款類型名稱
 	private String loanTermId;           // 期數分類 ID
-	private int loanTerm;                // 貸款期數（通常以月為單位）
+	private String loanTermName;           // 顯示用期數分類名稱
+	private int loanTerm;                // 貸款期數（月）
 	private BigDecimal loanAmount;      // 貸款金額
 	private BigDecimal interestRate;    // 實際利率
 	private String repayAccountId; 		// 用戶選擇的還款帳戶ID
 	private LocalDate loanstartDate; 	// 貸款開始時間
 	private String approvalStatus;      // 審核狀態
+	private String approvalStatusName;      // 顯示用審核狀態名稱
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	private LocalDateTime createdAt;    // 建立時間
 	private String proofDocumentUrl;	// 圖片存取位置
 	private String mName;				// 客戶姓名
@@ -38,9 +44,9 @@ public class LoanDetailDto {
 	private BigDecimal dtiRatio; 		// 負債收入比
 	private Integer baseCreditScore; 	// 信用分數來自 CreditProfiles
 	private Integer reviewerId; 		// 審核人員ID（可為 NULL）
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	private LocalDateTime reviewTime;	// 審核時間
 	private Integer reviewedCreditScore;// 信用分數來自 CreditReviewLogs
 	private String decision; 			// 決策結果（通過 / 拒絕 / 補件中）
-	private String notes; 				// 備註
-	
+	private String notes; 				// 備註	
 }
