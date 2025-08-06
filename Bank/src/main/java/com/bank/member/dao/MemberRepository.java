@@ -30,5 +30,8 @@ public interface MemberRepository extends JpaRepository<Member, Integer> {
 	        @Param("endDate") Date endDate,
 	        Pageable pageable
 	    );
+	 
+	  @Query("SELECT COALESCE(MAX(m.mId), 0) FROM Member m")
+	  Integer findMaxId();
 
 }
