@@ -51,7 +51,8 @@ public class CardApplicationBean {
 	public static final String STATUS_PENDING = "PENDING";
     public static final String STATUS_APPROVED = "APPROVED";
     public static final String STATUS_REJECTED = "REJECTED";
-    
+    @Column(name = "review_comment")
+    private String reviewComment;
     
 	public CardApplicationBean() {
 		super();
