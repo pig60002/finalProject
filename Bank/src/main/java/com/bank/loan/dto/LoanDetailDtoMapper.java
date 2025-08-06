@@ -3,6 +3,9 @@ package com.bank.loan.dto;
 import com.bank.loan.bean.CreditProfiles;
 import com.bank.loan.bean.CreditReviewLogs;
 import com.bank.loan.bean.Loans;
+import com.bank.loan.enums.ApprovalStatusEnum;
+import com.bank.loan.enums.LoanTermEnum;
+import com.bank.loan.enums.LoanTypeEnum;
 import com.bank.member.bean.Member;
 
 public class LoanDetailDtoMapper {
@@ -58,7 +61,12 @@ public class LoanDetailDtoMapper {
                 .decision(crl.getDecision())
                 .notes(crl.getNotes());
         }
-
+        
+        builder
+        .loanTypeName(LoanTypeEnum.fromId(loan.getLoanTypeId()))
+        .loanTermName(LoanTermEnum.fromId(loan.getLoanTermId()))
+        .approvalStatusName(ApprovalStatusEnum.fromCode(loan.getApprovalStatus()));
+        
         return builder.build();
     }
 }

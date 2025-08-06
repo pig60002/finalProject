@@ -39,6 +39,18 @@ public class DocumentManagementDtoService {
             return null;
         }
     }
+    
+    public DocumentManagementDto findLatestByLoanId(String loanId) {
+        // 用 repo 查詢最新的 CreditReviewLogs (假設有時間欄位 reviewTime)
+        Optional<CreditReviewLogs> optional = crlRepo.findTopByLoanIdOrderByReviewTimeDesc(loanId);
+
+        if (optional.isPresent()) {
+            return toDto(optional.get());
+        } else {
+            return null;
+        }
+    }
+
 
     /**
      * 將 CreditReviewLogs 實體轉換為 DocumentManagementDto。

@@ -103,7 +103,7 @@ public class LoanProcessingService {
      * @param newStatus 新狀態（需為合法狀態）
      * @param reviewerId 審核人員 ID
      */
-    public void updateStatus(String loanId, String newStatus, Integer reviewerId) {
+    public void updateStatus(String loanId, String newStatus, Integer reviewerId, String notes) {
         Loans loan = lRepo.findById(loanId)
                 .orElseThrow(() -> new RuntimeException("Loan not found"));
 
@@ -131,7 +131,7 @@ public class LoanProcessingService {
         log.setReviewerId(reviewerId);
         log.setCreditScore(null); // 改狀態不一定與信用分數有關
         log.setDecision(newStatus);
-        log.setNotes("狀態由審核人員變更為 " + newStatus);
+        log.setNotes(notes);
         log.setReviewTime(LocalDateTime.now());
 
         crRepo.save(log);

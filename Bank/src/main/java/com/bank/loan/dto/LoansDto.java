@@ -26,6 +26,7 @@ public class LoansDto {
 	private LocalDate loanstartDate; 	// 貸款開始時間
 	private String approvalStatus;      // 審核狀態
 	private String approvalStatusName;  // 審核狀態-中文
+	private String proofDocumentUrl;    // 圖片存取位置
 	
 	@JsonFormat(pattern = "yyyy-MM-dd")
 	private LocalDateTime createdAt;    // 建立時間
@@ -44,6 +45,7 @@ public class LoansDto {
         this.approvalStatus = loan.getApprovalStatus();
         this.approvalStatus = convertApprovalStatus(loan.getApprovalStatus());
         this.createdAt = loan.getCreatedAt();
+        this.proofDocumentUrl = loan.getProofDocumentUrl();
 	} 
 	
 	// 貸款類型的轉換方法

@@ -2,6 +2,7 @@ package com.bank.loan.controller;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -10,8 +11,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.bank.account.bean.Account;
 import com.bank.loan.bean.Loans;
+import com.bank.loan.dto.DocumentManagementDto;
 import com.bank.loan.dto.LoanCreateDto;
 import com.bank.loan.dto.ReviewHistoryDto;
+import com.bank.loan.service.DocumentManagementDtoService;
 import com.bank.loan.service.LoanProcessingService;
 import com.bank.loan.service.LoanService;
 
@@ -24,6 +27,9 @@ public class LoanManagementController {
     
 	@Autowired
 	private LoanProcessingService lpService;
+	
+	@Autowired
+	private DocumentManagementDtoService dmdService;
 
 	// 上傳補件（如財力證明）
 	@PostMapping("/{loanId}/upload-proof")
@@ -42,9 +48,12 @@ public class LoanManagementController {
 	
 	// 更新審核狀態
 	@PostMapping("/{loanId}/status")
-    public ResponseEntity<?> updateLoanStatus(@PathVariable String loanId, @RequestParam String newStatus, @RequestParam Integer reviewerId) {
-		lpService.updateStatus(loanId, newStatus, reviewerId); // 可改成從登入者取得
-        return ResponseEntity.ok("狀態已更新");
+    public ResponseEntity<?> updateLoanStatus(@PathVariable String loanId, @RequestBody Map<String, Object> body) {
+		String newStatus = (String) body.get("newStatus");
+	    Integer reviewerId = (Integer) body.get("reviewerId");
+	    String notes = (String) body.get("notes");
+		lpService.updateStatus(loanId, newStatus, reviewerId, notes); // 可改成從登入者取得
+		return ResponseEntity.ok("狀態已更新");
     }
 
 	// 審核紀錄新增
@@ -89,4 +98,15 @@ public class LoanManagementController {
             return ResponseEntity.internalServerError().body("新增貸款失敗");
         }
     }
+    
+    @GetMapping("/{loanId}/latest-review")
+    public ResponseEntity<DocumentManagementDto> getLatestReview(@PathVariable String loanId) {
+        DocumentManagementDto dto = dmdService.findLatestByLoanId(loanId);
+        if (dto != null) {
+            return ResponseEntity.ok(dto);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 }
