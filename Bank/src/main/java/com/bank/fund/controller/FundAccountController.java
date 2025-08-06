@@ -19,19 +19,12 @@ public class FundAccountController {
 	
 	// 查詢基金帳戶
 	@GetMapping
-	public ResponseEntity<List<FundAccountDto>> getFundAccounts(@RequestParam(required = false) String status,
+	public ResponseEntity<List<FundAccountDto>> getFundAccounts(
+			@RequestParam(required = false) String status,
 			@RequestParam(required = false) String name
 			) {
-		
-		if (status != null) {
-			return ResponseEntity.ok(fundAccountService.getByStatus(status));
-		}
-		
-//		if (name != null) {
-//			return ResponseEntity.ok(fundAccountService.getByName(name));
-//		}
-		
-		return ResponseEntity.ok(fundAccountService.getAll());
+				
+		return ResponseEntity.ok(fundAccountService.getFundAccounts(status, name));
 	}
 
 	//根據ID查詢單筆基金帳戶

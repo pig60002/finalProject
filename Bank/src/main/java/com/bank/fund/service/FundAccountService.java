@@ -17,7 +17,7 @@ import java.util.Optional;
 
 @Service
 public class FundAccountService {
-	
+
 	@Autowired
 	private AccountRepository accountRepository;
 
@@ -41,19 +41,18 @@ public class FundAccountService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<FundAccountDto> getAll() {
-		return fundAccountDto(fundAccountRepository.findAll());
-	}
+	public List<FundAccountDto> getFundAccounts(String status, String name) {
 
-	@Transactional(readOnly = true)
-	public List<FundAccountDto> getByStatus(String status) {
-		return fundAccountDto(fundAccountRepository.findByStatus(status));
+		if (status != null && name != null) {
+			return fundAccountDto(fundAccountRepository.findByStatusAndMemberMNameContaining(status, name));
+		} else if (status != null) {
+			return fundAccountDto(fundAccountRepository.findByStatus(status));
+		} else if (name != null) {
+			return fundAccountDto(fundAccountRepository.findByMemberMNameContaining(name));
+		} else {
+			return fundAccountDto(fundAccountRepository.findAll());
+		}
 	}
-
-//	@Transactional(readOnly = true)
-//	public List<FundAccountDto> getByName(String name) {
-//		return fundAccountDto(fundAccountRepository.findByMemberMNameContaining(name));
-//	}
 
 	@Transactional(readOnly = true)
 	public Optional<FundAccount> getById(Integer id) {
@@ -67,9 +66,8 @@ public class FundAccountService {
 		Member member = new Member();
 		member.setmId(memberId);
 		fundAccount.setMember(member);
-		
-		Account account = accountRepository
-				.findByMIdAndAccountNameAndCurrency(memberId, "活期存款", "NT");
+
+		Account account = accountRepository.findByMIdAndAccountNameAndCurrency(memberId, "活期存款", "NT");
 		fundAccount.setAccount(account);
 
 		fundAccount.setRiskType(riskType);
@@ -80,7 +78,6 @@ public class FundAccountService {
 		return true;
 	}
 
-
 	@Transactional
 	public boolean update(Integer id, String riskType, String status) {
 		if (!fundAccountRepository.existsById(id)) {
@@ -90,13 +87,13 @@ public class FundAccountService {
 				.orElseThrow(() -> new RuntimeException("FundAccount not found"));
 
 		if (riskType != null) {
-			fundAccount.setRiskType(riskType);			
+			fundAccount.setRiskType(riskType);
 		}
-		
+
 		if (status != null) {
 			fundAccount.setStatus(status);
 		}
-		
+
 		fundAccountRepository.save(fundAccount);
 		return true;
 	}
