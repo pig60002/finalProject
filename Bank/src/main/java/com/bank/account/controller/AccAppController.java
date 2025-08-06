@@ -1,11 +1,11 @@
 package com.bank.account.controller;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,15 +27,13 @@ public class AccAppController {
 	// 查詢 "已審核"狀態 
 	@GetMapping("/account/application/getrwdone")
 	public List<AccountApplication> processGetAccAppReviewDoneAction(){
-		List<AccountApplication> list1 = accAppService.getAccAppByStatus("通過", "未通過");
-		return list1;
+		return accAppService.getAccAppByStatus(Arrays.asList("通過", "未通過" ,"待補件"));
 	}
 
 	// 查詢 "未審核"狀態
 	@GetMapping("/account/application/getrwundone")
 	public List<AccountApplication> processGetAccAppReviewUnDoneAction() {
-		List<AccountApplication> list1 = accAppService.getAccAppByStatus("待審核", "待補件");
-		return list1;
+		return accAppService.getAccAppByStatus(Arrays.asList("待審核", "已補件待審核"));
 	}
 
 	// 修改單筆開戶申請表 (審核狀態)ResponseEntity 
@@ -64,9 +62,13 @@ public class AccAppController {
 	public ResponseEntity<String> processInsertAction(@RequestParam MultipartFile idfront,
 												  	  @RequestParam MultipartFile idback,
 												  	  @RequestParam(required = false) MultipartFile secDoc, //(required = false)可以沒有
-												  	  @RequestParam Integer mid) {
+												  	  @RequestParam Integer mid,
+												  	  @RequestParam(required = false)String status) {
 		
-		AccountApplication insertRS = accAppService.insertAccApp(idfront, idback, secDoc, mid);
+		status = (status!=null) ? status : "待審核" ;
+		
+		AccountApplication insertRS = accAppService.insertAccApp(idfront, idback, secDoc, mid, status);
+		
 		
 		if( insertRS != null ) {
 			return ResponseEntity.ok("新增成功");
