@@ -87,8 +87,8 @@ public class CardApplicationFrontController {
 //				return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
 //			            .body(Map.of("error", "尚未登入"));
 //			}
-//			 Member member = new Member();
-//			  member.setmId(1);
+			 Member member = new Member();
+			  member.setmId(1);
 			
 			String uploadPath=System.getProperty("user.dir") + File.separator + "creditCardImg";
 			new File(uploadPath).mkdirs();
