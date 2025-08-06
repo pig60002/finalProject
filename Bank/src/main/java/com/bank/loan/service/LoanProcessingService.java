@@ -1,9 +1,6 @@
 package com.bank.loan.service;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +12,7 @@ import com.bank.loan.bean.CreditReviewLogs;
 import com.bank.loan.dao.LoanRepository;
 import com.bank.loan.dao.CreditReviewLogsRepository;
 import com.bank.loan.dto.ReviewHistoryDto;
+import com.bank.loan.util.FileUploadUtil;
 
 /**
  * LoanProcessingService 處理與貸款審核流程相關的邏輯，
@@ -22,9 +20,6 @@ import com.bank.loan.dto.ReviewHistoryDto;
  */
 @Service
 public class LoanProcessingService {
-
-    // 補件文件上傳的伺服器目錄
-    private final String uploadDir = "C:/loans/incomeProof/";
 
     @Autowired
     private LoanRepository lRepo;
@@ -50,36 +45,17 @@ public class LoanProcessingService {
      * @throws IOException 若檔案儲存失敗
      */
     public void uploadProof(String loanId, MultipartFile file) throws IOException {
-        // 查詢貸款資料
-        Loans loan = lRepo.findById(loanId)
-                .orElseThrow(() -> new RuntimeException("Loan not found"));
+    	Loans loan = lRepo.findById(loanId).orElseThrow(() -> new RuntimeException("Loan not found"));
 
-        // 建立唯一檔名，包含 loanId 與當前時間
-        String timestamp = LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+        String relativePath = FileUploadUtil.saveFile(loanId, file);
 
-        String originalFilename = file.getOriginalFilename();
-        String extension = "";
-        if (originalFilename != null && originalFilename.contains(".")) {
-            extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-        }
+        loan.setProofDocumentUrl(relativePath);
 
-        String fileName = loanId + "_" + timestamp + extension;
-
-        // 建立儲存路徑
-        Path path = Paths.get(uploadDir + fileName);
-        Files.createDirectories(path.getParent());
-        Files.write(path, file.getBytes());
-
-        // 更新貸款的補件文件路徑
-        loan.setProofDocumentUrl(path.toString());
-
-        // 如果目前狀態是補件中，改為待審核
         if (LoanStatus.SUPPLEMENT.equals(loan.getApprovalStatus())) {
             loan.setApprovalStatus(LoanStatus.PENDING);
             loan.setUpdatedAt(LocalDateTime.now());
         }
 
-        // 儲存更新後的貸款資料
         lRepo.save(loan);
 
         // 新增一筆補件的審核紀錄

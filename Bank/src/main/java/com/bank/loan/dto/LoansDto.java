@@ -43,7 +43,7 @@ public class LoansDto {
         this.repayAccountId = loan.getRepayAccountId();
         this.loanstartDate = loan.getLoanstartDate();
         this.approvalStatus = loan.getApprovalStatus();
-        this.approvalStatus = convertApprovalStatus(loan.getApprovalStatus());
+        this.approvalStatusName = convertApprovalStatus(loan.getApprovalStatus());
         this.createdAt = loan.getCreatedAt();
         this.proofDocumentUrl = loan.getProofDocumentUrl();
 	} 

@@ -26,6 +26,7 @@ public class LoanDetailDtoMapper {
             .loanTermId(loan.getLoanTermId())
             .loanTerm(loan.getLoanTerm())
             .loanAmount(loan.getLoanAmount())
+            .repayAccountId(loan.getRepayAccountId())
             .interestRate(loan.getInterestRate())
             .loanstartDate(loan.getLoanstartDate())
             .approvalStatus(loan.getApprovalStatus())

@@ -130,8 +130,8 @@ public class LoanService {
             throw new IllegalArgumentException("所選帳戶不存在或不屬於該會員");
         }
 
-        // 設定檔案上傳路徑，預設存放於 C:/loans/incomeProof/
-        String baseUploadDir = "C:/loans/incomeProof/";
+        // 設定檔案上傳路徑，預設存放於 C:/bankSpringBoot/Bank/uploadImg/loanImg/
+        String baseUploadDir = "C:/bankSpringBoot/Bank/uploadImg/loanImg/";
         String uploadPath = baseUploadDir;
         File dir = new File(uploadPath);
         if (!dir.exists()) {
@@ -147,8 +147,8 @@ public class LoanService {
         }
 
         // 產生檔名，格式為 loanId_時間戳記.副檔名
-        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
         String loanId = generateStructuredLoanId(dto.getLoanTypeId(), dto.getLoanTerm());
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
         String fileName = loanId + "_" + timestamp + fileExtension;
 
         // 實際檔案儲存路徑
@@ -156,7 +156,7 @@ public class LoanService {
         file.transferTo(dest);  // 將檔案寫入磁碟
 
         // 設定 DTO 中檔案相對路徑，方便資料庫紀錄與前端存取
-        dto.setIncomeProofPath("uploads/" + fileName);
+        dto.setIncomeProofPath("/uploadImg/loanImg/" + fileName);
 
         // 從資料庫取得貸款類型與期數詳細資料（含利率）
         LoanType loanType = loanTypeRepo.findById(dto.getLoanTypeId())
