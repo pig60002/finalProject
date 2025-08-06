@@ -83,7 +83,9 @@ public class AccountServcie {
 		return accountRepos.updateAccountBalance(newBalance, accountId);
 	}
 	
-	// 
-	
+	// 多欄位查詢帳戶
+	public List<Account> searchAccounts(Integer mId, String mIdentity, String mPhone,String mName,String accountId){
+		return accountRepos.searchAccounts(mId, mIdentity, mPhone, mName, accountId);
+	}
 	
 }
