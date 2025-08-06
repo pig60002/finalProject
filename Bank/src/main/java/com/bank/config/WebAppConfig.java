@@ -19,7 +19,7 @@ public class WebAppConfig implements WebMvcConfigurer {
 	
 	@Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-       
+		 System.out.println("啟用圖片靜態資源映射！");
         registry.addResourceHandler("/uploadImg/creditCardImg/**")
                 .addResourceLocations("file:C:/bankSpringBoot/Bank/uploadImg/creditCardImg/");
 

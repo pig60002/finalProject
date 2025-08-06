@@ -41,7 +41,7 @@ public class AccAppController {
 	// 修改單筆開戶申請表 (審核狀態)ResponseEntity 
 	// ResponseEntity是 Spring MVC 裡用來完整控制 HTTP 回應（response）內容的類別。
 	// 回傳的狀態碼（status code）回傳的資料內容（body），可以是字串、物件、JSON 等
-	@PutMapping("/account/application/update.controller")
+	@PutMapping("/account/application/update")
 	public ResponseEntity<String> processAccAppAction(@RequestBody AccountApplication accapp) {
 		// PostMan測試{"status":"待審核","reviewerId":1,"rejectionReason":"身分不符","applicationId":"202506270007"} 
 		int updateRS = accAppService.updateAccApp(
@@ -63,10 +63,10 @@ public class AccAppController {
 	@PostMapping("/account/application/insert.controller")
 	public ResponseEntity<String> processInsertAction(@RequestParam MultipartFile idfront,
 												  	  @RequestParam MultipartFile idback,
-												  	  @RequestParam(required = false) MultipartFile secDec, //(required = false)可以沒有
+												  	  @RequestParam(required = false) MultipartFile secDoc, //(required = false)可以沒有
 												  	  @RequestParam Integer mid) {
 		
-		AccountApplication insertRS = accAppService.insertAccApp(idfront, idback, secDec, mid);
+		AccountApplication insertRS = accAppService.insertAccApp(idfront, idback, secDoc, mid);
 		
 		if( insertRS != null ) {
 			return ResponseEntity.ok("新增成功");
