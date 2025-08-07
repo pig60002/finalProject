@@ -99,6 +99,7 @@ public class LoanManagementController {
         }
     }
     
+    // 取得審核紀錄
     @GetMapping("/{loanId}/latest-review")
     public ResponseEntity<DocumentManagementDto> getLatestReview(@PathVariable String loanId) {
         DocumentManagementDto dto = dmdService.findLatestByLoanId(loanId);

@@ -5,6 +5,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.bank.loan.bean.Loans;
+import com.bank.loan.enums.ApprovalStatusEnum;
+import com.bank.loan.enums.LoanTypeEnum;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.Getter;
@@ -35,7 +37,7 @@ public class LoansDto {
 		this.loanId = loan.getLoanId();
         this.mName = loan.getMember().getmName();
         this.loanTypeId = loan.getLoanTypeId();
-        this.loanTypeName = convertLoanTypeName(loan.getLoanTypeId());
+        this.loanTypeName = LoanTypeEnum.fromId(loan.getLoanTypeId());
         this.loanTermId = loan.getLoanTermId();
         this.loanTerm = loan.getLoanTerm();
         this.loanAmount = loan.getLoanAmount();
@@ -43,32 +45,8 @@ public class LoansDto {
         this.repayAccountId = loan.getRepayAccountId();
         this.loanstartDate = loan.getLoanstartDate();
         this.approvalStatus = loan.getApprovalStatus();
-        this.approvalStatusName = convertApprovalStatus(loan.getApprovalStatus());
+        this.approvalStatusName = ApprovalStatusEnum.fromCode(loan.getApprovalStatus());
         this.createdAt = loan.getCreatedAt();
         this.proofDocumentUrl = loan.getProofDocumentUrl();
 	} 
-	
-	// 貸款類型的轉換方法
-    private String convertLoanTypeName(String loanTypeId) {
-        switch(loanTypeId) {
-            case "LT001": return "車貸";
-            case "LT002": return "房貸";
-            case "LT003": return "學貸";
-            default: return "未知類型";
-        }
-    }
-    
- 
-    // 審核狀態的轉換方法
-    private String convertApprovalStatus(String approvalStatus) {
-        switch(approvalStatus) {
-            case "approved": return "審核通過";
-            case "supplement": return "補件中";
-            case "rejected": return "拒絕申請";
-            case "pending": return "待審核";
-            default: return "未知類型";
-        }
-    }
-	
-
 }
