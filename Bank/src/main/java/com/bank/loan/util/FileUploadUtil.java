@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 public class FileUploadUtil {
 
-    // 預設上傳目錄（可改成從 config 載入）
+    // 預設上傳目錄
     public static final String UPLOAD_DIR = "C:/bankSpringBoot/Bank/uploadImg/loanImg/";
 
     /**
