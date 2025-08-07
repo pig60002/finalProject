@@ -1,9 +1,11 @@
 package com.bank.loan.dao;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.bank.loan.bean.CreditReviewLogs;
 
 public interface CreditReviewLogsRepository extends JpaRepository<CreditReviewLogs, Integer>{
-	CreditReviewLogs findTopByLoanIdOrderByReviewTimeDesc(String loanId);
+	Optional<CreditReviewLogs> findTopByLoanIdOrderByReviewTimeDesc(String loanId);
 }

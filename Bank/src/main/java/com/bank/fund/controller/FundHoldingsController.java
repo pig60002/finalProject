@@ -1,30 +1,39 @@
 package com.bank.fund.controller;
 
-import com.bank.fund.entity.FundAccount;
+import com.bank.fund.dto.FundHoldingsDto;
 import com.bank.fund.entity.FundHoldings;
 import com.bank.fund.service.*;
+
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/fund-holdings")
+@RequestMapping(path = "/fund-holdings")
 public class FundHoldingsController {
 
     @Autowired
     private FundHoldingsService fundHoldingsService;
+    
+    @GetMapping
+    public ResponseEntity<List<FundHoldingsDto>> getFundHoldings(@RequestParam Integer fundAccId){
+    	return ResponseEntity.ok(fundHoldingsService.getByFundAccId(fundAccId));
+    }
 
     @PostMapping
-    public boolean insert(@RequestBody FundHoldings bean) {
-        return fundHoldingsService.insert(bean);
+    public boolean insert(@RequestBody FundHoldings fundHoldings) {
+        return fundHoldingsService.create(fundHoldings);
     }
 
-    @PutMapping
-    public boolean update(@RequestBody FundHoldings bean) {
-        return fundHoldingsService.update(bean);
+    @PutMapping("/{id}")
+    public boolean update(@RequestBody FundHoldings fundHoldings) {
+        return fundHoldingsService.update(fundHoldings);
     }
 
-    @DeleteMapping
-    public boolean delete(@RequestBody FundHoldings id) {
+    @DeleteMapping("/{id}")
+    public boolean delete(@RequestParam Integer id) {
         return fundHoldingsService.delete(id);
     }
 }

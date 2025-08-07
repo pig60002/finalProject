@@ -54,15 +54,16 @@ public class CardApplicationFrontController {
 	}
 	
 	//檔案存放
-	private String saveFile(MultipartFile file,String uploadPath) throws IllegalStateException, IOException {
+	private String saveFile(MultipartFile file) throws IllegalStateException, IOException {
 		if(file.isEmpty()) {
 			return null;
 		}
+		String uploadPath = System.getProperty("user.dir") + File.separator + "uploadImg" + File.separator + "creditCardImg" + File.separator;
 		String fileName=UUID.randomUUID().toString()+"_"+file.getOriginalFilename();
 		File dest = new File(uploadPath,fileName);
 		file.transferTo(dest);
 
-		return "/uploadImg/creditCardImg"+fileName;
+		return "/uploadImg/creditCardImg/"+fileName;
 	}
 	
 	//提交申請資料
@@ -90,12 +91,12 @@ public class CardApplicationFrontController {
 			 Member member = new Member();
 			  member.setmId(1);
 			
-			String uploadPath=System.getProperty("user.dir") + File.separator + "creditCardImg";
+			String uploadPath=System.getProperty("user.dir") + File.separator + "creditCardImg/";
 			new File(uploadPath).mkdirs();
 			
-			String idFrontUrl=saveFile(idFront,uploadPath);
-			String idBackUrl=saveFile(idBack, uploadPath);
-			String financialProofUrl=saveFile(financialProof, uploadPath);
+			String idFrontUrl=saveFile(idFront);
+			String idBackUrl=saveFile(idBack);
+			String financialProofUrl=saveFile(financialProof);
 			
 			CardApplicationBean bean = new CardApplicationBean();
 			bean.setUserId(member.getmId());
