@@ -9,7 +9,6 @@ import lombok.Setter;
 @Setter
 public class MemberDto {
 	private Integer mId;
-
 	private String mName;
 	private String mIdentity;
 	private String mGender;
