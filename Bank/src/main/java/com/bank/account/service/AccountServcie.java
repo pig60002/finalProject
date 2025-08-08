@@ -80,7 +80,7 @@ public class AccountServcie {
 	
 	// 修改帳戶餘額
 	public int updateAccountBalance(String accountId , BigDecimal newBalance) {
-		return accountRepos.updateAccountBalance(newBalance, accountId);
+		return accountRepos.updateAccountBalance(newBalance, LocalDate.now(), accountId);
 	}
 	
 	// 多欄位查詢帳戶

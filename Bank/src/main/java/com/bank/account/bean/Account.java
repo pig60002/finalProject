@@ -47,6 +47,9 @@ public class Account {
 	@Column(name="status_updated_time")
 	private LocalDateTime statusUpdatedTime;
 	
+	@Column(name="last_transaction_date")
+	private LocalDate lastTransactionDate;
+	
 	@ManyToOne @JoinColumn(name="m_id", insertable = false, updatable = false)
 	private Member member;
 	
