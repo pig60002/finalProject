@@ -2,10 +2,12 @@ package com.bank.member.controller;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.bank.member.bean.Member;
 import com.bank.member.service.MemberService;
@@ -75,4 +78,20 @@ public class MemberController {
 	    );
 	    return ResponseEntity.ok(result);
 	}
+	
+    @PostMapping("/upload-mimage")
+    public ResponseEntity<?> uploadAvatar(
+        @RequestParam("file") MultipartFile file
+    ) {
+        try {
+        	Member member = (Member) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            String newAvatarUrl = memberService.updateMemberImage(member, file);
+            return ResponseEntity.ok(Map.of("新增成功路徑為", newAvatarUrl));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body("上傳失敗：" + e.getMessage());
+        }
+    }
+	
+	
 }

@@ -35,7 +35,8 @@ public class SecurityConfig {
 
 		// 設定開放的 URL，無須登入
 		List<String> allowedURL = List.of(
-				"/auth/**" // Chrome 開發工具開啟時會發出請求
+				"/auth/**",
+				"/uploadImg/**"// Chrome 開發工具開啟時會發出請求
 				);
 
 		return http // 使用 HttpSecurity http 物件展開串聯設定
@@ -45,7 +46,7 @@ public class SecurityConfig {
 				.authorizeHttpRequests(auth -> { // 設定權限主要位置
 
 					// 將 allowedURL 中的所有路徑設為無須登入即可訪問
-					/*
+					
 					for (String url : allowedURL) {
 						auth.requestMatchers(url).permitAll();
 					}
@@ -57,9 +58,9 @@ public class SecurityConfig {
 
 					// 除了開放的 api 以外，其他都要登入才能存取
 					auth.anyRequest().authenticated();
-					*/
 					
-					auth.anyRequest().permitAll();
+					
+					//auth.anyRequest().permitAll();
 
 				}) //
 				.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class) // 添加自訂過濾器
