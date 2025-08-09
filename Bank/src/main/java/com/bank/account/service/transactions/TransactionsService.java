@@ -39,7 +39,7 @@ public class TransactionsService {
 	// 新增交易紀錄
 	public Transactions saveTransactionsRecord(Account account, String transactionType,
 											   String toBankCode, String toAccountId,
-											   BigDecimal newBalance,
+											   BigDecimal amount, BigDecimal balanceAfter,
 											   String memo, String TxStatus, Integer operatorId) {
 		// 建立交易流水編號
 		String transactionId = scService.getSCNB("transactions", AccountUtils.getTodayCode());
@@ -51,11 +51,12 @@ public class TransactionsService {
 				toBankCode,
 				toAccountId,
 				account != null ? account.getCurrency() : null,
-				newBalance,
+				amount,
 				LocalDateTime.now(),
 				memo,
 				TxStatus,
-				operatorId
+				operatorId,
+				balanceAfter
 				);
 		
 		

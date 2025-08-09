@@ -88,4 +88,9 @@ public class AccountServcie {
 		return accountRepos.searchAccounts(mId, mIdentity, mPhone, mName, accountId);
 	}
 	
+	// 搜尋所有帳戶
+	public List<Account> findAllAccounts(){
+		return accountRepos.findAll();
+	}
+	
 }
