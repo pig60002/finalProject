@@ -115,7 +115,7 @@ public class MemberService {
 	        Files.write(filePath, file.getBytes());
 
 	        // 更新會員資料
-	        String newmimagePath = "/Bank/uploadImg/memberImg/" + filename;
+	        String newmimagePath = "/bank/uploadImg/memberImg/" + filename;
 	        member.setmImage(newmimagePath);
 	        mRepos.save(member);
 

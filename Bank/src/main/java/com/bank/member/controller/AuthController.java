@@ -39,6 +39,7 @@ public class AuthController {
 	            String token = jwtUtil.generateToken(member.getmId(),"member"); // 模擬 userId 為 1001
 	            MemberDto mDto = new MemberDto(member,token);
 	            
+
 	            return ResponseEntity.ok().header("Authorization", "Bearer " + token).body(mDto);
 	        }
 

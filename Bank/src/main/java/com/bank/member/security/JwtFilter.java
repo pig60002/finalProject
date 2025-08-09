@@ -50,11 +50,13 @@ public class JwtFilter extends OncePerRequestFilter{
 	            	if (jwtUtil.isTokenValid(token)) {
 	            		String userId = JwtUtil.getSubject(token);
 	            		String role = JwtUtil.getValue(token,"role");
+	            		Object user =null;
 	            		if("member".equals(role)) {
-	            			Object user = memberService.getMemberById(Integer.parseInt(userId) );     
+	            			 user = memberService.getMemberById(Integer.parseInt(userId) );     
 	            			
-	            		}
-	            		Object user = workerService.getWorkerById(Integer.parseInt(userId));     
+	            		}else {
+	            			 user = workerService.getWorkerById(Integer.parseInt(userId));     
+						}
 	            		
 	            		UsernamePasswordAuthenticationToken authentication =
 	            				new UsernamePasswordAuthenticationToken(user, null, List.of());
