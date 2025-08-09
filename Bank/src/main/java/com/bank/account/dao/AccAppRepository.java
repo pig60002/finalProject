@@ -14,8 +14,8 @@ import com.bank.account.bean.AccountApplication;
 public interface AccAppRepository extends JpaRepository<AccountApplication, String> {
 
 	// 依狀態查詢 開戶申請表 getAccAppByStatus(String status1,String status2)
-	@Query("SELECT aa FROM AccountApplication aa WHERE status=:name1 or status=:name2")
-	List<AccountApplication> getAccAppByStatus(@Param("name1") String status1, @Param("name2") String status2);
+	@Query("SELECT aa FROM AccountApplication aa WHERE aa.status IN :statuses")
+	List<AccountApplication> getAccAppByStatus(@Param("statuses") List<String> statuses);
 	
 	// 查詢會員詳細資料(審核用) getAccAppDetail(String applicationId)
 //	@Query("SELECT aa.applicationId,m.mId,m.mName,m.mIdentity,m.mGender,m.mAddress,m.mPhone,m.mBirthday"

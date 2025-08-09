@@ -52,11 +52,12 @@ public class CardApplicationService {
 		return cardApplicationRepos.findByStatusOrderByApplyDateDesc(CardApplicationBean.STATUS_PENDING);
 	}
 	
-	public boolean updateStatus(int applicationId, String status, LocalDateTime reviewDate) {
+	public boolean updateStatus(int applicationId, String status, LocalDateTime reviewDate,String reviewComment) {
 		CardApplicationBean bean = cardApplicationRepos.findById(applicationId).orElse(null);
 		if(bean!=null) {
 			bean.setStatus(status);
 			bean.setReviewDate(reviewDate);
+			bean.setReviewComment(reviewComment);
 			return true;
 		}
 		return false;

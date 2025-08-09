@@ -5,6 +5,8 @@ import java.util.Date;
 
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -47,21 +49,26 @@ public class Member implements Serializable{
 	@Column(name = "m_phone")
 	private String mPhone;
 	
+	@JsonFormat(pattern = "yyyy-MM-dd", timezone = "Asia/Taipei")
 	@Column(name = "m_birthday")
 	private Date mBirthday;
 	
 	@Column(name = "m_email")
 	private String mEmail;
 	
+	@JsonFormat(pattern = "yyyy-MM-dd", timezone = "Asia/Taipei")
 	@Column(name = "creation")
 	private Date creation;
 	
 	@Column(name = "m_state")
 	private Integer mState;
 	
-
+	@Column(name = "m_image")
+	private String mImage;
+	
+	
 	public Member(Integer mId, String mName, String mIdentity, String mGender, String mAccount, String mPassword,
-			String mAddress, String mPhone, Date mBirthday, String mEmail, Date creation, Integer mState) {
+			String mAddress, String mPhone, Date mBirthday, String mEmail, Date creation, Integer mState,String mImage) {
 		super();
 		this.mId = mId;
 		this.mName = mName;
@@ -75,10 +82,11 @@ public class Member implements Serializable{
 		this.mEmail = mEmail;
 		this.creation = creation;
 		this.mState = mState;
+		this.mImage = mImage;
 	}
 
 	public Member(String mName, String mIdentity, String mGender, String mAccount, String mPassword, String mAddress,
-			String mPhone, Date mBirthday, String mEmail, Date creation, Integer mState) {
+			String mPhone, Date mBirthday, String mEmail, Date creation, Integer mState,String mImage) {
 		super();
 		this.mName = mName;
 		this.mIdentity = mIdentity;
@@ -91,6 +99,7 @@ public class Member implements Serializable{
 		this.mEmail = mEmail;
 		this.creation = creation;
 		this.mState = mState;
+		this.mImage = mImage;
 	}
 
 	public Integer getmId() {
@@ -193,13 +202,23 @@ public class Member implements Serializable{
 		return serialVersionUID;
 	}
 
+	public String getmImage() {
+		return mImage;
+	}
+
+	public void setmImage(String mImage) {
+		this.mImage = mImage;
+	}
+
 	@Override
 	public String toString() {
 		return "Member [mId=" + mId + ", mName=" + mName + ", mIdentity=" + mIdentity + ", mGender=" + mGender
 				+ ", mAccount=" + mAccount + ", mPassword=" + mPassword + ", mAddress=" + mAddress + ", mPhone="
 				+ mPhone + ", mBirthday=" + mBirthday + ", mEmail=" + mEmail + ", creation=" + creation + ", mState="
-				+ mState + "]";
+				+ mState + ", mImage=" + mImage + "]";
 	}
+
+
 	
 //	@OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
 //    private List<LoanBean> loans;

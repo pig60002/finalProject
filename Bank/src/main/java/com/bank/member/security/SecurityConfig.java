@@ -57,7 +57,7 @@ public class SecurityConfig {
 
 					// 除了開放的 api 以外，其他都要登入才能存取
 					auth.anyRequest().authenticated();
-						*/
+					*/
 					
 					auth.anyRequest().permitAll();
 
