@@ -1,0 +1,120 @@
+package com.bank.creditCard.transaction.service;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Random;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.bank.creditCard.dto.CreditTransactionDTO;
+import com.bank.creditCard.issue.dao.CardDetailRepository;
+import com.bank.creditCard.issue.model.CardDetailBean;
+import com.bank.creditCard.transaction.dao.CreditTransactionRepository;
+import com.bank.creditCard.transaction.model.CreditTransactionBean;
+import com.bank.member.dao.MemberRepository;
+
+@Service
+public class CreditTransactionService {
+
+	@Autowired
+	private CreditTransactionRepository creditTransactionRepository;
+	
+	@Autowired
+    private CardDetailRepository cardDetailRepository;
+	
+	@Autowired
+	private MemberRepository memberRepository;
+	
+	private final Random random=new Random();
+	
+	 /**
+     * 新增交易，自動生成交易碼 transactionCode，若未指定交易時間則用現在時間
+     */
+    public CreditTransactionBean addTransaction(CreditTransactionDTO dto) {
+    	CardDetailBean card = cardDetailRepository.findById(dto.getCardId())
+                .orElseThrow(() -> new RuntimeException("卡片不存在，ID=" + dto.getCardId()));
+
+        CreditTransactionBean transaction = new CreditTransactionBean();
+        transaction.setTransactionCode(dto.getTransactionCode());
+        transaction.setCardDetail(card);
+        transaction.setMember(memberRepository.findById(dto.getMemberId())
+                .orElseThrow(() -> new RuntimeException("會員不存在，ID=" + dto.getMemberId())));
+        transaction.setAmount(dto.getAmount());
+        transaction.setMerchantType(dto.getMerchantType());
+        transaction.setDescription(dto.getDescription());
+        transaction.setTransactionTime(LocalDateTime.now());
+
+        // 計算回饋
+        BigDecimal cashback = calculateCashback(card, dto.getAmount(), dto.getMerchantType());
+        transaction.setCashback(cashback);
+
+        return creditTransactionRepository.save(transaction);
+    }
+    
+    //計算回饋邏輯
+    private BigDecimal calculateCashback(CardDetailBean card,BigDecimal amount,String merchantType) {
+    	if(amount==null||amount.compareTo(BigDecimal.ZERO)<=0) {
+    		return BigDecimal.ZERO;
+    	}
+    	
+    	//判斷useCustomRule,null視為0(不使用自訂規則)
+    	BigDecimal baseRate=card.getCardType().getCashbackRate();
+    	Boolean useCustomRuleFlag=card.getCardType().getUseCustomRule();
+    	boolean useCustomRule=Boolean.TRUE.equals(useCustomRuleFlag);
+    	BigDecimal cashbackRate=baseRate;
+    	
+    	if(useCustomRule) {
+    		BigDecimal categoryRate=getCategoryRate(merchantType);
+    		//取高(不疊加)
+    		cashbackRate=categoryRate.max(baseRate);
+    		//加成
+    		//cashbackRate = baseRate.add(categoryRate);
+    	}
+    	return amount.multiply(cashbackRate).divide(new BigDecimal("100"))
+    				 .setScale(2,BigDecimal.ROUND_HALF_UP);
+    }
+    
+    //消費類別回饋率
+    private BigDecimal getCategoryRate(String merchantType) {
+    	if("餐飲".equalsIgnoreCase(merchantType)) {
+    		return new BigDecimal("3.0");
+    	}else if("加油".equalsIgnoreCase(merchantType)) {
+    		return new BigDecimal("2.0");
+    	}
+    	return BigDecimal.ZERO;
+    }
+    
+    private int generateTransactionCode() {
+        int timePart = (int) (System.currentTimeMillis() % Integer.MAX_VALUE);
+        int randomPart = random.nextInt(9999);
+        return timePart + randomPart;
+    }
+	
+	//查詢卡片交易
+	public List<CreditTransactionBean> getTransactionsByCardId(Integer cardId){
+		return creditTransactionRepository.findByCardDetail_CardId(cardId);
+	}
+	
+	//查詢會員交易
+	public List<CreditTransactionBean> getTransactionsByMemberId(Integer mId){
+		return creditTransactionRepository.findByMember_MId(mId);
+	}
+	
+	//依卡片ID與帳單年月(yyyyMM)查詢該月所有交易
+	public List<CreditTransactionBean> findByCardIdAndBillingYearMonth(Integer cardId,String billingYearMonth){
+		YearMonth ym = YearMonth.parse(billingYearMonth, DateTimeFormatter.ofPattern("yyyyMM"));
+        LocalDate startDate = ym.atDay(1);
+        LocalDate endDate = ym.atEndOfMonth();
+
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
+
+        return creditTransactionRepository.findByCardDetail_CardIdAndTransactionTimeBetween(cardId, startDateTime, endDateTime);
+	}
+	
+}
