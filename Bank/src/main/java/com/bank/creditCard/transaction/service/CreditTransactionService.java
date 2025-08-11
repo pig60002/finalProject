@@ -139,4 +139,17 @@ public class CreditTransactionService {
 
 	    return creditTransactionRepository.save(refund);
 	}
+	
+	// 依會員姓名模糊 + 年月查詢交易
+    public List<CreditTransactionBean> findByMemberNameLikeAndYearMonth(String name, String yearMonth) {
+        YearMonth ym = YearMonth.parse(yearMonth, DateTimeFormatter.ofPattern("yyyyMM"));
+        LocalDate startDate = ym.atDay(1);
+        LocalDate endDate = ym.atEndOfMonth();
+
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
+
+        return creditTransactionRepository.findByMemberNameLikeAndTransactionTimeBetween(
+                name, startDateTime, endDateTime);
+    }
 }

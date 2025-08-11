@@ -1,5 +1,8 @@
 package com.bank.creditCard.transaction.controller;
 
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +32,15 @@ public class CreditTransactionBackController {
 			){
 		return creditTransactionService.findByCardIdAndMemberIdAndBillingYearMonth(cardId, mId, yearMonth);
 	}
+	
+	//模糊查詢：依會員姓名模糊 + 年月查詢
+    @GetMapping("/searchByNameAndMonth")
+    public List<CreditTransactionBean> getTransactionsByNameAndMonth(
+            @RequestParam("memberName") String memberName,
+            @RequestParam("yearMonth") String yearMonth
+    ) {
+        return creditTransactionService.findByMemberNameLikeAndYearMonth(memberName, yearMonth);
+    }
 
 	//退款API
 	@PostMapping("/refund")
