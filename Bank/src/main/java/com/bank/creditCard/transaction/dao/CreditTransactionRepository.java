@@ -16,7 +16,12 @@ public interface CreditTransactionRepository extends JpaRepository<CreditTransac
 	List<CreditTransactionBean> findByMember_MId(Integer mId);
 	
 	//依卡片ID及交易時間區間查詢交易(用於年月查詢)
-	List<CreditTransactionBean> findByCardDetail_CardIdAndTransactionTimeBetween(
-			Integer cardId,LocalDateTime start,LocalDateTime end);
+//	List<CreditTransactionBean> findByCardDetail_CardIdAndTransactionTimeBetween(
+//			Integer cardId,LocalDateTime start,LocalDateTime end);
 
+	List<CreditTransactionBean> findByCardDetailCardIdAndMemberMId(Integer cardId, Integer mId);
+	
+	// 依卡片ID、會員ID及交易時間區間查詢交易
+	List<CreditTransactionBean> findByCardDetailCardIdAndMemberMIdAndTransactionTimeBetween(
+	        Integer cardId, Integer mId, LocalDateTime start, LocalDateTime end);
 }

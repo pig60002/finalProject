@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,7 @@ public class CreditTransactionService {
                 .orElseThrow(() -> new RuntimeException("卡片不存在，ID=" + dto.getCardId()));
 
         CreditTransactionBean transaction = new CreditTransactionBean();
-        transaction.setTransactionCode(dto.getTransactionCode());
+        transaction.setTransactionCode(generateTransactionCode());
         transaction.setCardDetail(card);
         transaction.setMember(memberRepository.findById(dto.getMemberId())
                 .orElseThrow(() -> new RuntimeException("會員不存在，ID=" + dto.getMemberId())));
@@ -105,16 +106,37 @@ public class CreditTransactionService {
 		return creditTransactionRepository.findByMember_MId(mId);
 	}
 	
-	//依卡片ID與帳單年月(yyyyMM)查詢該月所有交易
-	public List<CreditTransactionBean> findByCardIdAndBillingYearMonth(Integer cardId,String billingYearMonth){
-		YearMonth ym = YearMonth.parse(billingYearMonth, DateTimeFormatter.ofPattern("yyyyMM"));
-        LocalDate startDate = ym.atDay(1);
-        LocalDate endDate = ym.atEndOfMonth();
+	//依卡片ID和會員ID與帳單年月(yyyyMM)查詢該月所有交易
+	public List<CreditTransactionBean> findByCardIdAndMemberIdAndBillingYearMonth(Integer cardId, Integer mId, String billingYearMonth) {
+	    YearMonth ym = YearMonth.parse(billingYearMonth, DateTimeFormatter.ofPattern("yyyyMM"));
+	    LocalDate startDate = ym.atDay(1);
+	    LocalDate endDate = ym.atEndOfMonth();
 
-        LocalDateTime startDateTime = startDate.atStartOfDay();
-        LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
+	    LocalDateTime startDateTime = startDate.atStartOfDay();
+	    LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
 
-        return creditTransactionRepository.findByCardDetail_CardIdAndTransactionTimeBetween(cardId, startDateTime, endDateTime);
+	    return creditTransactionRepository.findByCardDetailCardIdAndMemberMIdAndTransactionTimeBetween(cardId, mId, startDateTime, endDateTime);
 	}
 	
+	public List<CreditTransactionBean> getTransactionsByCardIdAndMemberId(Integer cardId, Integer mId) {
+	    return creditTransactionRepository.findByCardDetailCardIdAndMemberMId(cardId, mId);
+	}
+	
+	//退款
+	public CreditTransactionBean refundTransaction(Integer transactionId) {
+		CreditTransactionBean original = creditTransactionRepository.findById(transactionId)
+				.orElseThrow(()->new RuntimeException("交易不存在,ID="+transactionId));
+		
+		CreditTransactionBean refund = new CreditTransactionBean();
+		refund.setTransactionCode(generateTransactionCode());
+	    refund.setCardDetail(original.getCardDetail());
+	    refund.setMember(original.getMember());
+	    refund.setAmount(original.getAmount().negate()); // 負數金額
+	    refund.setMerchantType(original.getMerchantType());
+	    refund.setDescription("退款：" + original.getDescription());
+	    refund.setTransactionTime(LocalDateTime.now());
+	    refund.setCashback(original.getCashback().negate());
+
+	    return creditTransactionRepository.save(refund);
+	}
 }

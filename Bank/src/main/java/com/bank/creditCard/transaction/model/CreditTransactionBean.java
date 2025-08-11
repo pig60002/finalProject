@@ -45,7 +45,7 @@ public class CreditTransactionBean {
 
     // 交易所屬帳單
     @ManyToOne
-    @JoinColumn(name = "creditbill_id")
+    @JoinColumn(name = "bill_id")
     private CreditBillBean creditBill;
 
     @Column(name = "amount", precision = 15, scale = 2)
