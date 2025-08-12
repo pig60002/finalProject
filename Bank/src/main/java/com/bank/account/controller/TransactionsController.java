@@ -16,7 +16,6 @@ import com.bank.account.bean.Transactions;
 import com.bank.account.service.transactions.DepositWithdrawalTxService;
 import com.bank.account.service.transactions.InternalTransferService;
 import com.bank.account.service.transactions.TransactionsService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
@@ -30,7 +29,10 @@ public class TransactionsController {
 	
 	@Autowired
 	private InternalTransferService interTxService;
-	
+
+	@Autowired
+	private ObjectMapper mapper; // 由 Spring 注入，已註冊 JavaTimeModule
+
 	// 提款or存款
 	// Postman : {"accountId":"7100000237","transactionType":"存款","amount":"1000","memo":"07/31"}
 	@PutMapping("/account/transaction/depositwithdrawal")
@@ -82,7 +84,6 @@ public class TransactionsController {
 			txRecords = transactionsService.getTransactionByAccountId(accountId, startDate, endDate);
 		}
 		
-		ObjectMapper mapper = new ObjectMapper();
 		byte[] bytes = mapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(txRecords);
 
 		String s = (startDate == null || startDate.isBlank()) ? "NA" : startDate;
