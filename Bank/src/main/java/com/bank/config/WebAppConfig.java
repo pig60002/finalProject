@@ -36,6 +36,9 @@ public class WebAppConfig implements WebMvcConfigurer {
         
         registry.addResourceHandler("/uploadImg/loanImg/**")
         .addResourceLocations("file:C:/bankSpringBoot/Bank/uploadImg/loanImg/");
+        
+        registry.addResourceHandler("/uploadImg/memberImg/**")
+        .addResourceLocations("file:C:/bankSpringBoot/Bank/uploadImg/memberImg/");
 
     }
 	
