@@ -12,6 +12,7 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import com.bank.member.bean.Member;
 import com.bank.member.service.MemberService;
+import com.bank.member.service.WorkerService;
 import com.bank.utils.JwtUtil;
 
 import jakarta.servlet.FilterChain;
@@ -29,6 +30,8 @@ public class JwtFilter extends OncePerRequestFilter{
 	
 	@Autowired
 	private MemberService memberService;
+	@Autowired
+	private WorkerService workerService;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -46,10 +49,17 @@ public class JwtFilter extends OncePerRequestFilter{
 	            try {
 	            	if (jwtUtil.isTokenValid(token)) {
 	            		String userId = JwtUtil.getSubject(token);
-	            		Member member = memberService.getMemberById(Integer.parseInt(userId) );
+	            		String role = JwtUtil.getValue(token,"role");
+	            		Object user =null;
+	            		if("member".equals(role)) {
+	            			 user = memberService.getMemberById(Integer.parseInt(userId) );     
+	            			
+	            		}else {
+	            			 user = workerService.getWorkerById(Integer.parseInt(userId));     
+						}
 	            		
 	            		UsernamePasswordAuthenticationToken authentication =
-	            				new UsernamePasswordAuthenticationToken(member, null, List.of());
+	            				new UsernamePasswordAuthenticationToken(user, null, List.of());
 	            		SecurityContextHolder.getContext().setAuthentication(authentication);
 	            	}
 				}catch (Exception e) {
