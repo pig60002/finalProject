@@ -1,7 +1,6 @@
 package com.bank.loan.service;
 
 import java.io.IOException;
-import java.nio.file.Paths;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,20 +18,12 @@ import com.bank.loan.util.FileUploadUtil;
 @Transactional
 public class DocumentUploadService {
 
-    // 自動注入 LoanRepository，用於資料庫操作
-    @Autowired
+	@Autowired
     private LoanRepository loanRepo;
 
-    /**
-     * 儲存貸款相關的證明文件，並更新資料庫中的 URL 欄位。
-     *
-     * @param loanId 貸款編號
-     * @param file 上傳的檔案
-     * @return 上傳後的文件 URL（可用於前端存取）
-     * @throws IOException 若檔案儲存過程中發生錯誤
-     */
+	// 已有的證明文件上傳
     public String saveProofDocument(String loanId, MultipartFile file) throws IOException {
-    	String relativePath = FileUploadUtil.saveFile(loanId, file);
+        String relativePath = FileUploadUtil.saveFile(loanId, file, "uploadImg/loanImg");
 
         Loans loan = loanRepo.findById(loanId)
                 .orElseThrow(() -> new RuntimeException("Loan not found: " + loanId));
@@ -40,7 +31,19 @@ public class DocumentUploadService {
         loan.setProofDocumentUrl(relativePath);
         loanRepo.save(loan);
 
-        System.out.println("Uploaded to: " + Paths.get(FileUploadUtil.UPLOAD_DIR).resolve(relativePath).toAbsolutePath());
         return relativePath;
-    } 
+    }
+
+    // 新增的合約檔案上傳
+    public String saveContractDocument(String loanId, MultipartFile file) throws IOException {
+        String relativePath = FileUploadUtil.saveFile(loanId, file, "uploadImg/contract");
+
+        Loans loan = loanRepo.findById(loanId)
+                .orElseThrow(() -> new RuntimeException("Loan not found: " + loanId));
+
+        loan.setContractPath(relativePath);
+        loanRepo.save(loan);
+
+        return relativePath;
+    }
 }

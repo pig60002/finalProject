@@ -29,6 +29,7 @@ public class LoansDto {
 	private String approvalStatus;      // 審核狀態
 	private String approvalStatusName;  // 審核狀態-中文
 	private String proofDocumentUrl;    // 圖片存取位置
+	private String getontractPath;    	// 貸款合約存取位置
 	
 	@JsonFormat(pattern = "yyyy-MM-dd")
 	private LocalDateTime createdAt;    // 建立時間
@@ -48,5 +49,6 @@ public class LoansDto {
         this.approvalStatusName = ApprovalStatusEnum.fromCode(loan.getApprovalStatus());
         this.createdAt = loan.getCreatedAt();
         this.proofDocumentUrl = loan.getProofDocumentUrl();
+        this.getontractPath = loan.getContractPath();
 	} 
 }

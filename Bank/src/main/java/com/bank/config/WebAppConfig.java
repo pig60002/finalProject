@@ -34,8 +34,22 @@ public class WebAppConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/uploadImg/accountImg/**")
                 .addResourceLocations("file:C:/bankSpringBoot/Bank/uploadImg/accountImg/");
         
+        // 貸款財力證明上傳靜態資源映射
+        String basePath = System.getProperty("user.dir");
+        String loanImgPath = "file:" + Paths.get(basePath, "uploadImg", "loanImg").toString() + "/";
+
+        System.out.println("啟用 loanImg 靜態資源映射: " + loanImgPath);
+
         registry.addResourceHandler("/uploadImg/loanImg/**")
-        .addResourceLocations("file:C:/bankSpringBoot/Bank/uploadImg/loanImg/");
+                .addResourceLocations(loanImgPath);
+        
+        // 貸款合約上傳靜態資源映射
+        String contractPath = "file:" + Paths.get(basePath, "uploadImg", "contract").toString() + "/";
+        System.out.println("啟用 contract 靜態資源映射: " + contractPath);
+
+        registry.addResourceHandler("/uploadImg/contract/**")
+                .addResourceLocations(contractPath);
+
 
     }
 	

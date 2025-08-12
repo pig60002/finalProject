@@ -47,7 +47,7 @@ public class LoanProcessingService {
     public void uploadProof(String loanId, MultipartFile file) throws IOException {
     	Loans loan = lRepo.findById(loanId).orElseThrow(() -> new RuntimeException("Loan not found"));
 
-        String relativePath = FileUploadUtil.saveFile(loanId, file);
+    	String relativePath = FileUploadUtil.saveFile(loanId, file, "uploadImg/loanImg");
 
         loan.setProofDocumentUrl(relativePath);
 
