@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
-import com.bank.member.bean.Member;
 import com.bank.member.service.MemberService;
 import com.bank.member.service.WorkerService;
 import com.bank.utils.JwtUtil;
