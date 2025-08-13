@@ -36,7 +36,7 @@ public class DocumentUploadService {
 
     // 新增的合約檔案上傳
     public String saveContractDocument(String loanId, MultipartFile file) throws IOException {
-        String relativePath = FileUploadUtil.saveFile(loanId, file, "uploadImg/contract");
+        String relativePath = FileUploadUtil.saveFile(loanId, file, "contract");
 
         Loans loan = loanRepo.findById(loanId)
                 .orElseThrow(() -> new RuntimeException("Loan not found: " + loanId));

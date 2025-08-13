@@ -9,6 +9,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 public class FileUploadUtil {
 
+    // 取得基底目錄，固定為專案根目錄下的 uploadImg
+    private static final String BASE_UPLOAD_DIR = System.getProperty("user.dir") + "/uploadImg";
+
     public static String saveFile(String loanId, MultipartFile file, String uploadDir) throws IOException {
         if (file.isEmpty()) {
             throw new IOException("File is empty");
@@ -22,12 +25,21 @@ public class FileUploadUtil {
         }
         String newFileName = loanId + "_" + System.currentTimeMillis() + extension;
 
-        Path targetPath = Paths.get(uploadDir).resolve(newFileName);
-        Files.createDirectories(targetPath.getParent());
+        // 判斷uploadDir是否為相對路徑（沒有以 C:/ 或 / 開頭），拼成絕對路徑
+        Path basePath = Paths.get(BASE_UPLOAD_DIR);
+        Path uploadPath = Paths.get(uploadDir);
+        Path targetPath;
 
+        if (uploadPath.isAbsolute()) {
+            targetPath = uploadPath.resolve(newFileName);
+        } else {
+            targetPath = basePath.resolve(uploadPath).resolve(newFileName);
+        }
+
+        Files.createDirectories(targetPath.getParent());
         file.transferTo(targetPath.toFile());
 
+        // 回傳可用於前端的相對路徑，方便瀏覽器存取
         return "/" + uploadDir.replace("\\", "/") + "/" + newFileName;
     }
 }
-

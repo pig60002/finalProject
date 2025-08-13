@@ -119,13 +119,14 @@ public class LoanManagementController {
     @PostMapping(path = "/{loanId}/upload-contract", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> uploadContract(@PathVariable String loanId,
                                                  @RequestParam("file") MultipartFile file) {
-        try {
+    	try {
             String contractPath = duService.saveContractDocument(loanId, file);
             return ResponseEntity.ok("合約檔案上傳成功，路徑：" + contractPath);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body("合約檔案上傳失敗：" + e.getMessage());
         }
+        
     }
 
 }
