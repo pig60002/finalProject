@@ -3,6 +3,7 @@ package com.bank.fund.entity;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import com.bank.account.bean.Transactions;
 
 @Entity
 @Table(name = "fund_transaction")
@@ -10,8 +11,11 @@ public class FundTransaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "fund_tran_id")
-    private Integer id;
+    private Integer fundTranId;
+
+    @OneToOne
+    @JoinColumn(name = "transaction_id", nullable = false)
+    private Transactions transactions;
 
     @ManyToOne
     @JoinColumn(name = "fund_acc_id", nullable = false)
@@ -21,73 +25,84 @@ public class FundTransaction {
     @JoinColumn(name = "fund_id", nullable = false)
     private Fund fund;
 
-    @Column(name = "tran_type", length = 2, nullable = false)
+    @Column(name = "tran_type", length = 10, nullable = false)
     private String tranType;
 
-    @Column(name = "units", precision = 18, scale = 4, nullable = false)
-    private BigDecimal units;
+    @Column(precision = 18, scale = 2)
+    private BigDecimal amount;
 
-    @Column(name = "price", precision = 18, scale = 4, nullable = false)
-    private BigDecimal price;
-
-    @Column(name = "fee", precision = 18, scale = 4, nullable = false)
+    @Column(precision = 18, scale = 2)
     private BigDecimal fee;
 
-    @Column(name = "balance", precision = 18, scale = 4, nullable = false)
-    private BigDecimal balance;
+    @Column(precision = 18, scale = 4)
+    private BigDecimal units;
+
+    @Column(precision = 18, scale = 4)
+    private BigDecimal nav;
 
     @Column(name = "tran_time", nullable = false)
-    private LocalDateTime tranTime;
+    private LocalDateTime tranTime = LocalDateTime.now();
 
-    @Column(name = "tran_status", length = 3, nullable = false)
-    private String tranStatus;
+    @Column(length = 10, nullable = false)
+    private String status = "待交易";
 
-    @Column(name = "remark", length = 200)
-    private String remark;
+    @Column(length = 200)
+    private String memo;
 
 	public FundTransaction() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
-	public FundTransaction(FundAccount fundAccount, Fund fund, String tranType, BigDecimal units, BigDecimal price,
-			BigDecimal fee, BigDecimal balance, LocalDateTime tranTime, String tranStatus, String remark) {
+	public FundTransaction(Transactions transactions, FundAccount fundAccount, Fund fund, String tranType,
+			BigDecimal amount, BigDecimal fee, BigDecimal units, BigDecimal nav, LocalDateTime tranTime, String status,
+			String memo) {
 		super();
+		this.transactions = transactions;
 		this.fundAccount = fundAccount;
 		this.fund = fund;
 		this.tranType = tranType;
-		this.units = units;
-		this.price = price;
+		this.amount = amount;
 		this.fee = fee;
-		this.balance = balance;
+		this.units = units;
+		this.nav = nav;
 		this.tranTime = tranTime;
-		this.tranStatus = tranStatus;
-		this.remark = remark;
+		this.status = status;
+		this.memo = memo;
 	}
 
-	public FundTransaction(Integer id, FundAccount fundAccount, Fund fund, String tranType, BigDecimal units,
-			BigDecimal price, BigDecimal fee, BigDecimal balance, LocalDateTime tranTime, String tranStatus,
-			String remark) {
+	public FundTransaction(Integer fundTranId, Transactions transactions, FundAccount fundAccount, Fund fund,
+			String tranType, BigDecimal amount, BigDecimal fee, BigDecimal units, BigDecimal nav,
+			LocalDateTime tranTime, String status, String memo) {
 		super();
-		this.id = id;
+		this.fundTranId = fundTranId;
+		this.transactions = transactions;
 		this.fundAccount = fundAccount;
 		this.fund = fund;
 		this.tranType = tranType;
-		this.units = units;
-		this.price = price;
+		this.amount = amount;
 		this.fee = fee;
-		this.balance = balance;
+		this.units = units;
+		this.nav = nav;
 		this.tranTime = tranTime;
-		this.tranStatus = tranStatus;
-		this.remark = remark;
+		this.status = status;
+		this.memo = memo;
 	}
 
-	public Integer getId() {
-		return id;
+	public Integer getFundTranId() {
+		return fundTranId;
 	}
 
-	public void setId(Integer id) {
-		this.id = id;
+	public void setFundTranId(Integer fundTranId) {
+		this.fundTranId = fundTranId;
+	}
+
+	public Transactions getTransactions() {
+		return transactions;
+	}
+
+	public void setTransactions(Transactions transactions) {
+		this.transactions = transactions;
 	}
 
 	public FundAccount getFundAccount() {
@@ -114,20 +129,12 @@ public class FundTransaction {
 		this.tranType = tranType;
 	}
 
-	public BigDecimal getUnits() {
-		return units;
+	public BigDecimal getAmount() {
+		return amount;
 	}
 
-	public void setUnits(BigDecimal units) {
-		this.units = units;
-	}
-
-	public BigDecimal getPrice() {
-		return price;
-	}
-
-	public void setPrice(BigDecimal price) {
-		this.price = price;
+	public void setAmount(BigDecimal amount) {
+		this.amount = amount;
 	}
 
 	public BigDecimal getFee() {
@@ -138,12 +145,20 @@ public class FundTransaction {
 		this.fee = fee;
 	}
 
-	public BigDecimal getBalance() {
-		return balance;
+	public BigDecimal getUnits() {
+		return units;
 	}
 
-	public void setBalance(BigDecimal balance) {
-		this.balance = balance;
+	public void setUnits(BigDecimal units) {
+		this.units = units;
+	}
+
+	public BigDecimal getNav() {
+		return nav;
+	}
+
+	public void setNav(BigDecimal nav) {
+		this.nav = nav;
 	}
 
 	public LocalDateTime getTranTime() {
@@ -154,21 +169,19 @@ public class FundTransaction {
 		this.tranTime = tranTime;
 	}
 
-	public String getTranStatus() {
-		return tranStatus;
+	public String getStatus() {
+		return status;
 	}
 
-	public void setTranStatus(String tranStatus) {
-		this.tranStatus = tranStatus;
+	public void setStatus(String status) {
+		this.status = status;
 	}
 
-	public String getRemark() {
-		return remark;
+	public String getMemo() {
+		return memo;
 	}
 
-	public void setRemark(String remark) {
-		this.remark = remark;
+	public void setMemo(String memo) {
+		this.memo = memo;
 	}
-
-    
 }

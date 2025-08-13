@@ -30,7 +30,7 @@ public class FundHoldingsService {
 		for (FundHoldings fundHoldings : fundHoldingsList) {
 			FundHoldingsDto fundHoldingsDto = new FundHoldingsDto();
 
-			fundHoldingsDto.setId(fundHoldings.getId());
+			fundHoldingsDto.setId(fundHoldings.getHoldingId());
 			fundHoldingsDto.setFundCode(fundHoldings.getFund().getFundCode());
 			fundHoldingsDto.setFundName(fundHoldings.getFund().getFundName());
 			fundHoldingsDto.setUnits(fundHoldings.getUnits());
@@ -56,10 +56,10 @@ public class FundHoldingsService {
     
     @Transactional
     public boolean update(FundHoldings fundHoldings) {
-		if (!fundHoldingsRepository.existsById(fundHoldings.getId())) {
+		if (!fundHoldingsRepository.existsById(fundHoldings.getHoldingId())) {
 			return false;
 		}
-		FundHoldings updateBean = fundHoldingsRepository.findById(fundHoldings.getId())
+		FundHoldings updateBean = fundHoldingsRepository.findById(fundHoldings.getHoldingId())
 				.orElseThrow(() -> new RuntimeException("FundHoldings not found"));
 		
 		if (fundHoldings.getUnits() != null) {

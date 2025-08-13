@@ -1,84 +1,72 @@
 package com.bank.fund.entity;
 
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import com.bank.account.bean.Account;
 import com.bank.member.bean.Member;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-
 @Entity
-@Table(name = "fund_account")
+@Table(name = "fund_account",
+       uniqueConstraints = {
+           @UniqueConstraint(columnNames = {"m_id"}),
+           @UniqueConstraint(columnNames = {"account_id"})
+       })
 public class FundAccount {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "fund_acc_id")
-    private Integer id;
+    private Integer fundAccId;
 
+    @Column(name = "risk_type", length = 10, nullable = false)
+    private String riskType;
+
+    @Column(length = 10, nullable = false)
+    private String status = "審核中";
+
+    @Column(name = "open_time", nullable = false)
+    private LocalDateTime openTime = LocalDateTime.now();
+
+    // 會員
     @OneToOne
-    @JoinColumn(name = "member_id", nullable = false, unique = true)
+    @JoinColumn(name = "m_id", nullable = false, unique = true)
     private Member member;
 
+    // 存款帳號
     @OneToOne
     @JoinColumn(name = "account_id", nullable = false, unique = true)
     private Account account;
-
-    @Column(name = "risk_type", length = 3, nullable = false)
-    private String riskType;
-
-    @Column(name = "acc_status", length = 3, nullable = false)
-    private String status;
 
 	public FundAccount() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
-	public FundAccount(Member member, Account account, String riskType, String status) {
+	public FundAccount(String riskType, String status, LocalDateTime openTime, Member member, Account account) {
 		super();
-		this.member = member;
-		this.account = account;
 		this.riskType = riskType;
 		this.status = status;
-	}
-
-	public FundAccount(Integer id, Member member, Account account, String riskType, String status) {
-		super();
-		this.id = id;
+		this.openTime = openTime;
 		this.member = member;
 		this.account = account;
+	}
+
+	public FundAccount(Integer fundAccId, String riskType, String status, LocalDateTime openTime, Member member,
+			Account account) {
+		super();
+		this.fundAccId = fundAccId;
 		this.riskType = riskType;
 		this.status = status;
-	}
-
-	public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
-	}
-
-	public Member getMember() {
-		return member;
-	}
-
-	public void setMember(Member member) {
+		this.openTime = openTime;
 		this.member = member;
-	}
-
-	public Account getAccount() {
-		return account;
-	}
-
-	public void setAccount(Account account) {
 		this.account = account;
+	}
+
+	public Integer getFundAccId() {
+		return fundAccId;
+	}
+
+	public void setFundAccId(Integer fundAccId) {
+		this.fundAccId = fundAccId;
 	}
 
 	public String getRiskType() {
@@ -96,6 +84,28 @@ public class FundAccount {
 	public void setStatus(String status) {
 		this.status = status;
 	}
-	
-    
+
+	public LocalDateTime getOpenTime() {
+		return openTime;
+	}
+
+	public void setOpenTime(LocalDateTime openTime) {
+		this.openTime = openTime;
+	}
+
+	public Member getMember() {
+		return member;
+	}
+
+	public void setMember(Member member) {
+		this.member = member;
+	}
+
+	public Account getAccount() {
+		return account;
+	}
+
+	public void setAccount(Account account) {
+		this.account = account;
+	}
 }

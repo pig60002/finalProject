@@ -30,7 +30,7 @@ public class FundAccountService {
 		for (FundAccount fundAccount : fundAccounts) {
 			FundAccountDto fundAccountDto = new FundAccountDto();
 
-			fundAccountDto.setId(fundAccount.getId());
+			fundAccountDto.setId(fundAccount.getFundAccId());
 			fundAccountDto.setMemberId(fundAccount.getMember().getmId());
 			fundAccountDto.setName(fundAccount.getMember().getmName());
 			fundAccountDto.setRiskType(fundAccount.getRiskType());

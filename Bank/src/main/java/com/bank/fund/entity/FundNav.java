@@ -5,23 +5,23 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "fund_nav", uniqueConstraints = @UniqueConstraint(columnNames = { "fund_id", "nav_date" }))
+@Table(name = "fund_nav",
+       uniqueConstraints = @UniqueConstraint(columnNames = {"fund_id", "nav_date"}))
 public class FundNav {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "nav_id")
-	private Integer id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer navId;
 
-	@ManyToOne
-	@JoinColumn(name = "fund_id", nullable = false)
-	private Fund fund;
+    @ManyToOne
+    @JoinColumn(name = "fund_id", nullable = false)
+    private Fund fund;
 
-	@Column(name = "nav_date", nullable = false)
-	private LocalDate navDate;
+    @Column(name = "nav_date", nullable = false)
+    private LocalDate navDate;
 
-	@Column(name = "nav", precision = 18, scale = 4, nullable = false)
-	private BigDecimal nav;
+    @Column(nullable = false, precision = 18, scale = 4)
+    private BigDecimal nav;
 
 	public FundNav() {
 		super();
@@ -35,20 +35,20 @@ public class FundNav {
 		this.nav = nav;
 	}
 
-	public FundNav(Integer id, Fund fund, LocalDate navDate, BigDecimal nav) {
+	public FundNav(Integer navId, Fund fund, LocalDate navDate, BigDecimal nav) {
 		super();
-		this.id = id;
+		this.navId = navId;
 		this.fund = fund;
 		this.navDate = navDate;
 		this.nav = nav;
 	}
 
-	public Integer getId() {
-		return id;
+	public Integer getNavId() {
+		return navId;
 	}
 
-	public void setId(Integer id) {
-		this.id = id;
+	public void setNavId(Integer navId) {
+		this.navId = navId;
 	}
 
 	public Fund getFund() {
@@ -74,5 +74,4 @@ public class FundNav {
 	public void setNav(BigDecimal nav) {
 		this.nav = nav;
 	}
-
 }
