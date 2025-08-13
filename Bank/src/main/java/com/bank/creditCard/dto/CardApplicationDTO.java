@@ -2,7 +2,9 @@ package com.bank.creditCard.dto;
 
 import java.time.LocalDateTime;
 
+
 import com.bank.member.bean.Member;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.bank.creditCard.application.model.CardApplicationBean;
 
 import lombok.AllArgsConstructor;
@@ -18,8 +20,10 @@ public class CardApplicationDTO {
     private String idPhotoFront;
     private String idPhotoBack;
     private String financialProof;
+    @JsonFormat(pattern ="yyyy-MM-dd")
     private LocalDateTime applyDate;
     private String status;
     private MemberDto member;
+    @JsonFormat(pattern ="yyyy-MM-dd")
     private String reviewComment;
 }
