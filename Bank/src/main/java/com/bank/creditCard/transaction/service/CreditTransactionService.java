@@ -127,6 +127,14 @@ public class CreditTransactionService {
 		CreditTransactionBean original = creditTransactionRepository.findById(transactionId)
 				.orElseThrow(()->new RuntimeException("交易不存在,ID="+transactionId));
 		
+		if(original.getDescription()!=null&&original.getDescription().contains("已退款")) {
+			throw new RuntimeException("該交易已退款,不能重複退款");
+		}
+		// 更新原交易紀錄 description
+	    String oldDesc = original.getDescription() == null ? "" : original.getDescription();
+	    original.setDescription(oldDesc + "（已退款）");
+	    creditTransactionRepository.save(original);
+		
 		CreditTransactionBean refund = new CreditTransactionBean();
 		refund.setTransactionCode(generateTransactionCode());
 	    refund.setCardDetail(original.getCardDetail());

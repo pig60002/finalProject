@@ -1,5 +1,6 @@
 package com.bank.creditCard.transaction.dao;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -16,10 +17,6 @@ public interface CreditTransactionRepository extends JpaRepository<CreditTransac
 	
 	//依會員ID查詢所有交易
 	List<CreditTransactionBean> findByMember_MId(Integer mId);
-	
-	//依卡片ID及交易時間區間查詢交易(用於年月查詢)
-//	List<CreditTransactionBean> findByCardDetail_CardIdAndTransactionTimeBetween(
-//			Integer cardId,LocalDateTime start,LocalDateTime end);
 
 	List<CreditTransactionBean> findByCardDetailCardIdAndMemberMId(Integer cardId, Integer mId);
 	
@@ -34,4 +31,8 @@ public interface CreditTransactionRepository extends JpaRepository<CreditTransac
 		    @Param("name") String name, 
 		    @Param("start") LocalDateTime start, 
 		    @Param("end") LocalDateTime end);
+	
+	List<CreditTransactionBean> findByCardDetailCardIdAndTransactionTimeBetweenAndAmountGreaterThan(Integer cardId,LocalDateTime start,LocalDateTime end,BigDecimal amount);
+	
+	List<CreditTransactionBean> findByCardDetailCardIdAndTransactionTimeBetween(Integer cardId, LocalDateTime start, LocalDateTime end);
 }

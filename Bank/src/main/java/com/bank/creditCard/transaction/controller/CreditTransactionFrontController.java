@@ -17,7 +17,7 @@ import com.bank.creditCard.transaction.service.CreditTransactionService;
 
 @RestController
 @RequestMapping("/transactionFront")
-public class creditTransactionFrontController {
+public class CreditTransactionFrontController {
 
 	@Autowired
 	private CreditTransactionService creditTransactionService;
