@@ -27,4 +27,7 @@ public interface TransactionsRepository extends JpaRepository<Transactions, Stri
 												  @Param("statuses") List<String> statuses,
 											      @Param("start") LocalDateTime start,
 											      @Param("end") LocalDateTime end);
+	
+	@Query("SELECT DISTINCT t.toAccountId FROM Transactions t WHERE t.accountId = :accountId AND t.transactionType = '轉出' AND t.status = '轉帳成功'")
+	List<String> findOutgoingSuccess( @Param("accountId") String accountId );
 }

@@ -72,5 +72,8 @@ public class TransactionsService {
 		return txRepos.save(txBean);
 	}
 	
-	
+	// 找最近有轉出的帳號
+	public List<String> findOutgoingSuccess(String accountId){
+		return txRepos.findOutgoingSuccess(accountId);
+	}
 }

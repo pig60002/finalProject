@@ -105,4 +105,10 @@ public class TransactionsController {
 		return transactionsService.getTxSuccessRecords(accountId, startDate, endDate);
 	}
 	
+	// 找最近有轉出的帳號
+	@GetMapping("/account/transaction/getrecenttoaccountid")
+	public List<String> getRecentToAccountIdAction(@RequestParam String accountId){
+		return transactionsService.findOutgoingSuccess(accountId);
+	}
+	
 }
