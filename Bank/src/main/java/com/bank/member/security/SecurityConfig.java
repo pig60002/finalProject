@@ -36,7 +36,8 @@ public class SecurityConfig {
 		// 設定開放的 URL，無須登入
 		List<String> allowedURL = List.of(
 				"/auth/**",
-				"/uploadImg/**"// Chrome 開發工具開啟時會發出請求
+				"/uploadImg/**",
+				"/member/member"// Chrome 開發工具開啟時會發出請求
 				);
 
 		return http // 使用 HttpSecurity http 物件展開串聯設定
