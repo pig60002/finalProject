@@ -74,5 +74,11 @@ public class AccountController {
 				, acc.getAccountId());
 	}
 	
+	// 查詢所有帳戶
+	@PostMapping("/account/searchallaccount")
+	public List<Account> processSearchAllAccount(){
+		return accountServcie.findAllAccounts();
+	}
+	
 	
 }
