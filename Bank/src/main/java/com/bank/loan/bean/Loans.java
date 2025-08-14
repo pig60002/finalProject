@@ -46,7 +46,10 @@ public class Loans {
 	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;    // 更新時間
 	@Column(name = "proof_document_url")
-	private String proofDocumentUrl;    // 圖片存取位置
+	private String proofDocumentUrl;    // 財力證明圖片存取位置
+	@Column(name = "contract_path")
+	private String contractPath;    // 合約圖片存取位置
+	
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "m_id", insertable = false, updatable = false)
@@ -84,6 +87,7 @@ public class Loans {
 	public LocalDateTime getUpdatedAt() { return updatedAt; }
 	public Member getMember() { return member; }
 	public String getProofDocumentUrl() { return proofDocumentUrl; }
+	public String getContractPath() { return contractPath; }
 
 
 	// setting
@@ -101,4 +105,5 @@ public class Loans {
 	public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 	public void setMember(Member member) { this.member = member; }
 	public void setProofDocumentUrl(String proofDocumentUrl) { this.proofDocumentUrl = proofDocumentUrl; }
+	public void setContractPath(String contractPath) { this.contractPath = contractPath; }
 }

@@ -16,14 +16,28 @@ public class LoanSearchController {
 	@Autowired
     private LoanSearchService lsService;
 
-    // GET /loans?search=keyword
-    @GetMapping("/search/loans")
-    public List<LoansDto> searchLoans(@RequestParam(required = false, name = "search") String keyword) {
-        if (keyword == null || keyword.trim().isEmpty()) {
-            // 不輸入關鍵字時，回傳全部（可選，視需求調整）
-            return lsService.searchLoansByMemberName("");
-        } else {
-            return lsService.searchLoansByMemberName(keyword);
-        }
-    }
+	@GetMapping("/search/loans")
+	public List<LoansDto> searchLoans(
+	    @RequestParam(required = false, name = "search") String keyword,
+	    @RequestParam(required = false, name = "status") String status) {
+
+	    // 兩個條件都空 → 查全部
+	    if ((keyword == null || keyword.trim().isEmpty()) && (status == null || status.trim().isEmpty())) {
+	        return lsService.findAllLoans(); // 你要自己加一個查全部的方法
+	    }
+
+	    // 只傳 status
+	    if (keyword == null || keyword.trim().isEmpty()) {
+	        return lsService.searchLoansByApprovalStatus(status);
+	    }
+
+	    // 只傳 keyword
+	    if (status == null || status.trim().isEmpty()) {
+	        return lsService.searchLoansByMemberName(keyword);
+	    }
+
+	    // 同時傳 keyword 和 status → 兩個條件一起篩
+	    return lsService.searchLoansByNameAndStatus(keyword, status);
+	}
+
 }
