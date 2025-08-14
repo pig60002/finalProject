@@ -53,8 +53,23 @@ public class CreditTransactionService {
         // 計算回饋
         BigDecimal cashback = calculateCashback(card, dto.getAmount(), dto.getMerchantType());
         transaction.setCashback(cashback);
+        
+        // 儲存交易
+        CreditTransactionBean saved = creditTransactionRepository.save(transaction);
 
-        return creditTransactionRepository.save(transaction);
+        // 計算已用額度
+        BigDecimal usedAmount = creditTransactionRepository
+                .findByCardDetail_CardId(card.getCardId())
+                .stream()
+                .map(CreditTransactionBean::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        // 更新剩餘額度
+        BigDecimal currentBalance = card.getCreditLimit().subtract(usedAmount);
+        card.setCurrentBalance(currentBalance);
+        cardDetailRepository.save(card);
+
+        return saved;
     }
     
     //計算回饋邏輯

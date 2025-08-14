@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.bank.creditCard.issue.model.CardDetailBean;
 import com.bank.creditCard.transaction.model.CreditTransactionBean;
 
 public interface CreditTransactionRepository extends JpaRepository<CreditTransactionBean, Integer> {

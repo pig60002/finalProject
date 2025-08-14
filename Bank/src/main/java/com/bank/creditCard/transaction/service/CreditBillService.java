@@ -82,6 +82,13 @@ public class CreditBillService {
             tx.setCreditBill(savedBill);
         }
         creditTransactionRepository.saveAll(transactions);
+        
+     // currentBalance = creditLimit - 已用額度 (所有交易金額總和)
+        BigDecimal usedAmount = creditTransactionRepository.findByCardDetail_CardId(card.getCardId()).stream()
+                .map(CreditTransactionBean::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        card.setCurrentBalance(card.getCreditLimit().subtract(usedAmount));
+        cardDetailRepository.save(card);
 
         return savedBill;
 	}
