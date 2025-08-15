@@ -1,5 +1,7 @@
 package com.bank.loan.service;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,7 +52,8 @@ public class LoanDetailDtoService {
         CreditProfiles profile = cpRepo.findByMember_mId(loan.getMid());
 
         // 取得最新一筆審核紀錄
-        CreditReviewLogs crl = crlRepo.findTopByLoanIdOrderByReviewTimeDesc(loanId);
+        Optional<CreditReviewLogs> crlOptional = crlRepo.findTopByLoanIdOrderByReviewTimeDesc(loanId);
+        CreditReviewLogs crl = crlOptional.orElse(null);
 
         // 組裝成 DTO
         return LoanDetailDtoMapper.toDto(loan, member, profile, crl);

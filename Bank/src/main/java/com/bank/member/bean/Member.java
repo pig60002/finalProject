@@ -63,9 +63,12 @@ public class Member implements Serializable{
 	@Column(name = "m_state")
 	private Integer mState;
 	
-
+	@Column(name = "m_image")
+	private String mImage;
+	
+	
 	public Member(Integer mId, String mName, String mIdentity, String mGender, String mAccount, String mPassword,
-			String mAddress, String mPhone, Date mBirthday, String mEmail, Date creation, Integer mState) {
+			String mAddress, String mPhone, Date mBirthday, String mEmail, Date creation, Integer mState,String mImage) {
 		super();
 		this.mId = mId;
 		this.mName = mName;
@@ -79,10 +82,11 @@ public class Member implements Serializable{
 		this.mEmail = mEmail;
 		this.creation = creation;
 		this.mState = mState;
+		this.mImage = mImage;
 	}
 
 	public Member(String mName, String mIdentity, String mGender, String mAccount, String mPassword, String mAddress,
-			String mPhone, Date mBirthday, String mEmail, Date creation, Integer mState) {
+			String mPhone, Date mBirthday, String mEmail, Date creation, Integer mState,String mImage) {
 		super();
 		this.mName = mName;
 		this.mIdentity = mIdentity;
@@ -95,6 +99,7 @@ public class Member implements Serializable{
 		this.mEmail = mEmail;
 		this.creation = creation;
 		this.mState = mState;
+		this.mImage = mImage;
 	}
 
 	public Integer getmId() {
@@ -197,13 +202,23 @@ public class Member implements Serializable{
 		return serialVersionUID;
 	}
 
+	public String getmImage() {
+		return mImage;
+	}
+
+	public void setmImage(String mImage) {
+		this.mImage = mImage;
+	}
+
 	@Override
 	public String toString() {
 		return "Member [mId=" + mId + ", mName=" + mName + ", mIdentity=" + mIdentity + ", mGender=" + mGender
 				+ ", mAccount=" + mAccount + ", mPassword=" + mPassword + ", mAddress=" + mAddress + ", mPhone="
 				+ mPhone + ", mBirthday=" + mBirthday + ", mEmail=" + mEmail + ", creation=" + creation + ", mState="
-				+ mState + "]";
+				+ mState + ", mImage=" + mImage + "]";
 	}
+
+
 	
 //	@OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
 //    private List<LoanBean> loans;

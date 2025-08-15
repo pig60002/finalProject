@@ -19,19 +19,12 @@ public class FundAccountController {
 	
 	// 查詢基金帳戶
 	@GetMapping
-	public ResponseEntity<List<FundAccountDto>> getFundAccounts(@RequestParam(required = false) String status,
+	public ResponseEntity<List<FundAccountDto>> getFundAccounts(
+			@RequestParam(required = false) String status,
 			@RequestParam(required = false) String name
 			) {
-		
-		if (status != null) {
-			return ResponseEntity.ok(fundAccountService.getByStatus(status));
-		}
-		
-//		if (name != null) {
-//			return ResponseEntity.ok(fundAccountService.getByName(name));
-//		}
-		
-		return ResponseEntity.ok(fundAccountService.getAll());
+				
+		return ResponseEntity.ok(fundAccountService.getFundAccounts(status, name));
 	}
 
 	//根據ID查詢單筆基金帳戶
@@ -43,8 +36,10 @@ public class FundAccountController {
 
 	// 新增基金帳戶
 	@PostMapping
-	public ResponseEntity<String> insertFundAccount(@RequestParam Integer memberId, @RequestParam String riskType) {
-		boolean success = fundAccountService.insert(memberId, riskType);
+	public ResponseEntity<String> createFundAccount(
+			@RequestParam Integer memberId, 
+			@RequestParam String riskType) {
+		boolean success = fundAccountService.create(memberId, riskType);
 
 		if (success) {
 			return ResponseEntity.status(HttpStatus.CREATED).body("新增成功");
@@ -55,7 +50,8 @@ public class FundAccountController {
 
 	// 更新基金帳戶
 	@PatchMapping("/{id}")
-	public ResponseEntity<String> updateFundAccount(@PathVariable Integer id,
+	public ResponseEntity<String> updateFundAccount(
+			@PathVariable Integer id,
 			@RequestParam(required = false) String riskType,
 			@RequestParam(required = false) String status) {
 

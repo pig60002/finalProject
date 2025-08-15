@@ -33,7 +33,7 @@ public class Transactions {
 	private BigDecimal amount;
 	
 	@Column(name="tx_time")
-	private LocalDateTime tx_time;
+	private LocalDateTime txTime;
 	
 	@Column(name="memo")
 	private String memo;
@@ -43,14 +43,17 @@ public class Transactions {
 	
 	@Column(name="operator_id")
 	private Integer operatorId;
+	
+	@Column(name="balance_after")
+	private BigDecimal balanceAfter; 
 
 	public Transactions() {
 		super();
 	}
 
 	public Transactions(String transactionId, String accountId, String transactionType, String toBankCode,
-			String toAccountId, String currency, BigDecimal amount, LocalDateTime tx_time, String memo, String status,
-			Integer operatorId) {
+			String toAccountId, String currency, BigDecimal amount, LocalDateTime txTime, String memo, String status,
+			Integer operatorId, BigDecimal balanceAfter) {
 		super();
 		this.transactionId = transactionId;
 		this.accountId = accountId;
@@ -59,14 +62,16 @@ public class Transactions {
 		this.toAccountId = toAccountId;
 		this.currency = currency;
 		this.amount = amount;
-		this.tx_time = tx_time;
+		this.txTime = txTime;
 		this.memo = memo;
 		this.status = status;
 		this.operatorId = operatorId;
+		this.balanceAfter = balanceAfter;
 	}
 
 	public Transactions(String accountId, String transactionType, String toBankCode, String toAccountId,
-			String currency, BigDecimal amount, LocalDateTime tx_time, String memo, String status, Integer operatorId) {
+			String currency, BigDecimal amount, LocalDateTime txTime, String memo, String status, Integer operatorId,
+			BigDecimal balanceAfter) {
 		super();
 		this.accountId = accountId;
 		this.transactionType = transactionType;
@@ -74,25 +79,37 @@ public class Transactions {
 		this.toAccountId = toAccountId;
 		this.currency = currency;
 		this.amount = amount;
-		this.tx_time = tx_time;
+		this.txTime = txTime;
 		this.memo = memo;
 		this.status = status;
 		this.operatorId = operatorId;
+		this.balanceAfter = balanceAfter;
 	}
-	
 
 	public Transactions(String transactionId, String accountId, String transactionType, String currency,
-			BigDecimal amount, LocalDateTime tx_time, String memo, String status, Integer operatorId) {
+			BigDecimal amount, LocalDateTime txTime, String memo, String status, Integer operatorId,
+			BigDecimal balanceAfter) {
 		super();
 		this.transactionId = transactionId;
 		this.accountId = accountId;
 		this.transactionType = transactionType;
 		this.currency = currency;
 		this.amount = amount;
-		this.tx_time = tx_time;
+		this.txTime = txTime;
 		this.memo = memo;
 		this.status = status;
 		this.operatorId = operatorId;
+		this.balanceAfter = balanceAfter;
+	}
+
+	
+
+	public BigDecimal getBalanceAfter() {
+		return balanceAfter;
+	}
+
+	public void setBalanceAfter(BigDecimal balanceAfter) {
+		this.balanceAfter = balanceAfter;
 	}
 
 	public String getTransactionId() {
@@ -151,12 +168,12 @@ public class Transactions {
 		this.amount = amount;
 	}
 
-	public LocalDateTime getTx_time() {
-		return tx_time;
+	public LocalDateTime getTxTime() {
+		return txTime;
 	}
 
-	public void setTx_time(LocalDateTime tx_time) {
-		this.tx_time = tx_time;
+	public void setTxTime(LocalDateTime txTime) {
+		this.txTime = txTime;
 	}
 
 	public String getMemo() {

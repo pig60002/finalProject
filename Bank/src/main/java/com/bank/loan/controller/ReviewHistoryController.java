@@ -4,6 +4,8 @@ import com.bank.loan.dto.ReviewHistoryDto;
 import com.bank.loan.service.ReviewHistoryDtoService;
 import com.bank.loan.service.ReviewHistoryService;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,4 +38,12 @@ public class ReviewHistoryController {
         rhService.saveOrUpdateFromDto(dto);
         return ResponseEntity.ok("Review history saved or updated successfully.");
     }
+    
+    // 查詢全部reviewLog紀錄
+    @GetMapping("/all")
+    public ResponseEntity<List<ReviewHistoryDto>> getAllReviewHistories() {
+        List<ReviewHistoryDto> list = rhdService.findAll();
+        return ResponseEntity.ok(list);
+    }
+
 }

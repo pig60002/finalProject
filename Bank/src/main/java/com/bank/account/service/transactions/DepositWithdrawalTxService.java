@@ -36,7 +36,7 @@ public class DepositWithdrawalTxService {
 		Account accountRS = accountServcie.getByAccountId(accountId);
 		if (accountRS == null) {
 			memo = "帳戶不存在";
-			return txService.saveTransactionsRecord(null, transactionType, null, null, null, memo, txStatus,
+			return txService.saveTransactionsRecord(null, transactionType, null, null, amount, null, memo, txStatus,
 					operatorId);
 		}
 
@@ -46,7 +46,7 @@ public class DepositWithdrawalTxService {
 		// 檢查交易金額
 		if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
 			memo = "交易金額輸入錯誤";
-			return txService.saveTransactionsRecord(accountRS, transactionType, null, null, balance, memo, txStatus,
+			return txService.saveTransactionsRecord(accountRS, transactionType, null, null, amount, balance, memo, txStatus,
 					operatorId);
 		}
 
@@ -61,7 +61,7 @@ public class DepositWithdrawalTxService {
 
 			} else {
 				memo = "餘額不足";
-				return txService.saveTransactionsRecord(accountRS, transactionType, null, null, balance, memo, txStatus,
+				return txService.saveTransactionsRecord(accountRS, transactionType, null, null, amount, balance, memo, txStatus,
 						operatorId);
 			}
 			break;
@@ -74,7 +74,7 @@ public class DepositWithdrawalTxService {
 		default:
 
 			memo = "交易類型錯誤";
-			return txService.saveTransactionsRecord(accountRS, transactionType, null, null, balance, memo, txStatus,
+			return txService.saveTransactionsRecord(accountRS, transactionType, null, null, amount, balance, memo, txStatus,
 					operatorId);
 		}
 
@@ -86,13 +86,13 @@ public class DepositWithdrawalTxService {
 			if (updateRS != 1) {
 				txStatus = "交易失敗";
 				memo = "更新帳戶餘額失敗";
-				return txService.saveTransactionsRecord(accountRS, transactionType, null, null, balance, memo, txStatus,
+				return txService.saveTransactionsRecord(accountRS, transactionType, null, null, amount, balance, memo, txStatus,
 						operatorId);
 			}
 		}
 
 		// 建立交易紀錄
-		return txService.saveTransactionsRecord(accountRS, transactionType, null, null,
+		return txService.saveTransactionsRecord(accountRS, transactionType, null, null, amount,
 				newBalance != null ? newBalance : balance, memo, txStatus, operatorId);
 	}
 

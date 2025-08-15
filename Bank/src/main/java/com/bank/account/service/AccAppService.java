@@ -23,8 +23,8 @@ public class AccAppService {
 	@Autowired
 	private SerialControlService scService;
 
-	// 新增
-	public AccountApplication insertAccApp(MultipartFile idfront, MultipartFile idback, MultipartFile secdoc,Integer mid) {
+	// 新增 
+	public AccountApplication insertAccApp(MultipartFile idfront, MultipartFile idback, MultipartFile secdoc,Integer mid ,String status) {
 		
 		AccountApplication accApp = new AccountApplication();
 		
@@ -41,11 +41,13 @@ public class AccAppService {
 		String id = scService.getSCNB("application", AccountUtils.getTodayCode() );
 		accApp.setApplicationId(id);
 		accApp.setmId(mid);
-		accApp.setStatus("待審核");
+		accApp.setStatus(status);
 		accApp.setApplyTime( LocalDateTime.now() );
 
 		return accAppRepos.save(accApp);
 	}
+	
+	
 
 	// 修改 updateAccApp(AccountApplication accApp)
 	public AccountApplication updateAccApp(AccountApplication accApp) {
@@ -72,8 +74,9 @@ public class AccAppService {
 	}
 
 	// 依狀態查詢 開戶申請表 getAccAppByStatus()
-	public List<AccountApplication> getAccAppByStatus(String status1, String status2) {
-		return accAppRepos.getAccAppByStatus(status1, status2);
+	public List<AccountApplication> getAccAppByStatus(List<String> statuses) {
+		
+		return accAppRepos.getAccAppByStatus(statuses);
 	}
 
 	// 查詢會員詳細資料(審核用) getAccAppDetail(String applicationId)
