@@ -65,6 +65,19 @@ public class InternalTransferService {
 					operatorId);
 		}
 		
+		// 檢查帳戶狀態
+		if("限制".equals(account.getStatus()) || "凍結".equals(account.getStatus())) {
+			memo = "此帳戶被凍結或限制，目前無法轉帳";
+			return txService.saveTransactionsRecord(account, transactionType, toBankCode, toAccountId, amount, accountBalance, memo, txStatus,
+					operatorId);
+		}
+		
+		if("凍結".equals(toAccount.getStatus())) {
+			memo = "轉入帳戶已凍結，轉帳失敗";
+			return txService.saveTransactionsRecord(account, transactionType, toBankCode, toAccountId, amount, accountBalance, memo, txStatus,
+					operatorId);
+		}
+		
 		// 檢查交易金額
 		if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
 			memo = "交易金額輸入錯誤";
