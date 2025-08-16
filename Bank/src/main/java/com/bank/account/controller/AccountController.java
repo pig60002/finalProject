@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bank.account.bean.Account;
 import com.bank.account.service.AccountServcie;
+import com.bank.member.bean.Member;
 
 @RestController
 public class AccountController {
@@ -61,7 +62,23 @@ public class AccountController {
 		}
 	}
 	
-	// 修改帳戶-餘額 (提款)
+	// 多欄位查詢帳戶
+	@PostMapping("/account/searchaccount")
+	public List<Account> processSearchAccountsAction(@RequestBody Account acc){
+		Member member = acc.getMember();
+		System.out.println(member);
+		return accountServcie.searchAccounts(acc.getmId()
+				, member != null ? member.getmIdentity() : null
+				,member != null ? member.getmPhone() : null
+				,member != null ? member.getmName() : null
+				, acc.getAccountId());
+	}
+	
+	// 查詢所有帳戶
+	@PostMapping("/account/searchallaccount")
+	public List<Account> processSearchAllAccount(){
+		return accountServcie.findAllAccounts();
+	}
 	
 	
 }

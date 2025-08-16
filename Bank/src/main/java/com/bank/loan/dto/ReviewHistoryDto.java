@@ -2,6 +2,8 @@ package com.bank.loan.dto;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,6 +15,8 @@ public class ReviewHistoryDto {
 	private String mName; 				// 會員姓名
 	private String loanId; 				// 貸款ID（外鍵）
 	private Integer reviewerId; 		// 審核人員ID（可為 NULL）
+	
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	private LocalDateTime reviewTime; 	// 審核時間
 	private Integer creditScore; 		// 此次審核信用分數
 	private String decision; 			// 決策結果（通過 / 拒絕 / 補件中）

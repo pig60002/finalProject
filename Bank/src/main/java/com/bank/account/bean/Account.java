@@ -4,9 +4,13 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import com.bank.member.bean.Member;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity @Table(name="accounts")
@@ -43,12 +47,44 @@ public class Account {
 	@Column(name="status_updated_time")
 	private LocalDateTime statusUpdatedTime;
 	
+	@Column(name="last_transaction_date")
+	private LocalDate lastTransactionDate;
+	
+	@ManyToOne @JoinColumn(name="m_id", insertable = false, updatable = false)
+	private Member member;
+	
 	public Account() {
 		super();
 	}
 
+	public Member getMember() {
+		return member;
+	}
+
+	public void setMember(Member member) {
+		this.member = member;
+	}
+
+	public Account(Integer mId, String accountName, String currency, BigDecimal balance, LocalDate openedDate,
+			String status, String memo, Integer operatorId, LocalDateTime statusUpdatedTime,
+			LocalDate lastTransactionDate, Member member) {
+		super();
+		this.mId = mId;
+		this.accountName = accountName;
+		this.currency = currency;
+		this.balance = balance;
+		this.openedDate = openedDate;
+		this.status = status;
+		this.memo = memo;
+		this.operatorId = operatorId;
+		this.statusUpdatedTime = statusUpdatedTime;
+		this.lastTransactionDate = lastTransactionDate;
+		this.member = member;
+	}
+
 	public Account(String accountId, Integer mId, String accountName, String currency, BigDecimal balance,
-			LocalDate openedDate, String status, String memo, Integer operatorId, LocalDateTime statusUpdatedTime) {
+			LocalDate openedDate, String status, String memo, Integer operatorId, LocalDateTime statusUpdatedTime,
+			LocalDate lastTransactionDate, Member member) {
 		super();
 		this.accountId = accountId;
 		this.mId = mId;
@@ -60,20 +96,8 @@ public class Account {
 		this.memo = memo;
 		this.operatorId = operatorId;
 		this.statusUpdatedTime = statusUpdatedTime;
-	}
-
-	public Account(Integer mId, String accountName, String currency, BigDecimal balance, LocalDate openedDate,
-			String status, String memo, Integer operatorId, LocalDateTime statusUpdatedTime) {
-		super();
-		this.mId = mId;
-		this.accountName = accountName;
-		this.currency = currency;
-		this.balance = balance;
-		this.openedDate = openedDate;
-		this.status = status;
-		this.memo = memo;
-		this.operatorId = operatorId;
-		this.statusUpdatedTime = statusUpdatedTime;
+		this.lastTransactionDate = lastTransactionDate;
+		this.member = member;
 	}
 
 	public String getAccountId() {
@@ -150,6 +174,14 @@ public class Account {
 
 	public LocalDateTime getStatusUpdatedTime() {
 		return statusUpdatedTime;
+	}
+
+	public LocalDate getLastTransactionDate() {
+		return lastTransactionDate;
+	}
+
+	public void setLastTransactionDate(LocalDate lastTransactionDate) {
+		this.lastTransactionDate = lastTransactionDate;
 	}
 
 	public void setStatusUpdatedTime(LocalDateTime statusUpdatedTime) {

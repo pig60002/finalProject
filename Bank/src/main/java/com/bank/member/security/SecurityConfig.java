@@ -35,7 +35,9 @@ public class SecurityConfig {
 
 		// 設定開放的 URL，無須登入
 		List<String> allowedURL = List.of(
-				"/auth/**" // Chrome 開發工具開啟時會發出請求
+				"/auth/**",
+				"/uploadImg/**",
+				"/member/member"// Chrome 開發工具開啟時會發出請求
 				);
 
 		return http // 使用 HttpSecurity http 物件展開串聯設定
@@ -57,7 +59,7 @@ public class SecurityConfig {
 
 					// 除了開放的 api 以外，其他都要登入才能存取
 					auth.anyRequest().authenticated();
-						*/
+					*/
 					
 					auth.anyRequest().permitAll();
 

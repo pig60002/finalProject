@@ -1,11 +1,11 @@
 package com.bank.account.controller;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,23 +25,21 @@ public class AccAppController {
 	private AccAppService accAppService;
 
 	// 查詢 "已審核"狀態 
-	@GetMapping("/account/application/getrwdone.controller")
+	@GetMapping("/account/application/getrwdone")
 	public List<AccountApplication> processGetAccAppReviewDoneAction(){
-		List<AccountApplication> list1 = accAppService.getAccAppByStatus("通過", "未通過");
-		return list1;
+		return accAppService.getAccAppByStatus(Arrays.asList("通過", "未通過" ,"待補件"));
 	}
 
 	// 查詢 "未審核"狀態
-	@GetMapping("/account/application/getrwundone.controller")
+	@GetMapping("/account/application/getrwundone")
 	public List<AccountApplication> processGetAccAppReviewUnDoneAction() {
-		List<AccountApplication> list1 = accAppService.getAccAppByStatus("待審核", "待補件");
-		return list1;
+		return accAppService.getAccAppByStatus(Arrays.asList("待審核", "已補件待審核"));
 	}
 
 	// 修改單筆開戶申請表 (審核狀態)ResponseEntity 
 	// ResponseEntity是 Spring MVC 裡用來完整控制 HTTP 回應（response）內容的類別。
 	// 回傳的狀態碼（status code）回傳的資料內容（body），可以是字串、物件、JSON 等
-	@PutMapping("/account/application/update.controller")
+	@PutMapping("/account/application/update")
 	public ResponseEntity<String> processAccAppAction(@RequestBody AccountApplication accapp) {
 		// PostMan測試{"status":"待審核","reviewerId":1,"rejectionReason":"身分不符","applicationId":"202506270007"} 
 		int updateRS = accAppService.updateAccApp(
@@ -60,13 +58,17 @@ public class AccAppController {
 	}
 	
 	// 新增帳戶申請
-	@PostMapping("/account/application/insert.controller")
+	@PostMapping("/account/application/insert")
 	public ResponseEntity<String> processInsertAction(@RequestParam MultipartFile idfront,
 												  	  @RequestParam MultipartFile idback,
-												  	  @RequestParam(required = false) MultipartFile secDec, //(required = false)可以沒有
-												  	  @RequestParam Integer mid) {
+												  	  @RequestParam(required = false) MultipartFile secDoc, //(required = false)可以沒有
+												  	  @RequestParam Integer mid,
+												  	  @RequestParam(required = false)String status) {
 		
-		AccountApplication insertRS = accAppService.insertAccApp(idfront, idback, secDec, mid);
+		status = (status!=null) ? status : "待審核" ;
+		
+		AccountApplication insertRS = accAppService.insertAccApp(idfront, idback, secDoc, mid, status);
+		
 		
 		if( insertRS != null ) {
 			return ResponseEntity.ok("新增成功");
