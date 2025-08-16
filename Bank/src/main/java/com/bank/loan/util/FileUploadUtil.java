@@ -9,35 +9,37 @@ import org.springframework.web.multipart.MultipartFile;
 
 public class FileUploadUtil {
 
-    // 預設上傳目錄（可改成從 config 載入）
-    public static final String UPLOAD_DIR = "C:/bankSpringBoot/Bank/uploadImg/loanImg/";
+    // 取得基底目錄，固定為專案根目錄下的 uploadImg
+    private static final String BASE_UPLOAD_DIR = System.getProperty("user.dir") + "/uploadImg";
 
-    /**
-     * 儲存檔案並回傳相對路徑
-     * @param loanId
-     * @param file
-     * @return 相對路徑，例如 /uploadImg/loanImg/loanId_timestamp_原始檔名
-     * @throws IOException
-     */
-    public static String saveFile(String loanId, MultipartFile file) throws IOException {
+    public static String saveFile(String loanId, MultipartFile file, String uploadDir) throws IOException {
         if (file.isEmpty()) {
             throw new IOException("File is empty");
         }
 
         String originalFilename = file.getOriginalFilename();
         String extension = "";
-        
         int dotIndex = originalFilename.lastIndexOf(".");
         if (dotIndex > 0) {
-            extension = originalFilename.substring(dotIndex); // 取得副檔名，例如 .jpg
+            extension = originalFilename.substring(dotIndex);
         }
         String newFileName = loanId + "_" + System.currentTimeMillis() + extension;
 
-        Path targetPath = Paths.get(UPLOAD_DIR).resolve(newFileName);
-        Files.createDirectories(targetPath.getParent());
+        // 判斷uploadDir是否為相對路徑（沒有以 C:/ 或 / 開頭），拼成絕對路徑
+        Path basePath = Paths.get(BASE_UPLOAD_DIR);
+        Path uploadPath = Paths.get(uploadDir);
+        Path targetPath;
 
+        if (uploadPath.isAbsolute()) {
+            targetPath = uploadPath.resolve(newFileName);
+        } else {
+            targetPath = basePath.resolve(uploadPath).resolve(newFileName);
+        }
+
+        Files.createDirectories(targetPath.getParent());
         file.transferTo(targetPath.toFile());
 
-        return "/uploadImg/loanImg/" + newFileName;
+        // 回傳可用於前端的相對路徑，方便瀏覽器存取
+        return "/" + uploadDir.replace("\\", "/") + "/" + newFileName;
     }
 }

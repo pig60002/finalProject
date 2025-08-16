@@ -58,7 +58,7 @@ public class AccAppController {
 	}
 	
 	// 新增帳戶申請
-	@PostMapping("/account/application/insert.controller")
+	@PostMapping("/account/application/insert")
 	public ResponseEntity<String> processInsertAction(@RequestParam MultipartFile idfront,
 												  	  @RequestParam MultipartFile idback,
 												  	  @RequestParam(required = false) MultipartFile secDoc, //(required = false)可以沒有

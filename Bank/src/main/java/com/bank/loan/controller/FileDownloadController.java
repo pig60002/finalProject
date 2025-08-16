@@ -30,4 +30,29 @@ public class FileDownloadController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
                 .body(resource);
     }
+    
+    @GetMapping("/download/contract/{filename:.+}")
+    public ResponseEntity<Resource> downloadContractFile(@PathVariable String filename) throws MalformedURLException {
+        String contractDir = "C:/bankSpringBoot/Bank/uploadImg/contract/";
+        Path filePath = Paths.get(contractDir).resolve(filename).normalize();
+        Resource resource = new UrlResource(filePath.toUri());
+
+        if (!resource.exists()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // 例如從檔名擷取 loanId（假設格式是 loanId_timestamp.ext）
+        String loanId = filename.split("_")[0];
+        String downloadName = loanId + "_contract" + getFileExtension(filename);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + downloadName + "\"")
+                .body(resource);
+    }
+
+    private String getFileExtension(String filename) {
+        int dotIndex = filename.lastIndexOf('.');
+        return (dotIndex >= 0) ? filename.substring(dotIndex) : "";
+    }
+
 }

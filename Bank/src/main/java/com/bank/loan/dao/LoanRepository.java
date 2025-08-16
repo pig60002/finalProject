@@ -11,7 +11,13 @@ public interface LoanRepository extends JpaRepository<Loans, String> {
 	@Query("SELECT MAX(SUBSTRING(l.loanId, 5, 5)) FROM Loans l")
 	String findMaxSerialNo();
 	
-	// 根據顧客姓名模糊查詢 (假設 Member 以 mName 存取)
+	// 根據顧客姓名模糊查詢
     List<Loans> findByMember_mNameContainingIgnoreCase(String mName);
+    
+    // 根據貸款狀態查詢
+    List<Loans> findByApprovalStatus(String approvalStatus);
+    
+ // 根據顧客姓名模糊 & 貸款狀態查詢
+    List<Loans> findByMember_mNameContainingIgnoreCaseAndApprovalStatus(String mName, String approvalStatus);
 
 }

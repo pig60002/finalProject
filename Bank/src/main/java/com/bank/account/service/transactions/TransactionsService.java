@@ -26,14 +26,22 @@ public class TransactionsService {
 	private SerialControlService scService;
 	
 	// 查詢帳戶所有交易
-	public List<Transactions> getTransactionByAccountId(String accountId){
-		return txRepos.findByAccountId(accountId);
+	public List<Transactions> getTransactionByAccountId(String accountId, String startDate, String endDate){
+		
+		LocalDateTime startOfDay = AccountUtils.getStartOfDay(startDate);
+		LocalDateTime endExclusiveDate = AccountUtils.getEndExclusiveDate(endDate);
+		
+		return txRepos.findByAccountId(accountId, startOfDay, endExclusiveDate);
 	}
 	
 	// 查詢帳戶所有"成功"交易
-	public List<Transactions> getTxSuccessRecords(String accountId){
+	public List<Transactions> getTxSuccessRecords(String accountId, String startDate, String endDate){
 		List<String> statusList = List.of("交易成功","轉帳成功");
-		return txRepos.findByAccountIdAndStatusIn(accountId, statusList);
+		
+		LocalDateTime startOfDay = AccountUtils.getStartOfDay(startDate);
+		LocalDateTime endExclusiveDate = AccountUtils.getEndExclusiveDate(endDate);
+		
+		return txRepos.findByAccountIdAndStatusIn(accountId, statusList, startOfDay, endExclusiveDate);
 	}
 	
 	// 新增交易紀錄
@@ -62,5 +70,10 @@ public class TransactionsService {
 		
 		
 		return txRepos.save(txBean);
+	}
+	
+	// 找最近有轉出的帳號
+	public List<String> findOutgoingSuccess(String accountId){
+		return txRepos.findOutgoingSuccess(accountId);
 	}
 }

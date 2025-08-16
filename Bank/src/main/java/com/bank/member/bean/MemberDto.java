@@ -16,10 +16,11 @@ public class MemberDto {
 	private String mPhone;
 	private Date mBirthday;
 	private String mEmail;
+	private String mImage;
 	private String token;
 	
 	public MemberDto(Integer mId, String mName, String mIdentity, String mGender, String mAddress, String mPhone,
-			Date mBirthday, String mEmail, Integer mState, String token) {
+			Date mBirthday, String mEmail, Integer mState,String mImage ,String token) {
 		super();
 		this.mId = mId;
 		this.mName = mName;
@@ -29,6 +30,7 @@ public class MemberDto {
 		this.mPhone = mPhone;
 		this.mBirthday = mBirthday;
 		this.mEmail = mEmail;
+		this.mImage = mImage;
 		this.token = token;
 	}
 	
@@ -41,6 +43,7 @@ public class MemberDto {
 		this.mPhone = m.getmPhone();
 		this.mBirthday = m.getmBirthday();
 		this.mEmail = m.getmEmail();
+		this.mImage = m.getmImage();
 		this.token = token;		
 	}
 }
