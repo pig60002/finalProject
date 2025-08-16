@@ -54,6 +54,14 @@ public class MemberService {
         return null;
     }
 	
+	public Member getMemberByEmail(String email) {
+        Optional<Member> op = mRepos.findByMEmail(email);
+        if(op.isPresent()) {
+        	return op.get();
+        }
+        return null;
+    }
+	
 	public List<Member> getAllMembers() {
         return mRepos.findAll();
     }

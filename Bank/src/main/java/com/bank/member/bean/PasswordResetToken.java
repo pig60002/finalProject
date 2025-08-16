@@ -36,8 +36,7 @@ public class PasswordResetToken {
 	
 	@Column(name = "token")
 	private String token;
-	
-	@CreationTimestamp
+
 	@Column(name = "expiry", updatable = false)
 	private Date expiry;
 	

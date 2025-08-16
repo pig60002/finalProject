@@ -18,8 +18,6 @@ public class PasswordResetTokenService {
 	private PasswordResetTokenRepository prtRepos;
 	
 	public PasswordResetToken insertPasswordResetToken(PasswordResetToken passwordResetToken) {
-		String token = UUID.randomUUID().toString();
-		passwordResetToken.setToken(token);
 	    return prtRepos.save(passwordResetToken);
 	}
 	

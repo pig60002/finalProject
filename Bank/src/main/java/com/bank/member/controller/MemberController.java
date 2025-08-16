@@ -1,8 +1,11 @@
 package com.bank.member.controller;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,14 +26,22 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.bank.member.bean.Member;
+import com.bank.member.bean.PasswordResetToken;
 import com.bank.member.bean.Worker;
+import com.bank.member.service.EmailService;
 import com.bank.member.service.MemberService;
+import com.bank.member.service.PasswordResetTokenService;
 
 @RestController
 @RequestMapping(path = "/member")
 public class MemberController {
 	@Autowired
 	private MemberService memberService;
+	
+	@Autowired
+	private PasswordResetTokenService PRTService; 
+	@Autowired
+	private EmailService emailService;
 	
 	@GetMapping("/memberAll")
 	public List<Member> getAllMembers() {
@@ -105,6 +116,27 @@ public class MemberController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                                  .body("上傳失敗：" + e.getMessage());
         }
+    }
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestParam("email") String email) {
+    	
+    	Member member =memberService.getMemberByEmail(email);
+        if (member == null) {
+            return ResponseEntity.badRequest().body("No account found with that email.");
+        }
+
+        // 產生 token
+        String token = UUID.randomUUID().toString();
+        Date expiry = Date.from(Instant.now().plus(1, ChronoUnit.HOURS)); // 1小時後過期
+
+        PasswordResetToken resetToken = new PasswordResetToken(member, token, expiry);
+        PRTService.insertPasswordResetToken(resetToken);
+
+        // 傳送 email
+        String resetLink = "http://your-domain.com/reset-password?token=" + token;
+        emailService.sendResetEmail(member.getmEmail(), resetLink);
+
+        return ResponseEntity.ok("Reset password link sent to your email.");
     }
 	
 	
