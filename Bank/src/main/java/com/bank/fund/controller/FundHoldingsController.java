@@ -1,6 +1,5 @@
 package com.bank.fund.controller;
 
-import com.bank.fund.dto.FundHoldingsDto;
 import com.bank.fund.entity.FundHoldings;
 import com.bank.fund.service.*;
 
@@ -18,22 +17,18 @@ public class FundHoldingsController {
     private FundHoldingsService fundHoldingsService;
     
     @GetMapping
-    public ResponseEntity<List<FundHoldingsDto>> getFundHoldings(@RequestParam Integer fundAccId){
+    public ResponseEntity<List<FundHoldings>> getFundHoldingsByFundAccId(@RequestParam Integer fundAccId){
     	return ResponseEntity.ok(fundHoldingsService.getByFundAccId(fundAccId));
     }
 
     @PostMapping
-    public boolean insert(@RequestBody FundHoldings fundHoldings) {
+    public FundHoldings insert(@RequestBody FundHoldings fundHoldings) {
         return fundHoldingsService.create(fundHoldings);
     }
 
     @PutMapping("/{id}")
-    public boolean update(@RequestBody FundHoldings fundHoldings) {
-        return fundHoldingsService.update(fundHoldings);
+    public FundHoldings update(@PathVariable Integer id, @RequestBody FundHoldings fundHoldings) {
+        return fundHoldingsService.update(id, fundHoldings);
     }
 
-    @DeleteMapping("/{id}")
-    public boolean delete(@RequestParam Integer id) {
-        return fundHoldingsService.delete(id);
-    }
 }

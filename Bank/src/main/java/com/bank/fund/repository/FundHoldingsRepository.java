@@ -9,5 +9,5 @@ import com.bank.fund.entity.FundHoldings;
 
 public interface FundHoldingsRepository extends JpaRepository<FundHoldings, Integer> {
 
-	public List<FundHoldings> findByFundAccount(FundAccount fundAccount);
+	List<FundHoldings> findByFundAccountFundAccId(Integer fundAccId);
 }
