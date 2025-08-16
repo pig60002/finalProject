@@ -35,7 +35,7 @@ public class InternalTransferService {
 		Integer operatorId = txRequest.getOperatorId();
 		
 		String txStatus = "交易失敗"; // 預設交易失敗
-		String transactionType = "轉出";
+		String transactionType = "內部轉帳".equals(requestTxType) ? "轉出" : requestTxType ;
 		
 		Account account = accountServcie.getByAccountId(accountId);
 		BigDecimal accountBalance = account.getBalance();
@@ -46,7 +46,7 @@ public class InternalTransferService {
 		BigDecimal toAccountNewBalance = null;
 		
 		// 檢查交易類型
-		if ( !"內部轉帳".equals(requestTxType) ) {
+		if ( !"內部轉帳".equals(requestTxType) && !"信用卡扣款".equals(requestTxType) && !"基金扣款".equals(requestTxType)) {
 			memo = "交易類型錯誤";
 			return txService.saveTransactionsRecord(account, transactionType, toBankCode, toAccountId, amount, accountBalance, memo, txStatus,
 					operatorId);
@@ -112,7 +112,7 @@ public class InternalTransferService {
 		// 各建立一筆交易紀錄
 		txService.saveTransactionsRecord(toAccount, "轉入", toBankCode, accountId, amount, toAccountNewBalance, "對方留言："+memo, txStatus, operatorId);
 		
-		return txService.saveTransactionsRecord(account, "轉出", toBankCode, toAccountId, amount, accountNewBalance, memo, txStatus, operatorId);
+		return txService.saveTransactionsRecord(account, requestTxType, toBankCode, toAccountId, amount, accountNewBalance, memo, txStatus, operatorId);
 		
 	}
 	
