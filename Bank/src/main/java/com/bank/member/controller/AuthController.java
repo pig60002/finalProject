@@ -30,7 +30,7 @@ public class AuthController {
 	  
 	  @PostMapping("/login")
 	    public ResponseEntity<?> login(@RequestBody LoginRequest login) {
-	        // 假設帳密驗證成功（這裡沒用資料庫，為了簡單）
+	        
 		    Member member = memberService.getMemberByIdentity(login.mIdentity);
 		    
 		    if(member==null) {return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("查無身分證");}

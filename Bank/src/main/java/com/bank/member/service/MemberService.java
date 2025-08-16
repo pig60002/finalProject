@@ -38,6 +38,7 @@ public class MemberService {
 		member.setCreation(java.sql.Date.valueOf(currentDate));
 		member.setmState(1);	
 		member.setmId(max+1);
+		member.setmImage("/bank/uploadImg/memberImg/defultpeople.png");
 	    return mRepos.save(member);
 	        
 	 }
