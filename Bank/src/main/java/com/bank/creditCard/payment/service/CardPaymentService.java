@@ -26,6 +26,7 @@ public class CardPaymentService {
 	@Autowired
 	private InternalTransferService internalTransferService;
 	
+	@Autowired
 	private CreditBillRepository creditBillRepository;
 	
 	private static final String TRANSACTION_TYPE = "信用卡扣款";
@@ -53,9 +54,6 @@ public class CardPaymentService {
         payment.setPaymentMethod("ACCOUNT_DEBIT");
         payment.setStatus("PROCESSING");
         payment = cardPaymentRepository.save(payment);
-		 
-		String status;
-		String memo;
 		
 		try {
 			Transactions txReq = new Transactions();
@@ -89,8 +87,7 @@ public class CardPaymentService {
             }
 
 		} catch (Exception e) {
-			status="FAILED";
-			memo="扣款錯誤"+e.getMessage();
+			payment.setStatus("FAILED");
 		}
 		return cardPaymentRepository.save(payment);
 	}
