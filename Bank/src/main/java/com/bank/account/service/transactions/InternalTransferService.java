@@ -46,7 +46,8 @@ public class InternalTransferService {
 		BigDecimal toAccountNewBalance = null;
 		
 		// 檢查交易類型
-		if ( !"內部轉帳".equals(requestTxType) && !"信用卡扣款".equals(requestTxType) && !"基金扣款".equals(requestTxType)) {
+		if ( !"內部轉帳".equals(requestTxType) && !"信用卡扣款".equals(requestTxType) && !"基金扣款".equals(requestTxType) 
+												&& !"繳納貸款".equals(requestTxType) && !"放款".equals(requestTxType)) {
 			memo = "交易類型錯誤";
 			return txService.saveTransactionsRecord(account, transactionType, toBankCode, toAccountId, amount, accountBalance, memo, txStatus,
 					operatorId);
