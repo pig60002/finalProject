@@ -133,7 +133,7 @@ public class MemberController {
         PRTService.insertPasswordResetToken(resetToken);
 
         // 傳送 email
-        String resetLink = "http://your-domain.com/reset-password?token=" + token;
+        String resetLink = "成功摟這個網址" + token;
         emailService.sendResetEmail(member.getmEmail(), resetLink);
 
         return ResponseEntity.ok("Reset password link sent to your email.");
