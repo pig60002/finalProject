@@ -1,6 +1,7 @@
 package com.bank.member.controller;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
@@ -118,9 +119,9 @@ public class MemberController {
         }
     }
     @PostMapping("/forgot-password")
-    public ResponseEntity<String> forgotPassword(@RequestParam("email") String email) {
-    	
-    	Member member =memberService.getMemberByEmail(email);
+    public ResponseEntity<String> forgotPassword(@RequestBody EmailRequest email) {
+    	System.out.println("我有近來喔");
+    	Member member =memberService.getMemberByEmail(email.getEmail());
         if (member == null) {
             return ResponseEntity.badRequest().body("No account found with that email.");
         }
@@ -133,11 +134,61 @@ public class MemberController {
         PRTService.insertPasswordResetToken(resetToken);
 
         // 傳送 email
-        String resetLink = "成功摟這個網址" + token;
+        String resetLink = "http://localhost:5173/yuzubank/memberResetPassword?token=" + token;
         emailService.sendResetEmail(member.getmEmail(), resetLink);
 
         return ResponseEntity.ok("Reset password link sent to your email.");
     }
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody ResetRequest resetRequest) {
+    	
+    	
+    	PasswordResetToken prt = PRTService.findToken(resetRequest.getToken());
+    	
+    	if(prt ==null) {
+    		return ResponseEntity.badRequest().body("沒有找到token");
+    	}
+    	Date now = new Date();
+    	if(prt.getExpiry().before(now)){
+    		return ResponseEntity.badRequest().body("Token 無效或已過期");
+    	}
+    	prt.getMember().setmPassword(resetRequest.getPassword());
+    	memberService.updateMember(prt.getMember());
+    	PRTService.deleteById(prt.getId());
+       return ResponseEntity.ok("密碼已成功重設");
+       
+    }
+    
+	public static class EmailRequest {
+	    private String email;
+
+		public String getEmail() {
+			return email;
+		}
+
+		public void setEmail(String email) {
+			this.email = email;
+		}
+	    
+	}
+	public static class ResetRequest {
+	    private String password;
+	    private String token;
+		public String getPassword() {
+			return password;
+		}
+		public void setPassword(String password) {
+			this.password = password;
+		}
+		public String getToken() {
+			return token;
+		}
+		public void setToken(String token) {
+			this.token = token;
+		}
+
+		
+	}
 	
 	
 }
