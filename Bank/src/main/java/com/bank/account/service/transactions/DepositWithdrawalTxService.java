@@ -39,7 +39,9 @@ public class DepositWithdrawalTxService {
 			return txService.saveTransactionsRecord(null, transactionType, null, null, amount, null, memo, txStatus,
 					operatorId);
 		}
-
+		
+		
+		
 		BigDecimal balance = accountRS.getBalance();
 		BigDecimal newBalance = null;
 
@@ -53,7 +55,13 @@ public class DepositWithdrawalTxService {
 		switch (transactionType) {
 
 		case "提款":
-
+			// 狀態如果是 "凍結" -> 都不行 "限制" -> 只能存款
+			if ("凍結".equals(accountRS.getStatus()) || "限制".equals(accountRS.getStatus())) {
+				memo = "帳戶被凍結或限制，目前無法提款";
+				return txService.saveTransactionsRecord(accountRS, transactionType, null, null, amount, balance, memo, txStatus,
+						operatorId);
+			}
+			
 			if (balance.compareTo(amount) >= 0) {
 				// .subtract() 減法
 				newBalance = balance.subtract(amount);
@@ -67,6 +75,11 @@ public class DepositWithdrawalTxService {
 			break;
 
 		case "存款":
+			if ("凍結".equals(accountRS.getStatus())) {
+				memo = "帳戶被凍結，目前無法交易";
+				return txService.saveTransactionsRecord(accountRS, transactionType, null, null, amount, balance, memo, txStatus,
+						operatorId);
+			}
 			// .add() 加法
 			newBalance = balance.add(amount);
 			txStatus = "交易成功";

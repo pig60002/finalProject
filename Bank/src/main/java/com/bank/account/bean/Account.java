@@ -66,7 +66,8 @@ public class Account {
 	}
 
 	public Account(Integer mId, String accountName, String currency, BigDecimal balance, LocalDate openedDate,
-			String status, String memo, Integer operatorId, LocalDateTime statusUpdatedTime, Member member) {
+			String status, String memo, Integer operatorId, LocalDateTime statusUpdatedTime,
+			LocalDate lastTransactionDate, Member member) {
 		super();
 		this.mId = mId;
 		this.accountName = accountName;
@@ -77,12 +78,13 @@ public class Account {
 		this.memo = memo;
 		this.operatorId = operatorId;
 		this.statusUpdatedTime = statusUpdatedTime;
+		this.lastTransactionDate = lastTransactionDate;
 		this.member = member;
 	}
 
 	public Account(String accountId, Integer mId, String accountName, String currency, BigDecimal balance,
 			LocalDate openedDate, String status, String memo, Integer operatorId, LocalDateTime statusUpdatedTime,
-			Member member) {
+			LocalDate lastTransactionDate, Member member) {
 		super();
 		this.accountId = accountId;
 		this.mId = mId;
@@ -94,6 +96,7 @@ public class Account {
 		this.memo = memo;
 		this.operatorId = operatorId;
 		this.statusUpdatedTime = statusUpdatedTime;
+		this.lastTransactionDate = lastTransactionDate;
 		this.member = member;
 	}
 
@@ -171,6 +174,14 @@ public class Account {
 
 	public LocalDateTime getStatusUpdatedTime() {
 		return statusUpdatedTime;
+	}
+
+	public LocalDate getLastTransactionDate() {
+		return lastTransactionDate;
+	}
+
+	public void setLastTransactionDate(LocalDate lastTransactionDate) {
+		this.lastTransactionDate = lastTransactionDate;
 	}
 
 	public void setStatusUpdatedTime(LocalDateTime statusUpdatedTime) {
