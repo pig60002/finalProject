@@ -1,12 +1,16 @@
 package com.bank.loan.service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bank.loan.bean.LoanPayment;
 import com.bank.loan.bean.Loans;
 import com.bank.loan.dao.LoanRepository;
 import com.bank.loan.dto.LoansDto;
@@ -23,6 +27,9 @@ public class LoansDtoService {
     // 自動注入 LoanRepository，用來存取 Loans 資料
     @Autowired
     private LoanRepository lRepos;
+    
+    @Autowired
+    private LoanPaymentService lpService;
 
     /**
      * 取得所有貸款資料並轉換為 LoansDto 列表。
@@ -45,4 +52,33 @@ public class LoansDtoService {
         // 回傳 DTO 清單
         return loanDtos;
     }
+    
+    // 依據會員ID 查詢貸款資料
+    public List<LoansDto> findByMemberId(Integer mId) {
+        List<Loans> loans = lRepos.findByMember_mId(mId);
+        return loans.stream().map(this::mapToDto).collect(Collectors.toList());
+    }
+    
+    // 🔹 新增：Loans → LoansDto，補上 paid/progress
+    private LoansDto mapToDto(Loans loan) {
+        LoansDto dto = new LoansDto(loan);
+
+        // 取得該貸款所有繳款紀錄
+        List<LoanPayment> payments = lpService.getPaymentsByLoanId(loan.getLoanId());
+
+        // 計算已繳金額 (改成 getAmountPaid)
+        BigDecimal paidAmount = payments.stream()
+                .map(LoanPayment::getAmountPaid)  
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        dto.setPaidAmount(paidAmount);
+
+        // 計算還款進度 %
+        double progress = (loan.getLoanAmount() != null && loan.getLoanAmount().compareTo(BigDecimal.ZERO) > 0)
+                ? paidAmount.divide(loan.getLoanAmount(), 4, RoundingMode.HALF_UP).doubleValue() * 100
+                : 0.0;
+        dto.setProgress(progress);
+
+        return dto;
+    }
+
 }

@@ -33,6 +33,9 @@ public class LoansDto {
 	
 	@JsonFormat(pattern = "yyyy-MM-dd")
 	private LocalDateTime createdAt;    // 建立時間
+	
+	private BigDecimal paidAmount;        // 已繳金額
+	private Double progress;              // 還款進度百分比
 
 	public LoansDto(Loans loan) {
 		this.loanId = loan.getLoanId();
@@ -50,5 +53,8 @@ public class LoansDto {
         this.createdAt = loan.getCreatedAt();
         this.proofDocumentUrl = loan.getProofDocumentUrl();
         this.getontractPath = loan.getContractPath();
+        
+        this.paidAmount = BigDecimal.ZERO;
+        this.progress = 0.0;
 	} 
 }
