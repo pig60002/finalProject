@@ -37,7 +37,9 @@ public class SecurityConfig {
 		List<String> allowedURL = List.of(
 				"/auth/**",
 				"/uploadImg/**",
-				"/member/member"// Chrome 開發工具開啟時會發出請求
+				"/member/member",
+				"/member/forgot-password",
+				"/member/reset-password"// Chrome 開發工具開啟時會發出請求
 				);
 
 		return http // 使用 HttpSecurity http 物件展開串聯設定

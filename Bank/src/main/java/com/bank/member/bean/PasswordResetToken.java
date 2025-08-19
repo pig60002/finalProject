@@ -4,7 +4,7 @@ package com.bank.member.bean;
 
 import java.util.Date;
 
-import org.hibernate.annotations.CreationTimestamp;
+
 import org.springframework.stereotype.Component;
 
 import jakarta.persistence.CascadeType;
@@ -30,14 +30,13 @@ public class PasswordResetToken {
 	@Column(name = "id")
 	private Integer id;
 	
-	@OneToOne(cascade = CascadeType.ALL)
+	@OneToOne
     @JoinColumn(name = "member_id", referencedColumnName = "m_id")
 	private Member member;
 	
 	@Column(name = "token")
 	private String token;
-	
-	@CreationTimestamp
+
 	@Column(name = "expiry", updatable = false)
 	private Date expiry;
 	

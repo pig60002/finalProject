@@ -38,6 +38,7 @@ public class MemberService {
 		member.setCreation(java.sql.Date.valueOf(currentDate));
 		member.setmState(1);	
 		member.setmId(max+1);
+		member.setmImage("/bank/uploadImg/memberImg/defultpeople.png");
 	    return mRepos.save(member);
 	        
 	 }
@@ -47,6 +48,14 @@ public class MemberService {
 	}
 	public Member getMemberById(Integer id) {
         Optional<Member> op = mRepos.findById(id);
+        if(op.isPresent()) {
+        	return op.get();
+        }
+        return null;
+    }
+	
+	public Member getMemberByEmail(String email) {
+        Optional<Member> op = mRepos.findByMEmail(email);
         if(op.isPresent()) {
         	return op.get();
         }

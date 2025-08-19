@@ -13,6 +13,7 @@ import com.bank.member.bean.Member;
 
 public interface MemberRepository extends JpaRepository<Member, Integer> {
 	Optional<Member> findByMIdentity(String mIdentity);
+	Optional<Member> findByMEmail(String mEmail);
 	
 	 @Query("SELECT m FROM Member m WHERE " +
 			   "(:identity IS NULL OR m.mIdentity =:identity) AND " +
