@@ -2,10 +2,13 @@ package com.bank.loan.controller;
 
 import com.bank.loan.bean.LoanPayment;
 import com.bank.loan.bean.LoanRepaymentSchedule;
+import com.bank.loan.dto.LoanPaymentDto;
 import com.bank.loan.service.LoanPaymentService;
 import com.bank.loan.service.LoanRepaymentScheduleService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -49,8 +52,15 @@ public class LoanPaymentController {
     
     // 查詢會員所有貸款繳費紀錄
     @GetMapping("/member/{mId}/payments")
-    public List<LoanPayment> getPaymentsByMember(@PathVariable Integer mId) {
-        return lpService.getPaymentsByMemberId(mId);
+    public ResponseEntity<List<LoanPaymentDto>> getMemberPayments(@PathVariable Integer mId) {
+        try {
+            List<LoanPaymentDto> dtoList = lpService.getPaymentsByMemberIdDto(mId);
+            return ResponseEntity.ok(dtoList);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
+
 
 }

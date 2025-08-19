@@ -13,6 +13,5 @@ public interface LoanPaymentRepository extends JpaRepository<LoanPayment, Long> 
     
     // 依據會員 m_id 查詢所有貸款的繳費紀錄
     @Query("SELECT p FROM LoanPayment p WHERE p.loan.mId = :memberId")
-    List<LoanPayment> findByMemberId(@Param("memberId") int mId);
-
+    List<LoanPayment> findByMemberId(@Param("memberId") int memberId);
 }

@@ -1,7 +1,6 @@
 package com.bank.loan.dto;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -25,7 +24,8 @@ public class LoanDetailDto {
 	private BigDecimal loanAmount;      // 貸款金額
 	private BigDecimal interestRate;    // 實際利率
 	private String repayAccountId; 		// 用戶選擇的還款帳戶ID
-	private LocalDate loanstartDate; 	// 貸款開始時間
+	@JsonFormat(pattern = "yyyy-MM-dd")
+	private LocalDateTime loanUpdatedAt;// 貸款開始時間
 	private String approvalStatus;      // 審核狀態
 	private String approvalStatusName;      // 顯示用審核狀態名稱
 	@JsonFormat(pattern = "yyyy-MM-dd")

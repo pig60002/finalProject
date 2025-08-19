@@ -75,18 +75,20 @@ public class LoanProcessingService {
     /**
      * 2. 更新貸款的審核狀態，並記錄此變更至 CreditReviewLogs。
      *
-     * @param loanId 貸款編號
-     * @param newStatus 新狀態（需為合法狀態）
-     * @param reviewerId 審核人員 ID
+     * @param loanId      貸款編號
+     * @param newStatus   新狀態（需為合法狀態：pending, supplement, approved, rejected）
+     * @param reviewerId  審核人員 ID
+     * @param notes       備註
      */
     public void updateStatus(String loanId, String newStatus, Integer reviewerId, String notes) {
+        // 1. 取得貸款資料
         Loans loan = lRepo.findById(loanId)
                 .orElseThrow(() -> new RuntimeException("Loan not found"));
 
-        // 將狀態轉為小寫統一處理
+        // 2. 統一狀態小寫處理
         String normalizedStatus = newStatus.toLowerCase();
 
-        // 驗證是否為有效狀態
+        // 3. 驗證是否為合法狀態
         if (!normalizedStatus.equals(LoanStatus.PENDING) &&
             !normalizedStatus.equals(LoanStatus.SUPPLEMENT) &&
             !normalizedStatus.equals(LoanStatus.APPROVED) &&
@@ -94,24 +96,29 @@ public class LoanProcessingService {
             throw new IllegalArgumentException("Invalid loan status: " + newStatus);
         }
 
-        // 更新貸款狀態與修改時間
+        // 4. 更新貸款狀態與修改時間
+        LocalDateTime now = LocalDateTime.now();
         loan.setApprovalStatus(normalizedStatus);
-        loan.setUpdatedAt(LocalDateTime.now());
+        loan.setUpdatedAt(now);
+
+        // 5. 儲存貸款資料到資料庫
         lRepo.save(loan);
 
-        // 紀錄審核變更的歷程
+        // 6. 紀錄審核變更歷程
         CreditReviewLogs log = new CreditReviewLogs();
         log.setLoanId(loanId);
         log.setLoan(loan);
         log.setmId(loan.getMember().getmId());
         log.setReviewerId(reviewerId);
-        log.setCreditScore(null); // 改狀態不一定與信用分數有關
-        log.setDecision(newStatus);
+        log.setCreditScore(null); // 改變狀態不一定會影響信用分數
+        log.setDecision(normalizedStatus);
         log.setNotes(notes);
-        log.setReviewTime(LocalDateTime.now());
+        log.setReviewTime(now);
 
+        // 7. 儲存審核紀錄
         crRepo.save(log);
     }
+
 
     /**
      * 3. 儲存一筆完整的審核紀錄，包含分數與決策結果。

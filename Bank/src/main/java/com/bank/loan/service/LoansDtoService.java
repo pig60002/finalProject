@@ -77,6 +77,8 @@ public class LoansDtoService {
                 ? paidAmount.divide(loan.getLoanAmount(), 4, RoundingMode.HALF_UP).doubleValue() * 100
                 : 0.0;
         dto.setProgress(progress);
+        
+        dto.setUpdatedAt(loan.getUpdatedAt());
 
         return dto;
     }

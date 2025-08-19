@@ -8,7 +8,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class LoanRepaymentScheduleDTO {
+public class LoanRepaymentScheduleDto {
 	
 	private Long scheduleId;         // 還款排程唯一識別碼
     private String loanId;           // 貸款唯一識別碼

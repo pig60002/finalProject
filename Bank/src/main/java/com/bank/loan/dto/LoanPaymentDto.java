@@ -8,7 +8,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class LoanPaymentDTO {
+public class LoanPaymentDto {
 	
 	private Long paymentId;          // 還款紀錄唯一識別碼
     private String loanId;           // 貸款唯一識別碼
