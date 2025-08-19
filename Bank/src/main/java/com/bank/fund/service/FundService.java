@@ -33,8 +33,11 @@ public class FundService {
 	}
 	
 	@Transactional
-	public Fund update(Integer id, Fund updatedfund) {
+	public Fund update(Integer id, Fund updatedFund) {
 		Fund fund = fundRepository.findById(id).orElseThrow();
+		if (updatedFund.getStatus() != null) {
+			fund.setStatus(updatedFund.getStatus());
+		}
 		return fundRepository.save(fund);
 	}
 

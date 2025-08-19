@@ -16,25 +16,41 @@ public class FundAccountController {
 	@Autowired
 	private FundAccountService fundAccountService;
 
-	// 查詢基金帳戶
 	@GetMapping
 	public ResponseEntity<List<FundAccount>> getAllFundAccounts() {
 		return ResponseEntity.ok(fundAccountService.getAll());
 	}
+	
+	@GetMapping(params = "status")
+	public ResponseEntity<List<FundAccount>> getFundAccountsByStatus(@RequestParam String status) {
+		return ResponseEntity.ok(fundAccountService.getByStatus(status));
+	}
 
-	// 根據ID查詢單筆基金帳戶
 	@GetMapping("/{id}")
 	public ResponseEntity<Optional<FundAccount>> getFundAccountById(@PathVariable Integer id) {
 		return ResponseEntity.ok(fundAccountService.getById(id));
 	}
+	
+	//查詢會員的基金帳戶，沒有則傳204讓前端顯示[申辦基金帳戶]
+	@GetMapping(params = "mId")
+	public ResponseEntity<Optional<FundAccount>> getFundAccountByMId(@RequestParam Integer mId){
+		Optional<FundAccount> fundAccount = fundAccountService.getByMId(mId);
+		if(fundAccount.isPresent())
+			return ResponseEntity.ok(fundAccount);
+		else
+			return ResponseEntity.noContent().build();
+	}
+	
+	@PostMapping("/risk-answers")
+	public ResponseEntity<String> createRiskType(@RequestBody List<Integer> riskAnswers){
+		return ResponseEntity.ok(fundAccountService.createRiskType(riskAnswers));
+	}
 
-	// 新增基金帳戶
 	@PostMapping
 	public ResponseEntity<FundAccount> createFundAccount(@RequestBody FundAccount fundAccount) {
 		return ResponseEntity.ok(fundAccountService.create(fundAccount));
 	}
 
-	// 更新基金帳戶
 	@PutMapping("/{id}")
 	public ResponseEntity<FundAccount> updateFundAccount(@PathVariable Integer id, @RequestBody FundAccount fundAccount) {
 			return ResponseEntity.ok(fundAccountService.update(id, fundAccount));

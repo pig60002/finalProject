@@ -1,6 +1,7 @@
 package com.bank.fund.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,11 @@ public class FundNavService {
 	@Transactional(readOnly = true)
 	public List<FundNav> getByFundId(Integer fundId){
 		return fundNavRepository.findByFundFundId(fundId);
+	}
+	
+	@Transactional(readOnly = true)
+	public Optional<FundNav> getById(Integer id) {
+		return fundNavRepository.findById(id);
 	}
 	
 	@Transactional

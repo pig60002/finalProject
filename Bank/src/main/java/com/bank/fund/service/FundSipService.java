@@ -1,12 +1,10 @@
 package com.bank.fund.service;
 
-import java.util.Optional;
-
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.bank.fund.entity.Fund;
 import com.bank.fund.entity.FundSip;
 import com.bank.fund.repository.FundSipRepository;
 
@@ -17,8 +15,8 @@ public class FundSipService {
 	private FundSipRepository fundSipRepository;
 	
 	@Transactional(readOnly = true)
-	public Optional<FundSip> getById(Integer id) {
-		return fundSipRepository.findById(id);
+	public List<FundSip> getByFundAccId(Integer fundAccId) {
+		return fundSipRepository.findByFundAccountFundAccId(fundAccId);
 	}
 	
 	@Transactional

@@ -21,14 +21,4 @@ public class FundHoldingsController {
     	return ResponseEntity.ok(fundHoldingsService.getByFundAccId(fundAccId));
     }
 
-    @PostMapping
-    public FundHoldings insert(@RequestBody FundHoldings fundHoldings) {
-        return fundHoldingsService.create(fundHoldings);
-    }
-
-    @PutMapping("/{id}")
-    public FundHoldings update(@PathVariable Integer id, @RequestBody FundHoldings fundHoldings) {
-        return fundHoldingsService.update(id, fundHoldings);
-    }
-
 }

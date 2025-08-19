@@ -2,9 +2,12 @@ package com.bank.fund.service;
 
 import com.bank.account.bean.Account;
 import com.bank.account.dao.AccountRepository;
+import com.bank.account.service.SerialControlService;
+import com.bank.fund.dto.FundAccountDto;
 import com.bank.fund.entity.FundAccount;
 import com.bank.fund.repository.FundAccountRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,44 +15,90 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
 @Service
 public class FundAccountService {
-	
+
+	private final SerialControlService serialControlService;
+
 	@Autowired
 	private AccountRepository accountRepository;
 
 	@Autowired
 	private FundAccountRepository fundAccountRepository;
 
+	FundAccountService(SerialControlService serialControlService) {
+		this.serialControlService = serialControlService;
+	}
+
+	public List<FundAccountDto> fundAccountDto(List<FundAccount> fundAccounts) {
+		List<FundAccountDto> fundAccountDtos = new ArrayList<FundAccountDto>();
+
+		for (FundAccount fundAccount : fundAccounts) {
+			FundAccountDto fundAccountDto = new FundAccountDto();
+
+			fundAccountDto.setId(fundAccount.getFundAccId());
+			fundAccountDto.setMemberId(fundAccount.getMember().getmId());
+			fundAccountDto.setName(fundAccount.getMember().getmName());
+			fundAccountDto.setRiskType(fundAccount.getRiskType());
+			fundAccountDto.setStatus(fundAccount.getStatus());
+
+			fundAccountDtos.add(fundAccountDto);
+		}
+		return fundAccountDtos;
+	}
+	
+
 	@Transactional(readOnly = true)
-	public List<FundAccount> getAll(){
+	public List<FundAccount> getAll() {
 		return fundAccountRepository.findAll();
 	}
 	
 	@Transactional(readOnly = true)
+	public List<FundAccount> getByStatus(String status){
+		return fundAccountRepository.findByStatus(status);
+	}
+
+	@Transactional(readOnly = true)
 	public Optional<FundAccount> getById(Integer id) {
 		return fundAccountRepository.findById(id);
 	}
-	
+
+	@Transactional(readOnly = true)
+	public Optional<FundAccount> getByMId(Integer mId) {
+		return fundAccountRepository.findByMemberMId(mId);
+	}
+
+	public String createRiskType(List<Integer> riskAnswers) {
+		Integer score = 0;
+		for(Integer riskAnswer: riskAnswers) {
+			score += riskAnswer;
+		}
+		
+		if (score <= 0) {
+			return "保守型";
+		} else if(score <= 50) {
+			return "穩健型";
+		} else {
+			return "積極型";
+		}
+	}
+
 	@Transactional
 	public FundAccount create(FundAccount fundAccount) {
-        Account account = accountRepository.findByMIdAndAccountNameAndCurrency(fundAccount.getMember().getmId(), "活期存款", "NT");
-        fundAccount.setAccount(account);
-        return fundAccountRepository.save(fundAccount);
+		return fundAccountRepository.save(fundAccount);
 	}
-	
+
 	@Transactional
 	public FundAccount update(Integer id, FundAccount updatedFundAccount) {
 		FundAccount fundAccount = fundAccountRepository.findById(id).orElseThrow();
-		
-		if(updatedFundAccount.getRiskType() != null) {
-			fundAccount.setRiskType(updatedFundAccount.getRiskType());			
+
+		if (updatedFundAccount.getRiskType() != null) {
+			fundAccount.setRiskType(updatedFundAccount.getRiskType());
 		}
-		if(updatedFundAccount.getStatus() != null) {
-			fundAccount.setStatus(updatedFundAccount.getStatus());			
+		if (updatedFundAccount.getStatus() != null) {
+			fundAccount.setStatus(updatedFundAccount.getStatus());
 		}
-		
+
 		return fundAccountRepository.save(fundAccount);
 	}
 }
