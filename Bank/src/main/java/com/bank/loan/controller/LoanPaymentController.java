@@ -1,8 +1,8 @@
 package com.bank.loan.controller;
 
 import com.bank.loan.bean.LoanPayment;
-import com.bank.loan.bean.LoanRepaymentSchedule;
 import com.bank.loan.dto.LoanPaymentDto;
+import com.bank.loan.dto.LoanRepaymentScheduleDto;
 import com.bank.loan.service.LoanPaymentService;
 import com.bank.loan.service.LoanRepaymentScheduleService;
 
@@ -23,12 +23,6 @@ public class LoanPaymentController {
 	@Autowired
     private LoanRepaymentScheduleService lrsService;
 
-    // 查詢單筆貸款的還款排程
-    @GetMapping("/{loanId}/schedules")
-    public List<LoanRepaymentSchedule> getSchedules(@PathVariable String loanId) {
-        return lrsService.getSchedulesByLoanId(loanId);
-    }
-
     // 查詢單筆貸款的還款紀錄
     @GetMapping("/{loanId}/payments")
     public List<LoanPayment> getPayments(@PathVariable String loanId) {
@@ -42,13 +36,6 @@ public class LoanPaymentController {
         payment.setPaymentDate(java.time.LocalDateTime.now());
         return lpService.save(payment);
     }
-
-    // 新增還款排程
-    @PostMapping("/{loanId}/schedules")
-    public LoanRepaymentSchedule addSchedule(@PathVariable String loanId, @RequestBody LoanRepaymentSchedule schedule) {
-        schedule.setLoanId(loanId);
-        return lrsService.save(schedule);
-    }
     
     // 查詢會員所有貸款繳費紀錄
     @GetMapping("/member/{mId}/payments")
@@ -61,6 +48,20 @@ public class LoanPaymentController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+    
+    // 查詢與建立還款排程
+    @GetMapping("/{loanId}/schedules")
+    public ResponseEntity<List<LoanRepaymentScheduleDto>> getOrGenerateSchedules(@PathVariable String loanId) {
+        try {
+            List<LoanRepaymentScheduleDto> schedulesDto = lrsService.getOrGenerateSchedulesDto(loanId);
+            return ResponseEntity.ok(schedulesDto);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
 
 
 }

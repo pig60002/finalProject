@@ -14,11 +14,14 @@ import com.bank.loan.dao.CreditReviewLogsRepository;
 import com.bank.loan.dto.ReviewHistoryDto;
 import com.bank.loan.util.FileUploadUtil;
 
+import jakarta.transaction.Transactional;
+
 /**
  * LoanProcessingService 處理與貸款審核流程相關的邏輯，
  * 包括上傳補件文件、變更審核狀態與儲存審核紀錄等。
  */
 @Service
+@Transactional
 public class LoanProcessingService {
 
     @Autowired
@@ -26,7 +29,7 @@ public class LoanProcessingService {
 
     @Autowired
     private CreditReviewLogsRepository crRepo;
-
+    
     /**
      * 定義貸款狀態的常數類別，避免硬編碼。
      */
@@ -100,11 +103,9 @@ public class LoanProcessingService {
         LocalDateTime now = LocalDateTime.now();
         loan.setApprovalStatus(normalizedStatus);
         loan.setUpdatedAt(now);
+        lRepo.saveAndFlush(loan);
 
-        // 5. 儲存貸款資料到資料庫
-        lRepo.save(loan);
-
-        // 6. 紀錄審核變更歷程
+        // 5. 記錄審核變更歷程
         CreditReviewLogs log = new CreditReviewLogs();
         log.setLoanId(loanId);
         log.setLoan(loan);
@@ -115,9 +116,10 @@ public class LoanProcessingService {
         log.setNotes(notes);
         log.setReviewTime(now);
 
-        // 7. 儲存審核紀錄
+        // 6. 儲存審核紀錄
         crRepo.save(log);
     }
+
 
 
     /**
