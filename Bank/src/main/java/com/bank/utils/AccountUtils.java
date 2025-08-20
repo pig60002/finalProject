@@ -111,4 +111,25 @@ public class AccountUtils {
 
 		return newFileName;
 	}
+	
+	// 將台灣手機 0912345678 轉成 E.164: +886912345678 
+	public String phoneUtil(String phoneNum) {
+		if(phoneNum == null) return null;
+		
+		// 把字串裡不是數字的字元都去掉 ex "09-1234-5678" -> "0912345678"
+		String digits =phoneNum.replaceAll("\\D", "");
+		
+		if(digits.startsWith("09") && digits.length() == 10 ) {
+			return "+886" + digits.substring(1);
+		};
+		
+		if(digits.startsWith("9") && digits.length() == 9) {
+			return "+886" + digits;
+		};
+		
+		if(digits.startsWith("886")) return "+" + digits;
+		if(digits.startsWith("+")) return digits;
+		throw new IllegalArgumentException("手機號碼格是錯誤");
+	}
+	
 }
