@@ -16,7 +16,9 @@ import com.bank.creditCard.application.model.CardApplicationBean;
 import com.bank.creditCard.cardType.dao.CardTypeRepository;
 import com.bank.creditCard.cardType.model.CardTypeBean;
 import com.bank.creditCard.issue.dao.CardDetailRepository;
+import com.bank.creditCard.issue.dao.CardLimitRepository;
 import com.bank.creditCard.issue.model.CardDetailBean;
+import com.bank.creditCard.issue.model.CardLimitBean;
 
 @Service
 public class CardIssueService {
@@ -29,6 +31,9 @@ public class CardIssueService {
 	
 	@Autowired
 	private CardDetailRepository cardDetailRepository;
+	
+	@Autowired
+	private CardLimitRepository cardLimitRepository;
 	
 	public void issueCard(Integer applicationId) {
 		//1.取得申請單
@@ -66,6 +71,14 @@ public class CardIssueService {
         cardDetail.setCurrentBalance(BigDecimal.ZERO); // 初始為 0
         cardDetail.setStatus(CardDetailBean.STATUS_INACTIVE);
         cardDetailRepository.save(cardDetail);
+        
+     // 8. 建立額度紀錄
+        CardLimitBean limitRecord = new CardLimitBean();
+        limitRecord.setCardDetail(cardDetail);
+        limitRecord.setCreditLimit(cardType.getDefaultLimit()); // 從卡種抓預設額度
+        limitRecord.setEffectiveDate(issueDate);
+        limitRecord.setStatus("ACTIVE");
+        cardLimitRepository.save(limitRecord);
         
      // 9. 更新申請單狀態為 ISSUED（已發卡）
         app.setStatus(CardApplicationBean.STATUS_ISSUED);

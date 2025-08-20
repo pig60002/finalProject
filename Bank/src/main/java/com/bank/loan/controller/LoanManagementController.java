@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,6 +16,7 @@ import com.bank.loan.dto.DocumentManagementDto;
 import com.bank.loan.dto.LoanCreateDto;
 import com.bank.loan.dto.ReviewHistoryDto;
 import com.bank.loan.service.DocumentManagementDtoService;
+import com.bank.loan.service.DocumentUploadService;
 import com.bank.loan.service.LoanProcessingService;
 import com.bank.loan.service.LoanService;
 
@@ -30,6 +32,9 @@ public class LoanManagementController {
 	
 	@Autowired
 	private DocumentManagementDtoService dmdService;
+	
+	@Autowired
+	private DocumentUploadService duService;
 
 	// 上傳補件（如財力證明）
 	@PostMapping("/{loanId}/upload-proof")
@@ -99,6 +104,7 @@ public class LoanManagementController {
         }
     }
     
+    // 取得審核紀錄
     @GetMapping("/{loanId}/latest-review")
     public ResponseEntity<DocumentManagementDto> getLatestReview(@PathVariable String loanId) {
         DocumentManagementDto dto = dmdService.findLatestByLoanId(loanId);
@@ -107,6 +113,20 @@ public class LoanManagementController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+    
+    // 上傳貸款合約
+    @PostMapping(path = "/{loanId}/upload-contract", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> uploadContract(@PathVariable String loanId,
+                                                 @RequestParam("file") MultipartFile file) {
+    	try {
+            String contractPath = duService.saveContractDocument(loanId, file);
+            return ResponseEntity.ok("合約檔案上傳成功，路徑：" + contractPath);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("合約檔案上傳失敗：" + e.getMessage());
+        }
+        
     }
 
 }

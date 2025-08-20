@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
-import com.bank.member.bean.Member;
 import com.bank.member.service.MemberService;
 import com.bank.member.service.WorkerService;
 import com.bank.utils.JwtUtil;
@@ -51,11 +50,14 @@ public class JwtFilter extends OncePerRequestFilter{
 	            		String userId = JwtUtil.getSubject(token);
 	            		String role = JwtUtil.getValue(token,"role");
 	            		Object user =null;
+	            		System.out.println("我有近來解析token這裡");
 	            		if("member".equals(role)) {
-	            			 user = memberService.getMemberById(Integer.parseInt(userId) );     
+	            			 user = memberService.getMemberById(Integer.parseInt(userId) ); 
+	            			 System.out.println("我是會員");
 	            			
 	            		}else {
-	            			 user = workerService.getWorkerById(Integer.parseInt(userId));     
+	            			 user = workerService.getWorkerById(Integer.parseInt(userId));  
+	            			 System.out.println("我是員工");
 						}
 	            		
 	            		UsernamePasswordAuthenticationToken authentication =

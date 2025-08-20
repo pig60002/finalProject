@@ -35,7 +35,7 @@ public class InternalTransferService {
 		Integer operatorId = txRequest.getOperatorId();
 		
 		String txStatus = "交易失敗"; // 預設交易失敗
-		String transactionType = "轉出";
+		String transactionType = "內部轉帳".equals(requestTxType) ? "轉出" : requestTxType ;
 		
 		Account account = accountServcie.getByAccountId(accountId);
 		BigDecimal accountBalance = account.getBalance();
@@ -46,29 +46,43 @@ public class InternalTransferService {
 		BigDecimal toAccountNewBalance = null;
 		
 		// 檢查交易類型
-		if ( !"內部轉帳".equals(requestTxType) ) {
+		if ( !"內部轉帳".equals(requestTxType) && !"信用卡扣款".equals(requestTxType) && !"基金扣款".equals(requestTxType) 
+												&& !"繳納貸款".equals(requestTxType) && !"放款".equals(requestTxType)) {
 			memo = "交易類型錯誤";
-			return txService.saveTransactionsRecord(account, transactionType, toBankCode, toAccountId, accountBalance, memo, txStatus,
+			return txService.saveTransactionsRecord(account, transactionType, toBankCode, toAccountId, amount, accountBalance, memo, txStatus,
 					operatorId);
 		}
 		
 		// 查詢兩個帳戶 (兩者皆存在且不是同一個帳戶&幣別相等)
 		if( account == null || toAccount == null) {
 			memo = "帳號不存在";
-			return txService.saveTransactionsRecord(account, transactionType, toBankCode, toAccountId, accountBalance, memo, txStatus,
+			return txService.saveTransactionsRecord(account, transactionType, toBankCode, toAccountId, amount, accountBalance, memo, txStatus,
 					operatorId);
 		}
 		
 		if(!account.getCurrency().equals(toAccount.getCurrency()) || accountId.equals(toAccountId)) {
 			memo = "幣別不一致或轉帳帳戶相同";
-			return txService.saveTransactionsRecord(account, transactionType, toBankCode, toAccountId, accountBalance, memo, txStatus,
+			return txService.saveTransactionsRecord(account, transactionType, toBankCode, toAccountId, amount, accountBalance, memo, txStatus,
+					operatorId);
+		}
+		
+		// 檢查帳戶狀態
+		if("限制".equals(account.getStatus()) || "凍結".equals(account.getStatus())) {
+			memo = "此帳戶被凍結或限制，目前無法轉帳";
+			return txService.saveTransactionsRecord(account, transactionType, toBankCode, toAccountId, amount, accountBalance, memo, txStatus,
+					operatorId);
+		}
+		
+		if("凍結".equals(toAccount.getStatus())) {
+			memo = "轉入帳戶已凍結，轉帳失敗";
+			return txService.saveTransactionsRecord(account, transactionType, toBankCode, toAccountId, amount, accountBalance, memo, txStatus,
 					operatorId);
 		}
 		
 		// 檢查交易金額
 		if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
 			memo = "交易金額輸入錯誤";
-			return txService.saveTransactionsRecord(account, transactionType, toBankCode, toAccountId, accountBalance, memo, txStatus,
+			return txService.saveTransactionsRecord(account, transactionType, toBankCode, toAccountId, amount, accountBalance, memo, txStatus,
 					operatorId);
 		}
 		
@@ -78,7 +92,7 @@ public class InternalTransferService {
 			accountNewBalance = accountBalance.subtract(amount);
 		} else {
 			memo = "餘額不足";
-			return txService.saveTransactionsRecord(account, transactionType, toBankCode, toAccountId, accountBalance, memo, txStatus,
+			return txService.saveTransactionsRecord(account, transactionType, toBankCode, toAccountId, amount, accountBalance, memo, txStatus,
 					operatorId);
 		}
 		
@@ -97,9 +111,9 @@ public class InternalTransferService {
 		txStatus = "轉帳成功";
 		
 		// 各建立一筆交易紀錄
-		txService.saveTransactionsRecord(toAccount, "轉入", toBankCode, accountId, toAccountNewBalance, "對方留言："+memo, txStatus, operatorId);
+		txService.saveTransactionsRecord(toAccount, "轉入", toBankCode, accountId, amount, toAccountNewBalance, "對方留言："+memo, txStatus, operatorId);
 		
-		return txService.saveTransactionsRecord(account, "轉出", toBankCode, toAccountId, accountNewBalance, memo, txStatus, operatorId);
+		return txService.saveTransactionsRecord(account, transactionType, toBankCode, toAccountId, amount, accountNewBalance, memo, txStatus, operatorId);
 		
 	}
 	

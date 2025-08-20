@@ -1,7 +1,6 @@
 package com.bank.loan.bean;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.bank.account.bean.Account;
@@ -37,8 +36,6 @@ public class Loans {
 	private BigDecimal interestRate;    // 實際利率
 	@Column(name="repay_account_id")	
 	private String repayAccountId;		// 還款帳號
-	@Column(name = "loanstart_date")
-	private LocalDate loanstartDate;    // 貸款開始日期
 	@Column(name = "approval_status")
 	private String approvalStatus;      // 審核狀態
 	@Column(name = "created_at")
@@ -46,7 +43,10 @@ public class Loans {
 	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;    // 更新時間
 	@Column(name = "proof_document_url")
-	private String proofDocumentUrl;    // 圖片存取位置
+	private String proofDocumentUrl;    // 財力證明圖片存取位置
+	@Column(name = "contract_path")
+	private String contractPath;    // 合約圖片存取位置
+	
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "m_id", insertable = false, updatable = false)
@@ -78,12 +78,12 @@ public class Loans {
 	public BigDecimal  getLoanAmount() { return loanAmount; }
 	public BigDecimal  getInterestRate() { return interestRate; }
 	public String  getRepayAccountId() { return repayAccountId; }
-	public LocalDate getLoanstartDate() { return loanstartDate; }
 	public String getApprovalStatus() { return approvalStatus; }
 	public LocalDateTime getCreatedAt() { return createdAt; }
 	public LocalDateTime getUpdatedAt() { return updatedAt; }
 	public Member getMember() { return member; }
 	public String getProofDocumentUrl() { return proofDocumentUrl; }
+	public String getContractPath() { return contractPath; }
 
 
 	// setting
@@ -95,10 +95,10 @@ public class Loans {
 	public void setLoanAmount(BigDecimal loanAmount) { this.loanAmount = loanAmount; }
 	public void setInterestRate(BigDecimal interestRate) { this.interestRate = interestRate; }
 	public void setRepayAccountId(String repayAccountId) { this.repayAccountId = repayAccountId; }
-	public void setLoanstartDate(LocalDate loanstartDate) { this.loanstartDate = loanstartDate; }
 	public void setApprovalStatus(String approvalStatus) { this.approvalStatus = approvalStatus; }
 	public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 	public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 	public void setMember(Member member) { this.member = member; }
 	public void setProofDocumentUrl(String proofDocumentUrl) { this.proofDocumentUrl = proofDocumentUrl; }
+	public void setContractPath(String contractPath) { this.contractPath = contractPath; }
 }

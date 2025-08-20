@@ -29,7 +29,7 @@ public class CardTypeBean {
 	@Column(name = "cashback_rate")
 	private BigDecimal cashbackRate;
 	@Column(name = "use_custom_rule")
-	private boolean useCustomRule;
+	private Boolean useCustomRule;
 	public CardTypeBean() {
 		super();
 		// TODO Auto-generated constructor stub

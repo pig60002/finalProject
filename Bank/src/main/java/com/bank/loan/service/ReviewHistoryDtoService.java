@@ -1,6 +1,8 @@
 package com.bank.loan.service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,10 +19,20 @@ import com.bank.loan.dto.ReviewHistoryDto;
 @Service
 @Transactional
 public class ReviewHistoryDtoService {
+	
 
     // 自動注入 CreditReviewLogsRepository，用於存取信用審查紀錄資料
     @Autowired
     private CreditReviewLogsRepository crlRepo;
+    
+    
+    // 查詢全部並轉換為ReviewHistoryDto
+    public List<ReviewHistoryDto> findAll() {
+    	List<CreditReviewLogs> logs = crlRepo.findAll();
+    	return logs.stream()
+    			.map(this::toDto)
+    			.collect(Collectors.toList());
+    }
 
     /**
      * 根據 reviewId 查詢一筆信用審查紀錄，並轉換為 ReviewHistoryDto。
