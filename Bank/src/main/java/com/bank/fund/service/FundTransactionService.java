@@ -12,8 +12,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.bank.account.bean.Transactions;
 import com.bank.account.service.transactions.InternalTransferService;
 import com.bank.fund.entity.FundHoldings;
+import com.bank.fund.entity.FundNav;
 import com.bank.fund.entity.FundTransaction;
 import com.bank.fund.repository.FundHoldingsRepository;
+import com.bank.fund.repository.FundNavRepository;
 import com.bank.fund.repository.FundTransactionRepository;
 
 @Service
@@ -24,6 +26,9 @@ public class FundTransactionService {
 
 	@Autowired
 	private FundHoldingsRepository fundHoldingsRepository;
+
+	@Autowired
+	private FundNavRepository fundNavRepository;
 
 	@Autowired
 	private InternalTransferService internalTransferService;
@@ -68,7 +73,23 @@ public class FundTransactionService {
 
 		return fundTransactionRepository.save(fundTransaction);
 	}
-
+	
+	
+//	@Transactional
+//    public FundTransaction executeTransaction(FundTransaction fundTransaction) {
+//		// 取得最新 NAV
+//        FundNav latestNav = fundNavRepository
+//                .findTopByFundOrderByNavDateDesc(fundTransaction.getFund())
+//                .orElseThrow(() -> new RuntimeException("尚無最新淨值"));
+//
+//        // 計算買進單位數
+//        BigDecimal units = amount.divide(latestNav.getNavValue(), 4, RoundingMode.HALF_UP);
+//        fundTransaction.setTranTime(LocalDateTime.now());
+//        fundTransaction.setTranType("SIP");
+//
+//        return fundTransactionRepository.save(fundTransaction);
+//    }
+	
 	@Transactional
 	public FundTransaction agreeBuyFund(Integer id, FundTransaction updatedFundTransaction) {
 		FundTransaction fundTransaction = fundTransactionRepository.findById(id).orElseThrow();
@@ -138,5 +159,8 @@ public class FundTransactionService {
 
 		return fundTransactionRepository.save(fundTransaction);
 	}
+
+
+
 
 }

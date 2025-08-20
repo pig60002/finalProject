@@ -10,4 +10,6 @@ public interface FundSipRepository extends JpaRepository<FundSip, Integer> {
 
 	List<FundSip> findByFundAccountFundAccId(Integer fundAccId);
 
+	List<FundSip> findByStatus(String status);
+
 }

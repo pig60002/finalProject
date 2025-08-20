@@ -24,14 +24,9 @@ public class FundSipController {
 	@Autowired
 	private FundSipService fundSipService;
 
-	@GetMapping
-	public ResponseEntity<List<FundSip>> getAllFunds() {
-		return ResponseEntity.ok(fundSipService.getAll());
-	}
-
 	@GetMapping("/{id}")
-	public ResponseEntity<Optional<FundSip>> getFundById(@PathVariable Integer id) {
-		return ResponseEntity.ok(fundSipService.getById(id));
+	public ResponseEntity<List<FundSip>> getAllFunds(@PathVariable Integer fundAccId) {
+		return ResponseEntity.ok(fundSipService.getByFundAccId(fundAccId));
 	}
 
 	@PostMapping
