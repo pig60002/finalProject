@@ -10,7 +10,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
+import com.bank.member.bean.Member;
+import com.bank.member.bean.Role;
 import com.bank.member.bean.Worker;
 import com.bank.member.service.RoleService;
 
@@ -42,4 +43,8 @@ public class RoleController {
 	            return ResponseEntity.notFound().build();
 	        }
 	    }
+		@GetMapping("/roleAll")
+		public List<Role> getAllMembers() {
+		    return roleService.getAllRoles();
+		}
 }
