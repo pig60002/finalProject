@@ -1,4 +1,4 @@
-package com.bank.account.controller;
+package com.bank.account.controller.utils;
 
 import java.util.Map;
 
@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bank.account.service.OtpService;
+import com.bank.account.service.utils.OtpService;
 
 @RestController
 public class SmsAuthController {

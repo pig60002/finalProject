@@ -1,4 +1,4 @@
-package com.bank.account.service;
+package com.bank.account.service.utils;
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

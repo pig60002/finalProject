@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import com.bank.account.bean.Account;
 import com.bank.account.bean.Transactions;
 import com.bank.account.dao.TransactionsRepository;
-import com.bank.account.service.SerialControlService;
+import com.bank.account.service.utils.SerialControlService;
 import com.bank.utils.AccountUtils;
 
 import jakarta.transaction.Transactional;
