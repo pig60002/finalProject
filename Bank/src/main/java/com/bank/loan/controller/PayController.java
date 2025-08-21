@@ -1,122 +1,229 @@
 package com.bank.loan.controller;
 
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.view.RedirectView;
 
+import com.bank.loan.bean.LoanPayment;
+import com.bank.loan.bean.LoanRepaymentSchedule;
 import com.bank.loan.dto.LineRequestParam;
-import com.bank.loan.dto.LineRequestParam.Prdocut;
-import com.bank.loan.dto.LineRequestParam.Package;
 import com.bank.loan.dto.LineRequestParam.RedirectUrls;
+import com.bank.loan.service.LoanPaymentService;
+import com.bank.loan.service.LoanRepaymentScheduleService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import jakarta.servlet.http.HttpServletResponse;
-
-@RequestMapping("/api/pay")
+@RequestMapping("/pay")
 @RestController
 public class PayController {
 
-	private final String CHANNEL_SECRET = "486fac3bc391d673f7bc1b10b72ed189"; // 改成自己的
-	private final String API_PATH = "/v3/payments/request";
+    private final String CHANNEL_SECRET = "486fac3bc391d673f7bc1b10b72ed189"; // 改成自己的
+    private final String API_PATH = "/v3/payments/request";
 
-	/**
-	 * 告訴我訂單號碼，我給你結帳網址
-	 */
-	@GetMapping(path = "/order/{orderId}") // 這邊要跟前端串接
-	public void getOrderPaymentURLById(String orderId, HttpServletResponse response) throws Exception {
+    @Autowired
+    private LoanRepaymentScheduleService lrsService;
 
-		// === 每次請求的唯一識別 ===
-		UUID randomUUID = UUID.randomUUID();
+    @Autowired
+    private LoanPaymentService lpService;
 
-		// === 建立請求 body ===
-		LineRequestParam param = new LineRequestParam();
-		param.setAmount(5000);
-		param.setOrderId(1001);
+    /**
+     * 取得 Line Pay 結帳網址
+     */
+    @GetMapping("/order/{loanId}")
+    public ResponseEntity<Map<String, String>> getOrderPaymentURLById(@PathVariable String loanId) throws Exception {
+        UUID randomUUID = UUID.randomUUID();
 
-		// 設定 URL
-		RedirectUrls redirectUrls = new LineRequestParam.RedirectUrls();
-		redirectUrls.setConfirmUrl("localhost:5173/view/order"); // 結帳成功後導向 (也要跟前端串接)
-		redirectUrls.setCancelUrl("localhost:8080/cancel"); // 點擊取消後導向
-		param.setRedirectUrls(redirectUrls);
+        // 取得下一期尚未繳款的排程
+        LoanRepaymentSchedule schedule = lrsService.getNextPendingSchedule(loanId);
+        if (schedule == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "沒有找到待繳費的期數"));
+        }
 
-		// 設定商品
-		Prdocut p1 = new LineRequestParam.Prdocut();
-		p1.setId("p1");
-		p1.setImageUrl("");
-		p1.setName("商品A");
-		p1.setPrice(500);
-		p1.setQuantity(5);
+        int amountDue = schedule.getAmountDue().intValue();
 
-		Prdocut p2 = new LineRequestParam.Prdocut();
-		p2.setId("p2");
-		p2.setImageUrl("");
-		p2.setName("商品B");
-		p2.setPrice(500);
-		p2.setQuantity(5);
+        LineRequestParam param = new LineRequestParam();
+        param.setAmount(amountDue);
+        param.setOrderId(loanId);
 
-		List<Prdocut> products = List.of(p1, p2);
+        RedirectUrls redirectUrls = new RedirectUrls();
+        redirectUrls.setConfirmUrl("http://localhost:8080/bank/pay/linepay-success/" + loanId);
+        redirectUrls.setCancelUrl("http://localhost:8080/bank/pay/cancel/" + loanId);
+        param.setRedirectUrls(redirectUrls);
 
-		// 設定 package
-		Package package1 = new LineRequestParam.Package();
-		package1.setId("package1");
-		package1.setAmount(5000);
-		package1.setName("商品組A");
-		package1.setProducts(products);
+        // 商品資訊
+        LineRequestParam.Prdocut product = new LineRequestParam.Prdocut();
+        product.setId("repay");
+        product.setName("貸款繳款");
+        product.setPrice(amountDue);
+        product.setQuantity(1);
 
-		List<Package> packages = List.of(package1);
-		param.setPackages(packages);
+        LineRequestParam.Package package1 = new LineRequestParam.Package();
+        package1.setId("package1");
+        package1.setName("貸款繳費");
+        package1.setAmount(amountDue);
+        package1.setProducts(List.of(product));
 
-		// 把請求的「物件」轉型成 JSON 格式的字串
-		ObjectMapper mapper = new ObjectMapper();
-		String body = mapper.writeValueAsString(param);
+        param.setPackages(List.of(package1));
 
-		// 算出 mac 值，即是 request header 中的 「X-LINE-Authorization」
-		String message = CHANNEL_SECRET + API_PATH + body + randomUUID;
-		Mac mac = Mac.getInstance("HmacSHA256");
-		SecretKeySpec keySpec = new SecretKeySpec(CHANNEL_SECRET.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
-		mac.init(keySpec);
-		byte[] rawHmac = mac.doFinal(message.getBytes(StandardCharsets.UTF_8));
+        ObjectMapper mapper = new ObjectMapper();
+        String body = mapper.writeValueAsString(param);
 
-		// === 發送請求給 LINE ===
-		RestTemplate template = new RestTemplate();
-		String url = "https://sandbox-api-pay.line.me" + API_PATH; // 測試環境 URL
+        // 計算 MAC
+        String message = CHANNEL_SECRET + API_PATH + body + randomUUID;
+        Mac mac = Mac.getInstance("HmacSHA256");
+        SecretKeySpec keySpec = new SecretKeySpec(CHANNEL_SECRET.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+        mac.init(keySpec);
+        byte[] rawHmac = mac.doFinal(message.getBytes(StandardCharsets.UTF_8));
 
-		// 設定 HTTP Headers
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		headers.set("X-LINE-Authorization", Base64.getEncoder().encodeToString(rawHmac));
-		headers.set("X-LINE-Authorization-Nonce", randomUUID.toString());
-		headers.set("X-LINE-ChannelId", "2007899434"); // 改成自己的
+        RestTemplate template = new RestTemplate();
+        String url = "https://sandbox-api-pay.line.me" + API_PATH;
 
-		// 包裝 RequestEntity
-		HttpEntity<String> entity = new HttpEntity<>(body, headers);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("X-LINE-Authorization", Base64.getEncoder().encodeToString(rawHmac));
+        headers.set("X-LINE-Authorization-Nonce", randomUUID.toString());
+        headers.set("X-LINE-ChannelId", "2007899434");
 
-		// 發送 POST 請求
-		ResponseEntity<String> reslt = template.postForEntity(url, entity, String.class);
-		System.out.println(reslt.getBody());
+        HttpEntity<String> entity = new HttpEntity<>(body, headers);
+        ResponseEntity<String> result = template.postForEntity(url, entity, String.class);
 
-		// 解析回應中的 付款網址
-		JsonNode root = mapper.readTree(reslt.getBody());
-		String paymentUrl = root.path("info").path("paymentUrl").path("web").asText();
+        JsonNode root = mapper.readTree(result.getBody());
+        String paymentUrl = root.path("info").path("paymentUrl").path("web").asText();
 
-		// 告訴使用者哪裡可以付款(請他的瀏覽器導向付款畫面)
-		response.sendRedirect(paymentUrl);
+        return ResponseEntity.ok(Map.of(
+                "paymentUrl", paymentUrl,
+                "amountDue", String.valueOf(amountDue),
+                "scheduleId", String.valueOf(schedule.getScheduleId())
+        ));
+    }
 
-	}
+    /**
+     * Line Pay
+     */
+    @PostMapping("/linepay-confirm/{loanId}")
+    public ResponseEntity<String> confirmLinePayPayment(@PathVariable String loanId, @RequestBody Map<String, Object> payload) {
+        try {
+            System.out.println("=== Line Pay 付款確認 ===");
+            System.out.println("LoanId: " + loanId);
+            System.out.println("Payload: " + payload);
+            
+            // 取得下一期待繳費排程
+            LoanRepaymentSchedule nextSchedule = lrsService.getNextPendingSchedule(loanId);
+            if (nextSchedule == null) {
+                System.out.println("沒有找到待繳費的排程");
+                return ResponseEntity.badRequest().body("沒有找到待繳費的排程");
+            }
+            
+            // 建立付款記錄
+            LoanPayment payment = new LoanPayment();
+            payment.setLoanId(loanId);
+            payment.setAmountPaid(nextSchedule.getAmountDue()); // 使用排程中的應繳金額
+            payment.setPaymentMethod("Line Pay");
+            payment.setPaymentReference("貸款 " + loanId + " Line Pay 繳款");
+            payment.setPaymentDate(LocalDateTime.now());
+            payment.setScheduleId(nextSchedule.getScheduleId());
+            
+            // 如果有交易 ID，也記錄下來
+            if (payload.containsKey("transactionId")) {
+                payment.setPaymentReference(payment.getPaymentReference() + " (交易ID: " + payload.get("transactionId") + ")");
+            }
+            
+            // 保存付款記錄並更新排程
+            LoanPayment savedPayment = lpService.savePaymentAndUpdateSchedule(payment);
+            
+            System.out.println("Line Pay 付款處理成功，付款ID: " + savedPayment.getPaymentId());
+            return ResponseEntity.ok("付款確認成功");
+            
+        } catch (Exception e) {
+            System.err.println("Line Pay 付款確認失敗: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("付款確認失敗: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Line Pay 付款完成跳轉頁面
+     */
+    @GetMapping("/linepay-success/{loanId}")
+    public RedirectView linePaySuccessPage(@PathVariable String loanId, 
+                                         @RequestParam(required = false) String transactionId,
+                                         @RequestParam(required = false) String orderId) {
+        String redirectUrl = "/bank/linepay-success.html?loanId=" + loanId;
+        
+        if (transactionId != null) {
+            redirectUrl += "&transactionId=" + transactionId;
+        }
+        if (orderId != null) {
+            redirectUrl += "&orderId=" + orderId;
+        }
+        
+        return new RedirectView(redirectUrl);
+    }
+
+    /**
+     * Line Pay Webhook
+     */
+    @PostMapping("/linepay")
+    public ResponseEntity<String> linePayWebhook(@RequestBody Map<String, Object> payload) {
+        try {
+            System.out.println("=== Webhook 收到資料 ===");
+            System.out.println(payload);
+
+            String loanId = payload.get("loanId").toString();
+
+            Object amountObj = payload.get("amount");
+            BigDecimal amountPaid;
+            if (amountObj instanceof Number) {
+                amountPaid = BigDecimal.valueOf(((Number) amountObj).doubleValue());
+            } else {
+                amountPaid = new BigDecimal(amountObj.toString());
+            }
+
+            LoanRepaymentSchedule nextSchedule = lrsService.getNextPendingSchedule(loanId);
+
+            LoanPayment payment = new LoanPayment();
+            payment.setLoanId(loanId);
+            payment.setAmountPaid(amountPaid);
+            payment.setPaymentMethod("Line Pay");
+            payment.setPaymentReference("貸款 " + loanId + " 繳款");
+            payment.setPaymentDate(LocalDateTime.now());
+
+            if (nextSchedule != null) {
+                payment.setScheduleId(nextSchedule.getScheduleId());
+            } else {
+                System.out.println("沒有找到待繳費的排程");
+            }
+
+            lpService.savePaymentAndUpdateSchedule(payment);
+
+            System.out.println("Webhook 處理成功");
+            return ResponseEntity.ok("OK");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Webhook 處理失敗: " + e.getMessage());
+        }
+    }
+
 }
-
-
