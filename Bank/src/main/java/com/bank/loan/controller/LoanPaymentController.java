@@ -60,6 +60,36 @@ public class LoanPaymentController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+    
+    // 新增繳費 API (會更新排程)
+    @PostMapping("/{loanId}/payments/submit")
+    public ResponseEntity<LoanPayment> submitPayment(
+            @PathVariable String loanId,
+            @RequestBody LoanPayment payment) {
+
+        try {
+            payment.setLoanId(loanId);
+            payment.setPaymentDate(java.time.LocalDateTime.now());
+            LoanPayment savedPayment = lpService.savePaymentAndUpdateSchedule(payment);
+            return ResponseEntity.ok(savedPayment);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // 取得下一期未繳排程
+    @GetMapping("/{loanId}/schedules/next")
+    public ResponseEntity<LoanRepaymentScheduleDto> getNextSchedule(@PathVariable String loanId) {
+        try {
+            LoanRepaymentScheduleDto next = lpService.getNextScheduleDto(loanId);
+            return ResponseEntity.ok(next);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 
 
 

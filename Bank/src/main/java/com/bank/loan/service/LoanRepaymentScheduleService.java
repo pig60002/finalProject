@@ -129,4 +129,29 @@ public class LoanRepaymentScheduleService {
 
         return schedules;
     }
+    
+ // 更新單筆排程付款
+    public LoanRepaymentSchedule updateScheduleAfterPayment(Long scheduleId, BigDecimal amountPaid) {
+        LoanRepaymentSchedule schedule = lrsRepo.findById(scheduleId)
+                .orElseThrow(() -> new RuntimeException("排程不存在"));
+
+        schedule.setAmountPaid(schedule.getAmountPaid().add(amountPaid));
+
+        if (schedule.getAmountPaid().compareTo(schedule.getAmountDue()) >= 0) {
+            schedule.setPaymentStatus("paid");
+        }
+
+        schedule.setUpdatedAt(java.time.LocalDateTime.now());
+        return lrsRepo.save(schedule);
+    }
+
+    // 取得下一期待繳排程
+    public LoanRepaymentSchedule getNextPendingSchedule(String loanId) {
+        return lrsRepo.findByLoanIdAndPaymentStatus(loanId, "pending")
+                .stream()
+                .sorted((a,b) -> a.getInstallmentNumber() - b.getInstallmentNumber())
+                .findFirst()
+                .orElse(null);
+    }
+
 }

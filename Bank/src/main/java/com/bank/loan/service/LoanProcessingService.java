@@ -30,6 +30,9 @@ public class LoanProcessingService {
     @Autowired
     private CreditReviewLogsRepository crRepo;
     
+    @Autowired
+    private LoanEmailService eService;
+    
     /**
      * 定義貸款狀態的常數類別，避免硬編碼。
      */
@@ -99,6 +102,11 @@ public class LoanProcessingService {
             throw new IllegalArgumentException("Invalid loan status: " + newStatus);
         }
 
+        // ===========================
+        // 🔹 新增這一行：先取得舊的 decision（加在更新前）
+        String oldDecision = loan.getApprovalStatus(); // ← 這行非常重要
+        // ===========================
+
         // 4. 更新貸款狀態與修改時間
         LocalDateTime now = LocalDateTime.now();
         loan.setApprovalStatus(normalizedStatus);
@@ -111,14 +119,25 @@ public class LoanProcessingService {
         log.setLoan(loan);
         log.setmId(loan.getMember().getmId());
         log.setReviewerId(reviewerId);
-        log.setCreditScore(null); // 改變狀態不一定會影響信用分數
+        log.setCreditScore(null);
         log.setDecision(normalizedStatus);
         log.setNotes(notes);
         log.setReviewTime(now);
-
-        // 6. 儲存審核紀錄
         crRepo.save(log);
+
+        // ===========================
+        // 🔹 新增這一段：判斷 decision 是否變更，再寄信
+        if (!normalizedStatus.equals(oldDecision)) {
+            eService.sendReviewDecisionEmail(
+                loan.getMember().getmEmail(),
+                loan.getMember().getmName(),
+                normalizedStatus,
+                notes
+            );
+        }
+        // ===========================
     }
+
 
 
 
