@@ -1,7 +1,8 @@
 package com.bank.member.controller;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
@@ -32,6 +33,7 @@ import com.bank.member.bean.Worker;
 import com.bank.member.service.EmailService;
 import com.bank.member.service.MemberService;
 import com.bank.member.service.PasswordResetTokenService;
+import com.bank.member.service.WorkerLogService;
 
 @RestController
 @RequestMapping(path = "/member")
@@ -44,12 +46,19 @@ public class MemberController {
 	@Autowired
 	private EmailService emailService;
 	
+	@Autowired
+	private WorkerLogService workerLogService;
+	
+	String newAction = "新增";
+	String updateAction = "修改";
+	
 	@GetMapping("/memberAll")
 	public List<Member> getAllMembers() {
 	    return memberService.getAllMembers();
 	}
 	@GetMapping("/{id}")
 	public Member getMemberById(@PathVariable Integer id) {
+		
 		Member m = new Member();
 		//m = (Member)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		m.getmId();
@@ -57,12 +66,28 @@ public class MemberController {
 	}
 	@PostMapping("/member")
 	public Member createMember(@RequestBody Member member) {
-		
-	     return memberService.insertMember(member);
+		Object principal =SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		Member m= memberService.insertMember(member);
+		if(check(principal)) {
+			Worker worker  = (Worker) principal;
+			workerLogService.logAction(worker.getwId(),newAction,"編號:"+m.getmId()+",名子:"+m.getmName()+"的會員");
+		}
+	     return m;
 	}
 	@PutMapping("/{id}")
 	public Member updateMember(@PathVariable Integer id ,@RequestBody Member member) {
+		Object principal =SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if(check(principal)) {
+			Worker worker  = (Worker) principal;
+			Member OldMember =memberService.getMemberById(id);
+			String message = CompareMembers(OldMember,member);
+			if(!message.isEmpty()) {
+				workerLogService.logAction(worker.getwId(),updateAction,"編號"+id+"資料更動:"+message);		
+			}
+			
+		}
 		member.setmId(id);
+		
 	    return memberService.updateMember(member);
 	}
 	@DeleteMapping("/{id}")
@@ -189,6 +214,55 @@ public class MemberController {
 
 		
 	}
+    public boolean check(Object principal) {
+    	if (principal instanceof Worker) {
+    		return true; 
+    	}
+    	return false;
+    }
+    
+    public String CompareMembers(Member oldMember, Member newMember) {
+    	String message = "";
+    	if(!oldMember.getmName().equals(newMember.getmName())) {
+    		message = message+"姓名:"+oldMember.getmName()+"->"+newMember.getmName()+" ";
+    	}
+    	if(!oldMember.getmIdentity().equals( newMember.getmIdentity())) {
+    		message = message+"身分證:"+oldMember.getmIdentity()+"->"+newMember.getmIdentity()+" ";
+    	}
+    	if(!oldMember.getmGender().equals(newMember.getmGender())) {
+    		message = message+"性別:"+oldMember.getmGender()+"->"+newMember.getmGender()+" ";
+    	}
+     	if(!oldMember.getmAccount().equals(newMember.getmAccount())) {
+    		message = message+"帳號:"+oldMember.getmAccount()+"->"+newMember.getmAccount()+" ";
+    	}
+    	if(!oldMember.getmPassword().equals(newMember.getmPassword())) {
+    		message = message+"密碼:"+oldMember.getmPassword()+"->"+newMember.getmPassword()+" ";
+    	}
+    	if(!oldMember.getmAddress().equals(newMember.getmAddress())) {
+    		message = message+"地址:"+oldMember.getmAddress()+"->"+newMember.getmAddress()+" ";
+    	}
+    	if(!oldMember.getmPhone().equals(newMember.getmPhone())) {
+    		message = message+"電話:"+oldMember.getmPhone()+"->"+newMember.getmPhone()+" ";
+    	}
+    	LocalDate oldDate = oldMember.getmBirthday().toInstant()
+    		    .atZone(ZoneId.systemDefault())
+    		    .toLocalDate();
+
+    		LocalDate newDate = newMember.getmBirthday().toInstant()
+    		    .atZone(ZoneId.systemDefault())
+    		    .toLocalDate();
+    	
+    	if(!oldDate.equals(newDate)) {
+    		message = message+"生日:"+oldMember.getmBirthday()+"->"+newMember.getmBirthday()+" ";
+    	}
+    	if(!oldMember.getmEmail().equals(newMember.getmEmail())) {
+    		message = message+"信箱:"+oldMember.getmEmail()+"->"+newMember.getmEmail()+" ";
+    	}
+    	if(!oldMember.getmState().equals(newMember.getmState())) {
+    		message = message+"狀態:"+oldMember.getmState()+"->"+newMember.getmState()+" ";
+    	}
+    	return message;
+    }
 	
 	
 }

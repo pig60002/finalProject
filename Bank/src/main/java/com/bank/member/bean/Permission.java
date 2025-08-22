@@ -40,12 +40,6 @@ public class Permission {
 	}
 
 
-	public Permission(Integer id, Role role, Page page) {
-		super();
-		this.id = id;
-		this.role = role;
-		this.page = page;
-	}
 	
 
 	public Permission(Role role, Page page) {

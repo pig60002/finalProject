@@ -10,6 +10,6 @@ import com.bank.member.bean.Role;
 public interface RoleRepository extends JpaRepository<Role, Integer> {
 	Optional<Role> findByRoleName(String roleName);
 	
-	 @Query("SELECT MAX(r.roleId) FROM Role rw")
+	 @Query("SELECT MAX(r.roleId) FROM Role r")
 	 Integer findMaxId();
 }

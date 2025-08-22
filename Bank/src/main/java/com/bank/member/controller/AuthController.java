@@ -16,6 +16,7 @@ import com.bank.member.bean.Worker;
 import com.bank.member.bean.WorkerDto;
 import com.bank.member.service.MemberService;
 import com.bank.member.service.RoleService;
+import com.bank.member.service.WorkerLogService;
 import com.bank.member.service.WorkerService;
 import com.bank.utils.JwtUtil;
 
@@ -32,6 +33,9 @@ public class AuthController {
 	  private WorkerService workerService;
 	  @Autowired
 	  private RoleService roleService;
+	  
+	  @Autowired
+		private WorkerLogService workerLogService;
 	  
 	  
 	  @PostMapping("/login")
@@ -87,7 +91,8 @@ public class AuthController {
 	        if (w.getwAccount().equals(login.mAccount) && w.getwPassword().equals(login.mPassword)) {
 	            String token = jwtUtil.generateToken(w.getwId(),"worker"); // 模擬 userId 為 1001
 	            
-	            WorkerDto wDto = new WorkerDto(w,token);            
+	            WorkerDto wDto = new WorkerDto(w,token); 
+	            workerLogService.logAction(w.getwId(),"登入","");
 	            return ResponseEntity.ok().header("Authorization", "Bearer " + token).body(wDto);
 	        }
 

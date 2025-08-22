@@ -52,7 +52,6 @@ public class PermissionService {
 	}
 	
 	public void saveRolewithPage(Permission permission) {
-		
         permissionRepository.save(permission);
 	}
 	

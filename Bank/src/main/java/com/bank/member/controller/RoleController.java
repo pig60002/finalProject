@@ -114,12 +114,19 @@ public class RoleController {
 	    	return ResponseEntity.ok("Permissions updated successfully");
 	    }
 	    
-//	    @PostMapping("/role")
-//		public RoleWithPagesDto insertRoleWidthPage(@RequestBody RoleWithPagesDto roleWithPagesDto) {
-//	    	roleService.insertRole(roleWithPagesDto.getRole());
-//	    	
-//		     return memberService.insertMember(member);
-//		}
+	    @PostMapping("/role")
+		public ResponseEntity<?> insertRoleWidthPage(@RequestBody RoleWithPagesDto roleWithPagesDto) {
+	    	Role role = roleService.insertRole(roleWithPagesDto.getRole());
+	    	
+	    	List<Page> pages = roleWithPagesDto.getPages();
+	    	
+	    	for(Page page : pages) {
+	    		Permission ps = new Permission(role,page);	
+	    		permissionService.saveRolewithPage(ps);
+	    	}
+	    	
+		    return ResponseEntity.ok("角色新增成功");
+		}
 	    
 	    
 }
