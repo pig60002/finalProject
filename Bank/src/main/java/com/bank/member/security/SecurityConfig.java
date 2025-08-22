@@ -29,15 +29,23 @@ public class SecurityConfig {
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		// CORS: 設定允許的 domain、method、header
 		CorsConfiguration corsConfiguration = new CorsConfiguration();
-		corsConfiguration.setAllowedOrigins(List.of("*"));
-		corsConfiguration.setAllowedMethods(List.of("*"));
+		//corsConfiguration.setAllowedOrigins(List.of("*"));
+		//corsConfiguration.setAllowedMethods(List.of("*"));
+		//corsConfiguration.setAllowedHeaders(List.of("*"));
+		
+		corsConfiguration.setAllowedOrigins(List.of("http://localhost:5173"));
+		corsConfiguration.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
 		corsConfiguration.setAllowedHeaders(List.of("*"));
+		corsConfiguration.setExposedHeaders(List.of("*"));
+		corsConfiguration.setAllowCredentials(true); // 帶 cookie/憑證一定要 true
 
 		// 設定開放的 URL，無須登入
 		List<String> allowedURL = List.of(
 				"/auth/**",
 				"/uploadImg/**",
-				"/member/member"// Chrome 開發工具開啟時會發出請求
+				"/member/member",
+				"/member/forgot-password",
+				"/member/reset-password"// Chrome 開發工具開啟時會發出請求
 				);
 
 		return http // 使用 HttpSecurity http 物件展開串聯設定

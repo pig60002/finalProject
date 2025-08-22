@@ -3,7 +3,6 @@ package com.bank.loan.service;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -177,7 +176,6 @@ public class LoanService {
         loan.setLoanTerm(dto.getLoanTerm());
         loan.setMid(dto.getMId());
         loan.setLoanAmount(dto.getLoanAmount());
-        loan.setLoanstartDate(LocalDate.now());
         loan.setApprovalStatus("pending");  // 預設狀態為待審核
         loan.setInterestRate(baseRate.add(adjustmentRate));  // 設定總利率
         loan.setRepayAccountId(dto.getRepayAccountId());

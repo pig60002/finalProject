@@ -28,7 +28,7 @@ public class LoanDetailDtoMapper {
             .loanAmount(loan.getLoanAmount())
             .repayAccountId(loan.getRepayAccountId())
             .interestRate(loan.getInterestRate())
-            .loanstartDate(loan.getLoanstartDate())
+            .loanUpdatedAt(loan.getUpdatedAt())
             .approvalStatus(loan.getApprovalStatus())
             .createdAt(loan.getCreatedAt())
             .proofDocumentUrl(loan.getProofDocumentUrl());

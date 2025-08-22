@@ -109,5 +109,14 @@ public class LoanQueryController {
 		
 		return ResponseEntity.ok(dto);  // 找到就回 200 與資料
 	}
+	
+	// 依據會員ID查詢貸款資料
+	@GetMapping("/loans/member/{mid}")
+	public List<LoansDto> getMemberLoans(@PathVariable (required = false) Integer mid) {
+	    if(mid != null) {
+	        return lService.findByMemberId(mid);
+	    }
+	    return lService.findAllDto();
+	}
 
 }

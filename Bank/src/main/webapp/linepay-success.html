@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>付款成功</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f8f8f8;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            padding: 40px;
+            border-radius: 12px;
+            background-color: #fff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            min-width: 400px;
+        }
+        h1 { 
+            color: #27ae60; 
+            margin-bottom: 20px;
+        }
+        p { 
+            margin-top: 10px; 
+            font-size: 16px; 
+            color: #333; 
+            line-height: 1.5;
+        }
+        .loading {
+            color: #3498db;
+            font-weight: bold;
+        }
+        .success {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .error {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>付款成功 ✅</h1>
+        <div id="status-message">
+            <div class="spinner"></div>
+            <p class="loading">正在處理付款資料，請稍候...</p>
+        </div>
+    </div>
+
+    <script>
+        // 主執行邏輯
+        (function() {
+            // 從 URL 取得參數
+            const urlParams = new URLSearchParams(window.location.search);
+            const loanId = urlParams.get("loanId");
+            const transactionId = urlParams.get("transactionId");
+            const orderId = urlParams.get("orderId");
+            
+            console.log('URL 參數:', { loanId, transactionId, orderId });
+            
+            const statusDiv = document.getElementById('status-message');
+            
+            // 執行付款完成處理
+            async function processPayment() {
+                try {
+                    console.log('開始處理付款...');
+                    
+                    // 呼叫後端確認付款
+                    const response = await fetch(`http://localhost:8080/bank/pay/linepay-confirm/${loanId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            loanId: loanId,
+                            transactionId: transactionId,
+                            orderId: orderId
+                        })
+                    });
+
+                    console.log('Response status:', response.status);
+                    const result = await response.text();
+                    console.log('Response body:', result);
+
+                    if (response.ok) {
+                        console.log('付款處理成功');
+                        statusDiv.innerHTML = '<p class="success">付款處理完成！即將跳回首頁...</p>';
+                        
+                        // 成功後 3 秒跳轉
+                        setTimeout(() => {
+                            window.location.href = `http://localhost:5173/yuzubank/loanHome?loanId=${loanId}&refreshPayment=1`;
+                        }, 3000);
+                    } else {
+                        throw new Error(`HTTP ${response.status}: ${result}`);
+                    }
+                } catch (error) {
+                    console.error('付款處理失敗:', error);
+                    statusDiv.innerHTML = `
+                        <p class="error">付款處理失敗：${error.message}</p>
+                        <p>將在 5 秒後跳回首頁...</p>
+                    `;
+                    
+                    // 失敗後 5 秒跳轉
+                    setTimeout(() => {
+                        window.location.href = `http://localhost:5173/yuzubank/loanHome?loanId=${loanId}&refreshPayment=1`;
+                    }, 5000);
+                }
+            }
+            
+            // 檢查必要參數
+            if (!loanId) {
+                console.error('缺少 loanId 參數');
+                statusDiv.innerHTML = '<p class="error">錯誤：缺少貸款編號</p>';
+                setTimeout(() => {
+                    window.location.href = 'http://localhost:5173/yuzubank/loanHome';
+                }, 3000);
+            } else {
+                // 執行付款處理
+                processPayment();
+            }
+        })();
+    </script>
+</body>
+</html>

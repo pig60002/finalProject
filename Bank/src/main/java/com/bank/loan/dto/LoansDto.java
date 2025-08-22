@@ -1,7 +1,6 @@
 package com.bank.loan.dto;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.bank.loan.bean.Loans;
@@ -25,7 +24,6 @@ public class LoansDto {
 	private BigDecimal loanAmount;      // 貸款金額
 	private BigDecimal interestRate;    // 實際利率
 	private String repayAccountId;      // 還款帳戶ID
-	private LocalDate loanstartDate; 	// 貸款開始時間
 	private String approvalStatus;      // 審核狀態
 	private String approvalStatusName;  // 審核狀態-中文
 	private String proofDocumentUrl;    // 圖片存取位置
@@ -33,6 +31,12 @@ public class LoansDto {
 	
 	@JsonFormat(pattern = "yyyy-MM-dd")
 	private LocalDateTime createdAt;    // 建立時間
+	
+	@JsonFormat(pattern = "yyyy-MM-dd")
+	private LocalDateTime updatedAt;    // 建立時間
+	
+	private BigDecimal paidAmount;        // 已繳金額
+	private Double progress;              // 還款進度百分比
 
 	public LoansDto(Loans loan) {
 		this.loanId = loan.getLoanId();
@@ -44,11 +48,14 @@ public class LoansDto {
         this.loanAmount = loan.getLoanAmount();
         this.interestRate = loan.getInterestRate();
         this.repayAccountId = loan.getRepayAccountId();
-        this.loanstartDate = loan.getLoanstartDate();
         this.approvalStatus = loan.getApprovalStatus();
         this.approvalStatusName = ApprovalStatusEnum.fromCode(loan.getApprovalStatus());
         this.createdAt = loan.getCreatedAt();
+        this.updatedAt = loan.getUpdatedAt();
         this.proofDocumentUrl = loan.getProofDocumentUrl();
         this.getontractPath = loan.getContractPath();
+        
+        this.paidAmount = BigDecimal.ZERO;
+        this.progress = 0.0;
 	} 
 }

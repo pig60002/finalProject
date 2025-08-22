@@ -1,8 +1,13 @@
 package com.bank.member.controller;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,8 +28,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.bank.member.bean.Member;
+import com.bank.member.bean.PasswordResetToken;
 import com.bank.member.bean.Worker;
+import com.bank.member.service.EmailService;
 import com.bank.member.service.MemberService;
+import com.bank.member.service.PasswordResetTokenService;
+import com.bank.member.service.WorkerLogService;
 
 @RestController
 @RequestMapping(path = "/member")
@@ -32,12 +41,24 @@ public class MemberController {
 	@Autowired
 	private MemberService memberService;
 	
+	@Autowired
+	private PasswordResetTokenService PRTService; 
+	@Autowired
+	private EmailService emailService;
+	
+	@Autowired
+	private WorkerLogService workerLogService;
+	
+	String newAction = "新增";
+	String updateAction = "修改";
+	
 	@GetMapping("/memberAll")
 	public List<Member> getAllMembers() {
 	    return memberService.getAllMembers();
 	}
 	@GetMapping("/{id}")
 	public Member getMemberById(@PathVariable Integer id) {
+		
 		Member m = new Member();
 		//m = (Member)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		m.getmId();
@@ -45,12 +66,28 @@ public class MemberController {
 	}
 	@PostMapping("/member")
 	public Member createMember(@RequestBody Member member) {
-		
-	     return memberService.insertMember(member);
+		Object principal =SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		Member m= memberService.insertMember(member);
+		if(check(principal)) {
+			Worker worker  = (Worker) principal;
+			workerLogService.logAction(worker.getwId(),newAction,"編號:"+m.getmId()+",名子:"+m.getmName()+"的會員");
+		}
+	     return m;
 	}
 	@PutMapping("/{id}")
 	public Member updateMember(@PathVariable Integer id ,@RequestBody Member member) {
+		Object principal =SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if(check(principal)) {
+			Worker worker  = (Worker) principal;
+			Member OldMember =memberService.getMemberById(id);
+			String message = CompareMembers(OldMember,member);
+			if(!message.isEmpty()) {
+				workerLogService.logAction(worker.getwId(),updateAction,"編號"+id+"資料更動:"+message);		
+			}
+			
+		}
 		member.setmId(id);
+		
 	    return memberService.updateMember(member);
 	}
 	@DeleteMapping("/{id}")
@@ -105,6 +142,126 @@ public class MemberController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                                  .body("上傳失敗：" + e.getMessage());
         }
+    }
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestBody EmailRequest email) {
+    	System.out.println("我有近來喔");
+    	Member member =memberService.getMemberByEmail(email.getEmail());
+        if (member == null) {
+            return ResponseEntity.badRequest().body("No account found with that email.");
+        }
+
+        // 產生 token
+        String token = UUID.randomUUID().toString();
+        Date expiry = Date.from(Instant.now().plus(1, ChronoUnit.HOURS)); // 1小時後過期
+
+        PasswordResetToken resetToken = new PasswordResetToken(member, token, expiry);
+        PRTService.insertPasswordResetToken(resetToken);
+
+        // 傳送 email
+        String resetLink = "http://localhost:5173/yuzubank/memberResetPassword?token=" + token;
+        emailService.sendResetEmail(member.getmEmail(), resetLink);
+
+        return ResponseEntity.ok("Reset password link sent to your email.");
+    }
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody ResetRequest resetRequest) {
+    	
+    	
+    	PasswordResetToken prt = PRTService.findToken(resetRequest.getToken());
+    	
+    	if(prt ==null) {
+    		return ResponseEntity.badRequest().body("沒有找到token");
+    	}
+    	Date now = new Date();
+    	if(prt.getExpiry().before(now)){
+    		return ResponseEntity.badRequest().body("Token 無效或已過期");
+    	}
+    	prt.getMember().setmPassword(resetRequest.getPassword());
+    	memberService.updateMember(prt.getMember());
+    	PRTService.deleteById(prt.getId());
+       return ResponseEntity.ok("密碼已成功重設");
+       
+    }
+    
+	public static class EmailRequest {
+	    private String email;
+
+		public String getEmail() {
+			return email;
+		}
+
+		public void setEmail(String email) {
+			this.email = email;
+		}
+	    
+	}
+	public static class ResetRequest {
+	    private String password;
+	    private String token;
+		public String getPassword() {
+			return password;
+		}
+		public void setPassword(String password) {
+			this.password = password;
+		}
+		public String getToken() {
+			return token;
+		}
+		public void setToken(String token) {
+			this.token = token;
+		}
+
+		
+	}
+    public boolean check(Object principal) {
+    	if (principal instanceof Worker) {
+    		return true; 
+    	}
+    	return false;
+    }
+    
+    public String CompareMembers(Member oldMember, Member newMember) {
+    	String message = "";
+    	if(!oldMember.getmName().equals(newMember.getmName())) {
+    		message = message+"姓名:"+oldMember.getmName()+"->"+newMember.getmName()+" ";
+    	}
+    	if(!oldMember.getmIdentity().equals( newMember.getmIdentity())) {
+    		message = message+"身分證:"+oldMember.getmIdentity()+"->"+newMember.getmIdentity()+" ";
+    	}
+    	if(!oldMember.getmGender().equals(newMember.getmGender())) {
+    		message = message+"性別:"+oldMember.getmGender()+"->"+newMember.getmGender()+" ";
+    	}
+     	if(!oldMember.getmAccount().equals(newMember.getmAccount())) {
+    		message = message+"帳號:"+oldMember.getmAccount()+"->"+newMember.getmAccount()+" ";
+    	}
+    	if(!oldMember.getmPassword().equals(newMember.getmPassword())) {
+    		message = message+"密碼:"+oldMember.getmPassword()+"->"+newMember.getmPassword()+" ";
+    	}
+    	if(!oldMember.getmAddress().equals(newMember.getmAddress())) {
+    		message = message+"地址:"+oldMember.getmAddress()+"->"+newMember.getmAddress()+" ";
+    	}
+    	if(!oldMember.getmPhone().equals(newMember.getmPhone())) {
+    		message = message+"電話:"+oldMember.getmPhone()+"->"+newMember.getmPhone()+" ";
+    	}
+    	LocalDate oldDate = oldMember.getmBirthday().toInstant()
+    		    .atZone(ZoneId.systemDefault())
+    		    .toLocalDate();
+
+    		LocalDate newDate = newMember.getmBirthday().toInstant()
+    		    .atZone(ZoneId.systemDefault())
+    		    .toLocalDate();
+    	
+    	if(!oldDate.equals(newDate)) {
+    		message = message+"生日:"+oldMember.getmBirthday()+"->"+newMember.getmBirthday()+" ";
+    	}
+    	if(!oldMember.getmEmail().equals(newMember.getmEmail())) {
+    		message = message+"信箱:"+oldMember.getmEmail()+"->"+newMember.getmEmail()+" ";
+    	}
+    	if(!oldMember.getmState().equals(newMember.getmState())) {
+    		message = message+"狀態:"+oldMember.getmState()+"->"+newMember.getmState()+" ";
+    	}
+    	return message;
     }
 	
 	

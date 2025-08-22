@@ -2,6 +2,7 @@ package com.bank.account.controller;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,7 @@ public class AccAppController {
 
 	@Autowired
 	private AccAppService accAppService;
+	
 
 	// 查詢 "已審核"狀態 
 	@GetMapping("/account/application/getrwdone")
@@ -46,8 +48,10 @@ public class AccAppController {
 				accapp.getStatus(),
 				accapp.getReviewerId(),
 				accapp.getRejectionReason(),
-				accapp.getApplicationId() 
+				accapp.getApplicationId(),
+				accapp.getmId()
 		);
+		
 		
 		if( updateRS > 0 ) {
 			return ResponseEntity.ok("更新成功");
@@ -58,22 +62,24 @@ public class AccAppController {
 	}
 	
 	// 新增帳戶申請
-	@PostMapping("/account/application/insert.controller")
-	public ResponseEntity<String> processInsertAction(@RequestParam MultipartFile idfront,
+	@PostMapping("/account/application/insert")
+	public ResponseEntity<Map<String, Object>> processInsertAction(@RequestParam MultipartFile idfront,
 												  	  @RequestParam MultipartFile idback,
 												  	  @RequestParam(required = false) MultipartFile secDoc, //(required = false)可以沒有
 												  	  @RequestParam Integer mid,
-												  	  @RequestParam(required = false)String status) {
+												  	  @RequestParam(required = false)String status,
+												  	  @RequestParam String mName,
+												  	  @RequestParam String mEmail) {
 		
 		status = (status!=null) ? status : "待審核" ;
 		
-		AccountApplication insertRS = accAppService.insertAccApp(idfront, idback, secDoc, mid, status);
+		AccountApplication insertRS = accAppService.insertAccApp(idfront, idback, secDoc, mid, status, mName, mEmail);
 		
 		
 		if( insertRS != null ) {
-			return ResponseEntity.ok("新增成功");
+			return ResponseEntity.ok(Map.<String, Object>of("success",true,"appId",insertRS.getApplicationId()));
 		} else {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("新增失敗");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body( Map.<String, Object>of("success", false));
 		}
 	}
 	
@@ -82,5 +88,10 @@ public class AccAppController {
 	public AccountApplication processGetAccAppDetailsAction(@PathVariable String appid) {
 		return accAppService.getAccAppDetail(appid);
 	}
+	
+	@GetMapping("/account/application/status")
+    public String getApplicationStatus(@RequestParam Integer mId) {
+		return accAppService.getLatestStatus(mId);
+    }
 
 }
