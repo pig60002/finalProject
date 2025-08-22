@@ -2,12 +2,12 @@ package com.bank.member.service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.bank.member.bean.Member;
 import com.bank.member.bean.Page;
 import com.bank.member.bean.Permission;
 import com.bank.member.bean.Role;
@@ -47,6 +47,21 @@ public class RoleService {
 	public List<Role> getAllRoles() {
         return roleRepository.findAll();
     }
+	
+	public Role getRoleById(Integer roleId) {
+		Optional<Role> op = roleRepository.findById(roleId);
+        if(op.isPresent()) {
+        	return op.get();
+        }
+        return null;
+	}
+	
+	public Role insertRole(Role role) {
+		Integer id= roleRepository.findMaxId();
+		role.setRoleId(id+1);
+		return roleRepository.save(role);
+	}
+	
 	
 
 }

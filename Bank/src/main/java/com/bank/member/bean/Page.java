@@ -2,6 +2,7 @@ package com.bank.member.bean;
 
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -60,8 +61,25 @@ public class Page {
 	public void setPageExp(String pageExp) {
 		this.pageExp = pageExp;
 	}
-	
-	
+	@Override
+	public boolean equals(Object obj) {
+	    if (this == obj) {
+	        return true;
+	    }
+	    if (obj == null || getClass() != obj.getClass()) {
+	        return false;
+	    }
+	    Page page = (Page) obj;
+	    // 用 Integer 的 equals 方法來比較 pageId，這樣可以處理 null 的情況
+	    return (pageId != null ? pageId.equals(page.pageId) : page.pageId == null) &&
+	           (pageName != null ? pageName.equals(page.pageName) : page.pageName == null) &&
+	           (pageExp != null ? pageExp.equals(page.pageExp) : page.pageExp == null);
+	}
+    // 覆寫 hashCode 方法
+	@Override
+	public int hashCode() {
+	    return Objects.hash(pageId, pageName, pageExp);
+	}
 	
 
 }
