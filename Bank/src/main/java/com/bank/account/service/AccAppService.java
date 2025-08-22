@@ -32,7 +32,7 @@ public class AccAppService {
 	private MailService mailService;
 
 	// 新增 
-	public AccountApplication insertAccApp(MultipartFile idfront, MultipartFile idback, MultipartFile secdoc,Integer mid ,String status) {
+	public AccountApplication insertAccApp(MultipartFile idfront, MultipartFile idback, MultipartFile secdoc,Integer mid ,String status, String mName, String mEmail) {
 		
 		AccountApplication accApp = new AccountApplication();
 		
@@ -52,7 +52,17 @@ public class AccAppService {
 		accApp.setStatus(status);
 		accApp.setApplyTime( LocalDateTime.now() );
 
-		return accAppRepos.save(accApp);
+		AccountApplication saveRS = accAppRepos.save(accApp);
+		try {
+			mailService.sendApplicationSubmittedEmail(mName, mEmail, id);
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return saveRS;
 	}
 	
 	
@@ -127,5 +137,12 @@ public class AccAppService {
 		}
 		return null;
 	}
+	
+	public String getLatestStatus(Integer mId){
+		AccountApplication accapp = accAppRepos.findTopByMIdOrderByApplyTimeDesc(mId);
+		return accapp.getStatus();       
+	}
+	
+	
 
 }
