@@ -1,6 +1,5 @@
 package com.bank.loan.controller;
 
-import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Base64;
@@ -180,50 +179,6 @@ public class PayController {
         }
         
         return new RedirectView(redirectUrl);
-    }
-
-    /**
-     * Line Pay Webhook
-     */
-    @PostMapping("/linepay")
-    public ResponseEntity<String> linePayWebhook(@RequestBody Map<String, Object> payload) {
-        try {
-            System.out.println("=== Webhook 收到資料 ===");
-            System.out.println(payload);
-
-            String loanId = payload.get("loanId").toString();
-
-            Object amountObj = payload.get("amount");
-            BigDecimal amountPaid;
-            if (amountObj instanceof Number) {
-                amountPaid = BigDecimal.valueOf(((Number) amountObj).doubleValue());
-            } else {
-                amountPaid = new BigDecimal(amountObj.toString());
-            }
-
-            LoanRepaymentSchedule nextSchedule = lrsService.getNextPendingSchedule(loanId);
-
-            LoanPayment payment = new LoanPayment();
-            payment.setLoanId(loanId);
-            payment.setAmountPaid(amountPaid);
-            payment.setPaymentMethod("Line Pay");
-            payment.setPaymentReference("貸款 " + loanId + " 繳款");
-            payment.setPaymentDate(LocalDateTime.now());
-
-            if (nextSchedule != null) {
-                payment.setScheduleId(nextSchedule.getScheduleId());
-            } else {
-                System.out.println("沒有找到待繳費的排程");
-            }
-
-            lpService.savePaymentAndUpdateSchedule(payment);
-
-            System.out.println("Webhook 處理成功");
-            return ResponseEntity.ok("OK");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).body("Webhook 處理失敗: " + e.getMessage());
-        }
     }
 
 }
