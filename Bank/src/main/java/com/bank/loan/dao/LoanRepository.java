@@ -17,7 +17,9 @@ public interface LoanRepository extends JpaRepository<Loans, String> {
     // 根據貸款狀態查詢
     List<Loans> findByApprovalStatus(String approvalStatus);
     
- // 根據顧客姓名模糊 & 貸款狀態查詢
+    // 根據顧客姓名模糊 & 貸款狀態查詢
     List<Loans> findByMember_mNameContainingIgnoreCaseAndApprovalStatus(String mName, String approvalStatus);
-
+    
+    // 根據顧客ID 貸款資料查詢
+    List<Loans> findByMember_mId(Integer mId);
 }

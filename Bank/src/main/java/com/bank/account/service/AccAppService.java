@@ -1,5 +1,6 @@
 package com.bank.account.service;
 
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -11,7 +12,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.bank.account.bean.AccountApplication;
 import com.bank.account.dao.AccAppRepository;
+import com.bank.member.bean.Member;
 import com.bank.utils.AccountUtils;
+
+import jakarta.mail.MessagingException;
 
 
 @Service
@@ -22,6 +26,8 @@ public class AccAppService {
 	private AccAppRepository accAppRepos;
 	@Autowired
 	private SerialControlService scService;
+	@Autowired
+	private MailService mailService;
 
 	// 新增 
 	public AccountApplication insertAccApp(MultipartFile idfront, MultipartFile idback, MultipartFile secdoc,Integer mid ,String status) {
@@ -55,8 +61,39 @@ public class AccAppService {
 	}
 
 	// 修改單筆開戶申請表 (審核狀態) updateAccApp(String appId, String status, String reason, int reviewerId)
-	public int updateAccApp( String status, Integer reviewerId, String reason,String appId) {
-		return accAppRepos.updateAccApp(status, reviewerId, LocalDateTime.now(), reason, appId);
+	public int updateAccApp( String status, Integer reviewerId, String reason,String appId,Integer mId) {
+	
+		int rs = accAppRepos.updateAccApp(status, reviewerId, LocalDateTime.now(), reason, appId);
+		Member member = accAppRepos.findByApplicationId(appId).getMember();
+		String mEmail = member.getmEmail();
+		String mName = member.getmName();
+
+		if (rs > 0) {
+			// 修改狀態成功，判斷狀態寄送信件
+
+			try {
+				if("通過".equals(status) || "未通過".equals(status)) {
+				
+					mailService.sendApplicationRSEmail(mName, mEmail, status);
+
+				}else if("待補件".equals(status)) {
+					
+					String supplementUrl = ""+appId;
+					mailService.sendApplicationRSEmail(mName, mEmail, status, supplementUrl);
+				}
+
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (MessagingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return rs;
 	}
 
 	// 刪除 deleteAccAppById(String id)

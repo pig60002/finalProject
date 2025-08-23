@@ -30,75 +30,79 @@ public class CreditBillService {
 	@Autowired
 	private CardDetailRepository cardDetailRepository;
 	
-	public CreditBillBean generateBill(Integer cardId,String billingYearMonth) {
-		CardDetailBean card=cardDetailRepository.findById(cardId)
-				.orElseThrow(()->new RuntimeException("卡片不存在,ID="+cardId));
-		YearMonth ym = YearMonth.parse(billingYearMonth,DateTimeFormatter.ofPattern("yyyyMM"));
-		LocalDate startDate = ym.atDay(1);
-		LocalDate endDate = ym.atEndOfMonth();
-		LocalDateTime startDateTime = startDate.atStartOfDay();
-		LocalDateTime endDateTime = endDate.atTime(23,59,59);
-		
-		//檢查是否已經存在該月份的帳單
-		boolean exists = creditBillRepository.existsByCardDetailCardIdAndBillingDate(cardId, endDate);
-		if(exists) {
-			throw new RuntimeException("該卡片"+cardId+"在"+billingYearMonth+"已存在");
-		}
-		//取得該卡片該期間的所有交易(含退款)
-		List<CreditTransactionBean> transactions=creditTransactionRepository.findByCardDetailCardIdAndTransactionTimeBetween(
-		        cardId, startDateTime, endDateTime
-			    );
-		
-		//計算總金額
-		BigDecimal totalAmount = transactions.stream()
-				.map(CreditTransactionBean::getAmount)
-				.reduce(BigDecimal.ZERO, BigDecimal::add);
-		
-		//最低應繳10%
-		BigDecimal minimumPayment = totalAmount.multiply(new BigDecimal("0.1"))
-	            .setScale(2, BigDecimal.ROUND_HALF_UP);
-		// 預設已繳金額 0
-        BigDecimal paidAmount = BigDecimal.ZERO;
-        
-        // 帳單日期 = 該月份最後一天
-        LocalDate billingDate = endDate;
-        // 繳款截止日 
-        LocalDate dueDate = billingDate.plusDays(20);
-        
-        CreditBillBean bill = new CreditBillBean();
+	/** 應繳基準：本期應繳金額 = max(本期淨額, 0) */
+    private BigDecimal payBase(BigDecimal net) {
+        return (net == null ? BigDecimal.ZERO : net).max(BigDecimal.ZERO);
+    }
+    
+    /** 依「應繳基準」重算狀態 */
+    private void recomputeStatus(CreditBillBean bill) {
+        BigDecimal base = payBase(bill.getTotalAmount()); // ← 用淨額的 max(,0)
+        BigDecimal min  = base.multiply(new BigDecimal("0.1")).setScale(2, BigDecimal.ROUND_HALF_UP);
+        bill.setMinimumPayment(min);
+
+        BigDecimal paid = bill.getPaidAmount() == null ? BigDecimal.ZERO : bill.getPaidAmount();
+        if (paid.compareTo(base) >= 0) {
+            bill.setStatus("已繳清");
+        } else if (paid.compareTo(min) >= 0 && base.signum() > 0) {
+            bill.setStatus("已繳最低");
+        } else {
+            bill.setStatus(base.signum() == 0 ? "本期無須繳款" : "未繳");
+        }
+    }
+	
+    public CreditBillBean generateBill(Integer cardId, String billingYearMonth) {
+        CardDetailBean card = cardDetailRepository.findById(cardId)
+            .orElseThrow(() -> new RuntimeException("卡片不存在,ID=" + cardId));
+
+        YearMonth ym = YearMonth.parse(billingYearMonth, DateTimeFormatter.ofPattern("yyyyMM"));
+        LocalDate billingDate = ym.atEndOfMonth();
+        LocalDateTime start = ym.atDay(1).atStartOfDay();
+        LocalDateTime end   = ym.atEndOfMonth().atTime(23,59,59);
+
+        var txs = creditTransactionRepository
+            .findByCardDetailCardIdAndTransactionTimeBetween(cardId, start, end);
+
+        // 本期「淨額」(可為負，含退款)
+        BigDecimal net = txs.stream()
+            .map(CreditTransactionBean::getAmount)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        var opt = creditBillRepository.findByCardDetailCardIdAndBillingDate(cardId, billingDate);
+        CreditBillBean bill = opt.orElseGet(CreditBillBean::new);
+
         bill.setCardDetail(card);
         bill.setBillingDate(billingDate);
-        bill.setDueDate(dueDate);
-        bill.setTotalAmount(totalAmount);
-        bill.setMinimumPayment(minimumPayment);
-        bill.setPaidAmount(paidAmount);
-        bill.setStatus("未繳");
-        
-        // 存帳單
-        CreditBillBean savedBill = creditBillRepository.save(bill);
+        bill.setDueDate(billingDate.plusDays(20));
+        bill.setTotalAmount(net); // ✅ 保留淨額（可為負）
+        if (bill.getPaidAmount() == null) bill.setPaidAmount(BigDecimal.ZERO);
 
-        // 將所有該期間交易更新關聯帳單 (如果你需要連結交易到帳單)
-        for (CreditTransactionBean tx : transactions) {
-            tx.setCreditBill(savedBill);
-        }
-        creditTransactionRepository.saveAll(transactions);
-        
-     // currentBalance = creditLimit - 已用額度 (所有交易金額總和)
-        BigDecimal usedAmount = creditTransactionRepository.findByCardDetail_CardId(card.getCardId()).stream()
-                .map(CreditTransactionBean::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        // 掛帳 + 狀態、最低應繳重算
+        CreditBillBean saved = creditBillRepository.save(bill);
+        for (var tx : txs) tx.setCreditBill(saved);
+        creditTransactionRepository.saveAll(txs);
+
+        recomputeStatus(saved);
+        saved = creditBillRepository.save(saved);
+
+        // 更新卡片可用額度（仍以交易總和）
+        BigDecimal usedAmount = creditTransactionRepository.findByCardDetail_CardId(card.getCardId())
+            .stream().map(CreditTransactionBean::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
         card.setCurrentBalance(card.getCreditLimit().subtract(usedAmount));
         cardDetailRepository.save(card);
 
-        return savedBill;
-	}
+        return saved;
+    }
+
 	
 	public List<CreditBillBean> findAllBills(){
 		return creditBillRepository.findAll();
 	}
 	
 	public List<CreditBillBean> findBillsByMemberId(Integer memberId){
-		return creditBillRepository.findByCardDetailMemberMId(memberId);
+		List<CreditBillBean> list = creditBillRepository.findBillsOfMember(memberId);
+	    System.out.println("[myBills] mId=" + memberId + " -> " + list.size() + " bills");
+	    return list;
 	}
 	
 	public CreditBillBean findBillDetail(Integer billId) {

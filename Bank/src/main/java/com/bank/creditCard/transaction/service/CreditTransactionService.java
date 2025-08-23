@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import com.bank.creditCard.dto.CreditTransactionDTO;
 import com.bank.creditCard.issue.dao.CardDetailRepository;
 import com.bank.creditCard.issue.model.CardDetailBean;
+import com.bank.creditCard.transaction.dao.CreditBillRepository;
 import com.bank.creditCard.transaction.dao.CreditTransactionRepository;
 import com.bank.creditCard.transaction.model.CreditTransactionBean;
 import com.bank.member.dao.MemberRepository;
@@ -30,6 +31,9 @@ public class CreditTransactionService {
 	
 	@Autowired
 	private MemberRepository memberRepository;
+	
+	@Autowired
+	private CreditBillRepository creditBillRepository;
 	
 	private final Random random=new Random();
 	
@@ -68,6 +72,8 @@ public class CreditTransactionService {
         BigDecimal currentBalance = card.getCreditLimit().subtract(usedAmount);
         card.setCurrentBalance(currentBalance);
         cardDetailRepository.save(card);
+        
+        attachToBillIfExists(card, saved);
 
         return saved;
     }
@@ -174,5 +180,39 @@ public class CreditTransactionService {
 
         return creditTransactionRepository.findByMemberNameLikeAndTransactionTimeBetween(
                 name, startDateTime, endDateTime);
+    }
+    
+    private void attachToBillIfExists(CardDetailBean card, CreditTransactionBean tx) {
+        YearMonth ym = YearMonth.from(tx.getTransactionTime());
+        LocalDate billingDate = ym.atEndOfMonth();
+
+        creditBillRepository.findByCardDetailCardIdAndBillingDate(card.getCardId(), billingDate)
+            .ifPresent(bill -> {
+                tx.setCreditBill(bill);
+                creditTransactionRepository.save(tx);
+
+                LocalDateTime start = ym.atDay(1).atStartOfDay();
+                LocalDateTime end   = ym.atEndOfMonth().atTime(23,59,59);
+
+                BigDecimal net = creditTransactionRepository
+                    .findByCardDetailCardIdAndTransactionTimeBetween(card.getCardId(), start, end)
+                    .stream()
+                    .map(CreditTransactionBean::getAmount)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                bill.setTotalAmount(net); // ✅ 保留淨額
+
+                // === 以「應繳基準 = max(淨額,0)」重算最低與狀態 ===
+                BigDecimal base = net.max(BigDecimal.ZERO);
+                BigDecimal min  = base.multiply(new BigDecimal("0.1")).setScale(2, BigDecimal.ROUND_HALF_UP);
+                bill.setMinimumPayment(min);
+
+                BigDecimal paid = bill.getPaidAmount() == null ? BigDecimal.ZERO : bill.getPaidAmount();
+                if (paid.compareTo(base) >= 0)       bill.setStatus("已繳清");
+                else if (paid.compareTo(min) >= 0 && base.signum() > 0) bill.setStatus("已繳最低");
+                else                                  bill.setStatus(base.signum()==0 ? "本期無須繳款" : "未繳");
+
+                creditBillRepository.save(bill);
+            });
     }
 }

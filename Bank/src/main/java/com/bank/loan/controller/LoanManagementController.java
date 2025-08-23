@@ -1,6 +1,7 @@
 package com.bank.loan.controller;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -19,6 +20,7 @@ import com.bank.loan.service.DocumentManagementDtoService;
 import com.bank.loan.service.DocumentUploadService;
 import com.bank.loan.service.LoanProcessingService;
 import com.bank.loan.service.LoanService;
+//import com.bank.loan.service.ReviewHistoryService;
 
 @RestController
 @RequestMapping("/loans")
@@ -35,6 +37,9 @@ public class LoanManagementController {
 	
 	@Autowired
 	private DocumentUploadService duService;
+	
+//	@Autowired
+//	private ReviewHistoryService rhService;
 
 	// 上傳補件（如財力證明）
 	@PostMapping("/{loanId}/upload-proof")
@@ -53,26 +58,27 @@ public class LoanManagementController {
 	
 	// 更新審核狀態
 	@PostMapping("/{loanId}/status")
-    public ResponseEntity<?> updateLoanStatus(@PathVariable String loanId, @RequestBody Map<String, Object> body) {
-		String newStatus = (String) body.get("newStatus");
+	public ResponseEntity<?> updateLoanStatus(@PathVariable String loanId, @RequestBody Map<String, Object> body) {
+	    String newStatus = (String) body.get("newStatus");
 	    Integer reviewerId = (Integer) body.get("reviewerId");
 	    String notes = (String) body.get("notes");
-		lpService.updateStatus(loanId, newStatus, reviewerId, notes); // 可改成從登入者取得
-		return ResponseEntity.ok("狀態已更新");
-    }
+	    
 
-	// 審核紀錄新增
-	@PostMapping("/{loanId}/review")
-	public ResponseEntity<String> submitReview(@PathVariable String loanId, @RequestBody ReviewHistoryDto dto) {
-		// 將 dto 儲存進 credit_review_logs
-		// 若需要可同時更新 loans.approvalStatus
-		try {
-			lpService.saveReview(loanId, dto);
-            return ResponseEntity.ok("Review submitted");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).body("Review submission failed: " + e.getMessage());
-        }
+	    // 1. 更新貸款狀態（可改成從登入者取得 reviewerId）
+	    lpService.updateStatus(loanId, newStatus, reviewerId, notes);
+
+	    // 2. 建立或更新 CreditReviewLogs DTO
+	    ReviewHistoryDto dto = new ReviewHistoryDto();
+	    dto.setLoanId(loanId);
+	    dto.setReviewerId(reviewerId);
+	    dto.setDecision(newStatus);
+	    dto.setNotes(notes);
+	    dto.setReviewTime(LocalDateTime.now());
+
+	    // 3. 呼叫 ReviewHistoryService 存檔（內部會判斷 decision 是否變更，若變更會寄信）
+//	    rhService.saveOrUpdateFromDto(dto);
+
+	    return ResponseEntity.ok("狀態已更新");
 	}
 
     @GetMapping("/accounts")
