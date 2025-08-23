@@ -1,4 +1,4 @@
-package com.bank.account.service;
+package com.bank.account.service.utils;
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -141,6 +141,93 @@ public class MailService {
 		);
 		
 		return map.getOrDefault(status, "");
+	}
+	
+	public void sendApplicationSubmittedEmail(String mName, String mEmail, String appId) throws MessagingException, UnsupportedEncodingException {
+		 final String now = LocalDateTime.now()
+			        .format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss"));
+	
+		// 純文字備援
+		    String text = """
+		            【帳戶申請已送出】
+		            親愛的 %s 您好：
+		            我們已收到您的資料，將於 5 個工作天完成審核。
+		            申請編號：%s
+		            通知時間：%s
+
+		            注意事項：
+		            ・請勿重複送出申請，避免申請編號混淆。
+		            ・審核結果將以 Email 通知；若需補件會另行通知。
+		            ・如對申請有疑問，請洽客服。
+
+		            本信為系統通知，請勿直接回覆。
+		            """.formatted(mName, appId , now);
+		 // HTML 內容（和 Step3 風格一致）
+		    String html = """
+		        <div style="background:#f5f7fb;padding:24px 12px;
+		                    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans TC','Microsoft JhengHei',Arial,sans-serif;color:#111827;">
+		          <table role="presentation" align="center" width="600"
+		                 style="max-width:600px;background:#fff;border:1px solid #e5e7eb;border-radius:12px">
+		            <tr><td style="padding:16px 20px">
+		              <img src="cid:logo" alt="YuzuBank" style="height:32px;width:auto;display:block">
+		            </td></tr>
+
+		            <tr><td style="padding:0 20px">
+		              <h2 style="margin:0 0 8px 0;font-size:20px;line-height:28px">【帳戶申請已送出】</h2>
+		              <p style="margin:0 0 12px 0;line-height:1.7">
+		                親愛的 %s 您好：我們已收到您的資料，審核將於 <b>5 個工作天</b> 完成。
+		              </p>
+		            </td></tr>
+
+		            <tr><td style="padding:6px 20px 0 20px">
+		              <table role="presentation" width="100%%" cellspacing="0" cellpadding="0"
+		                     style="border:1px solid #e5e7eb;border-radius:8px">
+		                <tr>
+		                  <td style="width:28%%;background:#f9fafb;padding:10px 12px;border-bottom:1px solid #e5e7eb">申請編號</td>
+		                  <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb"><code style="background:#f0f3f6;padding:2px 6px;border-radius:6px">%s</code></td>
+		                </tr>
+		                <tr>
+		                  <td style="background:#f9fafb;padding:10px 12px">狀態</td>
+		                  <td style="padding:10px 12px"><b>已送出，審核中</b></td>
+		                </tr>
+		                <tr>
+		                  <td style="background:#f9fafb;padding:10px 12px">通知時間</td>
+		                  <td style="padding:10px 12px">%s</td>
+		                </tr>
+		              </table>
+
+		              <ul style="margin:12px 0 0 18px;line-height:1.7;color:#374151;padding:0">
+		                <li>審核時間約 5 個工作天，結果將以 Email 通知。</li>
+		                <li>請勿重複送出申請，避免申請編號混淆。</li>
+		                <li>若需補件，將以 Email 告知補件內容與方式。</li>
+		                <li>若申請未通過，將以 Email 告知原因。</li>
+		              </ul>
+		        
+		            </td></tr>
+
+		            <tr><td style="padding:18px 20px 22px 20px;color:#6b7280;font-size:12px;text-align:center;border-top:1px solid #e5e7eb;margin-top:14px">
+		              柚子銀行股份有限公司　敬啟
+		            </td></tr>
+		          </table>
+		        </div>
+		        """.formatted(
+		            e(mName),
+		            e(appId),
+		            e(now)
+		        );
+
+		    MimeMessage mime = mailSender.createMimeMessage();
+		    MimeMessageHelper helper = new MimeMessageHelper(
+		        mime, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, "UTF-8");
+
+		    helper.setFrom(mailUser, "柚子銀行 YuzuBank");
+		    helper.setTo(mEmail);
+		    helper.setSubject("【帳戶申請已送出】");
+		    helper.setText(text, html);
+
+		    
+		    helper.addInline("logo", new ClassPathResource("logo_white-160-blackbg.png"),"image/png");
+		    mailSender.send(mime);
 	}
    
 }

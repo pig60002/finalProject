@@ -3,6 +3,7 @@ package com.bank.creditCard.application.controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -23,8 +24,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.bank.member.bean.Member;
+import com.bank.utils.JwtUtil;
+import com.bank.account.service.AccountServcie;
 import com.bank.creditCard.application.model.CardApplicationBean;
 import com.bank.creditCard.application.service.CardApplicationService;
 import com.bank.creditCard.cardType.model.CardTypeBean;
@@ -40,12 +44,24 @@ import jakarta.servlet.http.HttpSession;
 public class CardApplicationFrontController {
 
 	private static final String UPLOAD_DIR="uploadsCard";
-	
+	private static final BigDecimal INFINITE_MIN_BALANCE = new BigDecimal("200000");
 	@Autowired
 	private CardApplicationService cService;
 	
 	@Autowired
 	private CardTypeService cTService;
+	
+	@Autowired
+	private AccountServcie accountServcie;
+	
+	private Integer getMemberIdFromRequest(HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+        if (header == null || !header.startsWith("Bearer ")) {
+            throw new RuntimeException("未登入");
+        }
+        String token = header.substring("Bearer ".length());
+        return Integer.parseInt(JwtUtil.getSubject(token));
+    }
 	
 	//申請畫面
 	@GetMapping("/apply")
@@ -73,23 +89,26 @@ public class CardApplicationFrontController {
 			@RequestParam("idFront") MultipartFile idFront,
 			@RequestParam("idBack") MultipartFile idBack,
 			@RequestParam("financialProof") MultipartFile financialProof,
-			HttpServletRequest request,
-			HttpSession session
+			HttpServletRequest request
 			) {
 		try {
-//			Member member=(Member) session.getAttribute("Member");
-//			if (session.getAttribute("Member") == null) {
-//			    Member testMember = new Member();
-//			    testMember.setMId(1); // 假的使用者 ID
-//			    session.setAttribute("Member", testMember);
-//			    member=testMember;
-//			}
-//			if(member==null) {
-//				return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-//			            .body(Map.of("error", "尚未登入"));
-//			}
-			 Member member = new Member();
-			  member.setmId(1);
+			Integer memberId = getMemberIdFromRequest(request);
+			
+			CardTypeBean type = cTService.findById(cardType);
+			if (type == null) {
+	            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "卡別不存在");
+	        }
+			
+			//無限卡門檻
+			Boolean isInfinite="無限卡".equals(type.getTypeName())||"INFINITE".equalsIgnoreCase(type.getTypeName());
+			
+			if(isInfinite) {
+				BigDecimal total = accountServcie.getTotalBalance(memberId);
+				if(total==null||total.compareTo(INFINITE_MIN_BALANCE)<0) {
+					return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body(Map.of("error", "申請無限卡需帳戶存款達 200,000 元以上"));
+				}
+			}
 			
 			String uploadPath=System.getProperty("user.dir") + File.separator + "creditCardImg/";
 			new File(uploadPath).mkdirs();
@@ -99,7 +118,7 @@ public class CardApplicationFrontController {
 			String financialProofUrl=saveFile(financialProof);
 			
 			CardApplicationBean bean = new CardApplicationBean();
-			bean.setUserId(member.getmId());
+			bean.setUserId(memberId);
 			bean.setCardType(cardType);
 			bean.setIdPhotoFront(idFrontUrl);
 			bean.setIdPhotoBack(idBackUrl);
@@ -115,16 +134,11 @@ public class CardApplicationFrontController {
 	}
 	
 	@GetMapping("/record")
-	public ResponseEntity<?> viewApplications(HttpSession session){
-//		Member member=(Member) session.getAttribute("Member");
-//		if(member==null) {
-//			 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-//                     .body(Map.of("error", "請先登入"));
-//		}
-		Member member = new Member();
-		member.setmId(1);
+	public ResponseEntity<?> viewApplications(HttpServletRequest request){
 		
-		List<CardApplicationBean> entities = cService.findByUserId(member.getmId());
+		Integer memberId=getMemberIdFromRequest(request);
+		
+		List<CardApplicationBean> entities = cService.findByUserId(memberId);
 
 	    // 轉成 DTO List
 	    List<CardApplicationDTO> dtos = entities.stream()
@@ -152,7 +166,7 @@ public class CardApplicationFrontController {
 	        } )
 	        .collect(Collectors.toList());
 		
-		List<CardApplicationBean> lists = cService.findByUserId(member.getmId());
+		List<CardApplicationBean> lists = cService.findByUserId(memberId);
 		Map<Integer, String> cardTypeMap = cTService.getCardTypeMap();
 	    Map<String, Object> result = new HashMap<>();
 	    result.put("applications", dtos);

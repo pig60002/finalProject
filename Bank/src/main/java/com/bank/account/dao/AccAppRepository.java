@@ -2,6 +2,7 @@ package com.bank.account.dao;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -34,4 +35,7 @@ public interface AccAppRepository extends JpaRepository<AccountApplication, Stri
 					   @Param("rwTime")   LocalDateTime rwTime,
 					   @Param("rjReason") String rjReason,
 					   @Param("appId")    String appId);
+	
+	// 查詢最新筆申請
+	AccountApplication findTopByMIdOrderByApplyTimeDesc(Integer mId);
 }

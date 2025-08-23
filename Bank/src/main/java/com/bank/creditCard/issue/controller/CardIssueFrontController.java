@@ -12,8 +12,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bank.creditCard.issue.model.CardDetailBean;
 import com.bank.creditCard.issue.service.CardIssueService;
+import com.bank.utils.JwtUtil;
 
 import jakarta.persistence.Entity;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/memberCard")
@@ -22,10 +24,20 @@ public class CardIssueFrontController {
 	@Autowired
 	private CardIssueService cardIssueService;
 	
+	private Integer getMemberIdFromRequest(HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+        if (header == null || !header.startsWith("Bearer ")) {
+            throw new RuntimeException("未登入");
+        }
+        String token = header.substring("Bearer ".length());
+        return Integer.parseInt(JwtUtil.getSubject(token));
+    }
+	
 	//查會員卡片
 	@GetMapping("/getCard")
-	public List<CardDetailBean> getCardByMId(@RequestParam("mId") Integer mId){
-		return cardIssueService.getCardByMemberId(mId);
+	public List<CardDetailBean> getCardByMId(HttpServletRequest request){
+		Integer memberId=getMemberIdFromRequest(request); 
+		return cardIssueService.getCardByMemberId(memberId);
 	}
 	
 	//開卡
