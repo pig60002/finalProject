@@ -30,7 +30,9 @@ public class AccAppService {
 	private SerialControlService scService;
 	@Autowired
 	private MailService mailService;
-
+	@Autowired
+	private AccountServcie accountServcie;
+	
 	// 新增 
 	public AccountApplication insertAccApp(MultipartFile idfront, MultipartFile idback, MultipartFile secdoc,Integer mid ,String status, String mName, String mEmail) {
 		
@@ -65,8 +67,6 @@ public class AccAppService {
 		return saveRS;
 	}
 	
-	
-
 	// 修改 updateAccApp(AccountApplication accApp)
 	public AccountApplication updateAccApp(AccountApplication accApp) {
 		return accAppRepos.save(accApp);
@@ -74,16 +74,21 @@ public class AccAppService {
 
 	// 修改單筆開戶申請表 (審核狀態) updateAccApp(String appId, String status, String reason, int reviewerId)
 	public int updateAccApp( String status, Integer reviewerId, String reason,String appId,Integer mId) {
-	
+		// 修改狀態
 		int rs = accAppRepos.updateAccApp(status, reviewerId, LocalDateTime.now(), reason, appId);
 		Member member = accAppRepos.findByApplicationId(appId).getMember();
 		String mEmail = member.getmEmail();
 		String mName = member.getmName();
-
+		
 		if (rs > 0) {
-			// 修改狀態成功，判斷狀態寄送信件
-
 			try {
+				
+				// 狀態：“通過”，新增一個帳戶
+				if("通過".equals(status)) {
+					accountServcie.insertAccount(mId, "台幣活存帳戶", "NT");
+				}
+				
+				// 修改狀態成功，判斷狀態寄送信件
 				if("通過".equals(status) || "未通過".equals(status)) {
 				
 					mailService.sendApplicationRSEmail(mName, mEmail, status);

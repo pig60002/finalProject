@@ -33,9 +33,6 @@ public class WebAppConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/uploadImg/creditCardImg/**")
                 .addResourceLocations(realPath);
         System.out.println("realPath: " + realPath);
-        // 第二個資料夾，映射到 /accountImg/user2/**
-        registry.addResourceHandler("/uploadImg/accountImg/**")
-                .addResourceLocations("file:C:/bankSpringBoot/Bank/uploadImg/accountImg/");
         
         registry.addResourceHandler("/uploadImg/memberImg/**")
         .addResourceLocations("file:C:/bankSpringBoot/Bank/uploadImg/memberImg/");
@@ -55,6 +52,12 @@ public class WebAppConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/uploadImg/contract/**")
                 .addResourceLocations(contractPath);
 
+        // 帳戶
+        String accountPath = "file:" + Paths.get(basePath, "uploadImg", "accountImg").toString() + "/";
+        
+        registry.addResourceHandler("/uploadImg/accountImg/**")
+        .addResourceLocations(accountPath);
+        
 
     }
 	
