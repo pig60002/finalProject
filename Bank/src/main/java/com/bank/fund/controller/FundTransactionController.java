@@ -10,21 +10,32 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bank.fund.entity.FundTransaction;
 import com.bank.fund.service.FundTransactionService;
 
 @RestController
-@RequestMapping(path = "/fund-transactions")
+@RequestMapping(path = "/fundTransaction")
 public class FundTransactionController {
 	
 	@Autowired
 	private FundTransactionService fundTransactionService;
 	
+	@GetMapping
+	public ResponseEntity<List<FundTransaction>> getFundTransactions() {
+		return ResponseEntity.ok(fundTransactionService.getAll());
+	}
+	
 	@GetMapping("/{fundAccId}")
 	public ResponseEntity<List<FundTransaction>> getFundTransactionsByFundAccId(@PathVariable Integer fundAccId) {
 		return ResponseEntity.ok(fundTransactionService.getByFundAccId(fundAccId));
+	}
+	
+	@GetMapping(params = "status")
+	public ResponseEntity<List<FundTransaction>> getFundTransactionsByStatus(@RequestParam String status) {
+		return ResponseEntity.ok(fundTransactionService.getByStatus(status));
 	}
 
 	@PostMapping("/buy")

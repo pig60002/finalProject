@@ -9,4 +9,6 @@ import com.bank.fund.entity.FundTransaction;
 public interface FundTransactionRepository extends JpaRepository<FundTransaction, Integer> {
 
 	List<FundTransaction> findByFundAccountFundAccId(Integer fundAccId);
+	
+	List<FundTransaction> findByStatus(String status);
 }

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 @RestController
-@RequestMapping(path = "/fund-accounts")
+@RequestMapping(path = "/fundAccount")
 public class FundAccountController {
 
 	@Autowired
@@ -41,7 +41,7 @@ public class FundAccountController {
 			return ResponseEntity.noContent().build();
 	}
 	
-	@PostMapping("/risk-answers")
+	@PostMapping("/riskAnswers")
 	public ResponseEntity<String> createRiskType(@RequestBody List<Integer> riskAnswers){
 		return ResponseEntity.ok(fundAccountService.createRiskType(riskAnswers));
 	}

@@ -19,23 +19,23 @@ import com.bank.fund.service.FundService;
 import com.bank.fund.service.FundSipService;
 
 @RestController
-@RequestMapping(path = "/fund-sips")
+@RequestMapping(path = "/fundSip")
 public class FundSipController {
 	@Autowired
 	private FundSipService fundSipService;
 
-	@GetMapping("/{id}")
-	public ResponseEntity<List<FundSip>> getAllFunds(@PathVariable Integer fundAccId) {
+	@GetMapping("/{fundAccId}")
+	public ResponseEntity<List<FundSip>> getFundSipByFundAccId(@PathVariable Integer fundAccId) {
 		return ResponseEntity.ok(fundSipService.getByFundAccId(fundAccId));
 	}
 
 	@PostMapping
-	public ResponseEntity<FundSip> createFund(@RequestBody FundSip fundSip) {
+	public ResponseEntity<FundSip> createFundSip(@RequestBody FundSip fundSip) {
 		return ResponseEntity.ok(fundSipService.create(fundSip));
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<FundSip> updateFund(@PathVariable Integer id, @RequestBody FundSip fundSip) {
+	public ResponseEntity<FundSip> updateFundSip(@PathVariable Integer id, @RequestBody FundSip fundSip) {
 			return ResponseEntity.ok(fundSipService.update(id, fundSip));
 	}
 

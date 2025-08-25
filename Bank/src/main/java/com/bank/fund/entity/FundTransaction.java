@@ -44,7 +44,7 @@ public class FundTransaction {
     private LocalDateTime tranTime = LocalDateTime.now();
 
     @Column(length = 10, nullable = false)
-    private String status = "待交易";
+    private String status = "待審核";
 
     @Column(length = 200)
     private String memo;

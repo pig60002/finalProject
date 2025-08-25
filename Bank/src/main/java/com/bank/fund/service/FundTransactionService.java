@@ -34,10 +34,20 @@ public class FundTransactionService {
 	private InternalTransferService internalTransferService;
 
 	@Transactional(readOnly = true)
+	public List<FundTransaction> getAll() {
+		return fundTransactionRepository.findAll();
+	}
+
+	@Transactional(readOnly = true)
 	public List<FundTransaction> getByFundAccId(Integer fundAccId) {
 		return fundTransactionRepository.findByFundAccountFundAccId(fundAccId);
 	}
-
+	
+	@Transactional(readOnly = true)
+	public List<FundTransaction> getByStatus(String status) {
+		return fundTransactionRepository.findByStatus(status);
+	}
+	
 	@Transactional
 	public FundTransaction buyFund(FundTransaction fundTransaction) {
 
