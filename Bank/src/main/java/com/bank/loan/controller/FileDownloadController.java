@@ -35,7 +35,7 @@ public class FileDownloadController {
     @GetMapping("/download/contract/{filename:.+}")
     public ResponseEntity<Resource> downloadContractFile(@PathVariable String filename) throws MalformedURLException {
 //        String contractDir = "C:/bankSpringBoot/Bank/uploadImg/contract/";
-        String contractDir = "uploadImg/loanImg/";
+        String contractDir = "uploadImg/contract/";
         Path filePath = Paths.get(contractDir).resolve(filename).normalize();
         Resource resource = new UrlResource(filePath.toUri());
 

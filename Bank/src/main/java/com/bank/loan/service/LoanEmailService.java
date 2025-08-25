@@ -138,11 +138,11 @@ public class LoanEmailService {
                     "}" +
                     
                     ".status-approved .status-text {" +
-                        "color: #28a745;" +
-                        "background: rgba(40, 167, 69, 0.1);" +
-                        "padding: 8px 16px;" +
-                        "border-radius: 6px;" +
-                        "border: 1px solid rgba(40, 167, 69, 0.3);" +
+	                    "color: #EBB211;" +
+	                    "background: rgba(235, 178, 17, 0.1);" +
+	                    "padding: 8px 16px;" +
+	                    "border-radius: 6px;" +
+	                    "border: 1px solid rgba(235, 178, 17, 0.3);" +
                     "}" +
                     
                     ".status-rejected .status-text {" +
@@ -160,6 +160,14 @@ public class LoanEmailService {
                         "border-radius: 6px;" +
                         "border: 1px solid rgba(235, 178, 17, 0.3);" +
                     "}" +
+                        
+					".status-supplement .status-text {" +
+                    "color: #28a745;" +
+                    "background: rgba(40, 167, 69, 0.1);" +
+                    "padding: 8px 16px;" +
+                    "border-radius: 6px;" +
+                    "border: 1px solid rgba(40, 167, 69, 0.3);" +
+					"}" +
                     
                     ".status-text {" +
                         "font-size: 18px;" +
@@ -332,6 +340,9 @@ public class LoanEmailService {
             case "審核中":
             case "pending":
                 return "status-pending";
+            case "補件中":
+            case "supplement":
+                return "status-supplement";
             default:
                 return "status-pending";
         }
