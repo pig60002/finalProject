@@ -38,6 +38,7 @@ public class FileUploadUtil {
 
         Files.createDirectories(targetPath.getParent());
         file.transferTo(targetPath.toFile());
+        System.out.println("/" + uploadDir.replace("\\", "/") + "/" + newFileName);
 
         // 回傳可用於前端的相對路徑，方便瀏覽器存取
         return "/" + uploadDir.replace("\\", "/") + "/" + newFileName;

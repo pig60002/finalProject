@@ -1,12 +1,14 @@
 package com.bank.loan.service;
 
-import java.io.File;
+//import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +30,7 @@ import com.bank.loan.dto.LoanCreateDto;
 @Service
 @Transactional
 public class LoanService {
+	
 
     @Autowired
     private LoanRepository loanRepo;
@@ -118,75 +121,147 @@ public class LoanService {
      * @throws IOException 檔案處理例外
      */
     public Loans createLoan(LoanCreateDto dto, MultipartFile file) throws IOException {
-        // 檔案空檔檢查，若空則拋出例外
+        // 1️⃣ 檢查檔案
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("上傳的檔案為空");
         }
 
-        // 驗證還款帳戶是否屬於該會員，確保資料正確
+        // 2️⃣ 驗證還款帳戶
         Account selectedAccount = accountRepo.findByAccountId(dto.getRepayAccountId());
         if (selectedAccount == null || !selectedAccount.getmId().equals(dto.getMId())) {
             throw new IllegalArgumentException("所選帳戶不存在或不屬於該會員");
         }
 
-        // 設定檔案上傳路徑，預設存放於 C:/bankSpringBoot/Bank/uploadImg/loanImg/
-        String baseUploadDir = "C:/bankSpringBoot/Bank/uploadImg/loanImg/";
-        String uploadPath = baseUploadDir;
-        File dir = new File(uploadPath);
-        if (!dir.exists()) {
-            dir.mkdirs();  // 若資料夾不存在，則建立
+        // 3️⃣ 建立跨平台可寫目錄 (使用使用者家目錄)
+        Path dirPath = Paths.get(System.getProperty("user.dir"), "uploadImg", "loanImg");
+        if (!Files.exists(dirPath)) {
+            Files.createDirectories(dirPath);
         }
 
-        // 取得上傳檔案的副檔名（包含點號，例如 .pdf）
+        // 4️⃣ 取得檔名與副檔名
         String originalFilename = file.getOriginalFilename();
         String fileExtension = "";
-        int dotIndex = originalFilename.lastIndexOf('.');
-        if (dotIndex >= 0) {
-            fileExtension = originalFilename.substring(dotIndex);
+        if (originalFilename != null) {
+            int dotIndex = originalFilename.lastIndexOf('.');
+            if (dotIndex >= 0) {
+                fileExtension = originalFilename.substring(dotIndex);
+            }
         }
 
-        // 產生檔名，格式為 loanId_時間戳記.副檔名
+        // 5️⃣ 產生安全檔名
         String loanId = generateStructuredLoanId(dto.getLoanTypeId(), dto.getLoanTerm());
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-        String fileName = loanId + "_" + timestamp + fileExtension;
+        String rawFileName = loanId + "_" + timestamp + fileExtension;
+        String safeFileName = rawFileName.replaceAll("[^a-zA-Z0-9._-]", "_");
+        
+        Path filePath = dirPath.resolve(safeFileName);
 
-        // 實際檔案儲存路徑
-        File dest = new File(dir, fileName);
-        file.transferTo(dest);  // 將檔案寫入磁碟
+        // 6️⃣ 儲存檔案
+        file.transferTo(filePath.toFile());
+        System.out.println("實際存放路徑: " + filePath.toAbsolutePath());
 
-        // 設定 DTO 中檔案相對路徑，方便資料庫紀錄與前端存取
-        dto.setIncomeProofPath("/uploadImg/loanImg/" + fileName);
+        // 7️⃣ 設定 DTO 中檔案相對路徑
+        dto.setIncomeProofPath("/uploadImg/loanImg/" + safeFileName);
 
-        // 從資料庫取得貸款類型與期數詳細資料（含利率）
+        // 8️⃣ 取得貸款類型與期數
         LoanType loanType = loanTypeRepo.findById(dto.getLoanTypeId())
                 .orElseThrow(() -> new IllegalArgumentException("找不到指定的貸款類型"));
 
         LoanTerm loanTerm = loanTermRepo.findById(dto.getLoanTermId())
                 .orElseThrow(() -> new IllegalArgumentException("找不到指定的貸款期數"));
 
-        // 計算利率 = 基準利率 + 期數加成利率
         BigDecimal baseRate = loanType.getBaseInterestRate();
         BigDecimal adjustmentRate = loanTerm.getTermAdjustmentRate();
 
-        // 建立 Loans 實體並設定欄位
+        // 9️⃣ 建立 Loans 實體
         Loans loan = new Loans();
-        loan.setLoanId(generateStructuredLoanId(dto.getLoanTypeId(), dto.getLoanTerm()));
+        loan.setLoanId(loanId);
         loan.setLoanTypeId(dto.getLoanTypeId());
         loan.setLoanTermId(dto.getLoanTermId());
         loan.setLoanTerm(dto.getLoanTerm());
         loan.setMid(dto.getMId());
         loan.setLoanAmount(dto.getLoanAmount());
-        loan.setApprovalStatus("pending");  // 預設狀態為待審核
-        loan.setInterestRate(baseRate.add(adjustmentRate));  // 設定總利率
+        loan.setApprovalStatus("pending");
+        loan.setInterestRate(baseRate.add(adjustmentRate));
         loan.setRepayAccountId(dto.getRepayAccountId());
-        loan.setProofDocumentUrl(dto.getIncomeProofPath());  // 記錄收入證明檔案位置
-
-        // 設定建立與更新時間
+        loan.setProofDocumentUrl(dto.getIncomeProofPath());
         LocalDateTime now = LocalDateTime.now();
         loan.setCreatedAt(now);
         loan.setUpdatedAt(now);
 
-        // 儲存貸款資料至資料庫並回傳實體
+        // 10️⃣ 儲存資料庫並回傳
         return loanRepo.save(loan);
     }
+//    public Loans createLoan(LoanCreateDto dto, MultipartFile file) throws IOException {
+//        // 檔案空檔檢查，若空則拋出例外
+//        if (file == null || file.isEmpty()) {
+//            throw new IllegalArgumentException("上傳的檔案為空");
+//        }
+//
+//        // 驗證還款帳戶是否屬於該會員，確保資料正確
+//        Account selectedAccount = accountRepo.findByAccountId(dto.getRepayAccountId());
+//        if (selectedAccount == null || !selectedAccount.getmId().equals(dto.getMId())) {
+//            throw new IllegalArgumentException("所選帳戶不存在或不屬於該會員");
+//        }
+//
+//        // 設定檔案上傳路徑，預設存放於 C:/bankSpringBoot/Bank/uploadImg/loanImg/
+//        String baseUploadDir = "C:/bankSpringBoot/Bank/uploadImg/loanImg/";
+//        String uploadPath = baseUploadDir;
+//        File dir = new File(uploadPath);
+//        if (!dir.exists()) {
+//            dir.mkdirs();  // 若資料夾不存在，則建立
+//        }
+//
+//        // 取得上傳檔案的副檔名（包含點號，例如 .pdf）
+//        String originalFilename = file.getOriginalFilename();
+//        String fileExtension = "";
+//        int dotIndex = originalFilename.lastIndexOf('.');
+//        if (dotIndex >= 0) {
+//            fileExtension = originalFilename.substring(dotIndex);
+//        }
+//
+//        // 產生檔名，格式為 loanId_時間戳記.副檔名
+//        String loanId = generateStructuredLoanId(dto.getLoanTypeId(), dto.getLoanTerm());
+//        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+//        String fileName = loanId + "_" + timestamp + fileExtension;
+//
+//        // 實際檔案儲存路徑
+//        File dest = new File(dir, fileName);
+//        file.transferTo(dest);  // 將檔案寫入磁碟
+//
+//        // 設定 DTO 中檔案相對路徑，方便資料庫紀錄與前端存取
+//        dto.setIncomeProofPath("/uploadImg/loanImg/" + fileName);
+//
+//        // 從資料庫取得貸款類型與期數詳細資料（含利率）
+//        LoanType loanType = loanTypeRepo.findById(dto.getLoanTypeId())
+//                .orElseThrow(() -> new IllegalArgumentException("找不到指定的貸款類型"));
+//
+//        LoanTerm loanTerm = loanTermRepo.findById(dto.getLoanTermId())
+//                .orElseThrow(() -> new IllegalArgumentException("找不到指定的貸款期數"));
+//
+//        // 計算利率 = 基準利率 + 期數加成利率
+//        BigDecimal baseRate = loanType.getBaseInterestRate();
+//        BigDecimal adjustmentRate = loanTerm.getTermAdjustmentRate();
+//
+//        // 建立 Loans 實體並設定欄位
+//        Loans loan = new Loans();
+//        loan.setLoanId(generateStructuredLoanId(dto.getLoanTypeId(), dto.getLoanTerm()));
+//        loan.setLoanTypeId(dto.getLoanTypeId());
+//        loan.setLoanTermId(dto.getLoanTermId());
+//        loan.setLoanTerm(dto.getLoanTerm());
+//        loan.setMid(dto.getMId());
+//        loan.setLoanAmount(dto.getLoanAmount());
+//        loan.setApprovalStatus("pending");  // 預設狀態為待審核
+//        loan.setInterestRate(baseRate.add(adjustmentRate));  // 設定總利率
+//        loan.setRepayAccountId(dto.getRepayAccountId());
+//        loan.setProofDocumentUrl(dto.getIncomeProofPath());  // 記錄收入證明檔案位置
+//
+//        // 設定建立與更新時間
+//        LocalDateTime now = LocalDateTime.now();
+//        loan.setCreatedAt(now);
+//        loan.setUpdatedAt(now);
+//
+//        // 儲存貸款資料至資料庫並回傳實體
+//        return loanRepo.save(loan);
+//    }
 }
