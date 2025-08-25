@@ -65,14 +65,22 @@ public class MemberController {
 	     return memberService.getMemberById(id);
 	}
 	@PostMapping("/member")
-	public Member createMember(@RequestBody Member member) {
+	public ResponseEntity<?> createMember(@RequestBody Member member) {
 		Object principal =SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		Member m= memberService.insertMember(member);
+		Member m= memberService.getMemberByIdentity(member.getmIdentity());
+		if(m != null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("身分證已註冊過");
+		}
+		m= memberService.getMemberByEmail(member.getmEmail());
+		if(m != null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("信箱已註冊過");
+		}
+		 m= memberService.insertMember(member);
 		if(check(principal)) {
 			Worker worker  = (Worker) principal;
 			workerLogService.logAction(worker.getwId(),newAction,"編號:"+m.getmId()+",名子:"+m.getmName()+"的會員");
 		}
-	     return m;
+	     return ResponseEntity.ok(m);
 	}
 	@PutMapping("/{id}")
 	public Member updateMember(@PathVariable Integer id ,@RequestBody Member member) {
@@ -148,7 +156,7 @@ public class MemberController {
     	System.out.println("我有近來喔");
     	Member member =memberService.getMemberByEmail(email.getEmail());
         if (member == null) {
-            return ResponseEntity.badRequest().body("No account found with that email.");
+            return ResponseEntity.badRequest().body("沒有找到email");
         }
 
         // 產生 token
