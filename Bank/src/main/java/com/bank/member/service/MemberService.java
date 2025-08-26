@@ -99,6 +99,7 @@ public class MemberService {
 	            pageable
 	        );
 	    }
+	
 	    private boolean isBlank(String s) {
 	        return s == null || s.trim().isEmpty();
 	    }

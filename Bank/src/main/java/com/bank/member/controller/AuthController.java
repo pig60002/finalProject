@@ -43,7 +43,12 @@ public class AuthController {
 	        
 		    Member member = memberService.getMemberByIdentity(login.mIdentity);
 		    
+		    
 		    if(member==null) {return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("查無身分證");}
+		    
+		    if(member.getmState() == 0) {
+		    	return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("帳號已被停權，請聯絡客服");
+		    }
 		  
 	        if (member.getmAccount().equals(login.mAccount) && member.getmPassword().equals(login.mPassword)) {
 	            String token = jwtUtil.generateToken(member.getmId(),"member"); // 模擬 userId 為 1001

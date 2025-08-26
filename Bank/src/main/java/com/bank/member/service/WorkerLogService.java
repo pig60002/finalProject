@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.bank.member.bean.Member;
@@ -57,7 +60,7 @@ public class WorkerLogService {
      * @return WorkerLog 記錄
      */
     public List<WorkerLog> getLogsByWorkerId(Integer workerId) {
-        return workerLogRepository.findByWorker_Id(workerId);
+        return workerLogRepository.findLogsByWorkerWIdOrderByTimeDesc(workerId);
     }
 
     /**
@@ -97,6 +100,11 @@ public class WorkerLogService {
         log.setAction(action);
         log.setMessage(message);
         workerLogRepository.save(log);
+    }
+    
+    public Page<WorkerLog> searchLogs(String action, String account, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);  // 0-based page index
+        return workerLogRepository.findByActionAndWorkerAccount(action, account, pageable);
     }
     
 

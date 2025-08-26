@@ -62,6 +62,16 @@ public class RoleService {
 		return roleRepository.save(role);
 	}
 	
+	public boolean deleteRoleById(Integer roleId) {
+        Optional<Role> optionalRole = roleRepository.findById(roleId);
+
+        if (optionalRole.isPresent()) {
+            roleRepository.deleteById(roleId);
+            return true;
+        } else {
+            return false;
+        }
+    }
 	
 
 }
