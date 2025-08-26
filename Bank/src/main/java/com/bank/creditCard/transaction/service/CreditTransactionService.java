@@ -12,6 +12,7 @@ import java.util.Random;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.bank.creditCard.cardReward.service.CardRewardService;
 import com.bank.creditCard.dto.CreditTransactionDTO;
 import com.bank.creditCard.issue.dao.CardDetailRepository;
 import com.bank.creditCard.issue.model.CardDetailBean;
@@ -34,6 +35,9 @@ public class CreditTransactionService {
 	
 	@Autowired
 	private CreditBillRepository creditBillRepository;
+	
+	@Autowired
+	private CardRewardService cardRewardService;
 	
 	private final Random random=new Random();
 	
@@ -60,6 +64,18 @@ public class CreditTransactionService {
         
         // 儲存交易
         CreditTransactionBean saved = creditTransactionRepository.save(transaction);
+        
+        int points = saved.getCashback()
+                .setScale(0, java.math.RoundingMode.DOWN)
+                .intValue();
+
+        if (points > 0) {
+        	cardRewardService.earnFromTransaction(
+        			saved.getCardDetail().getCardId(),
+        			points,
+        			String.valueOf(saved.getTransactionId()) // 防重：TXN:交易ID
+        		);
+        }
 
         // 計算已用額度
         BigDecimal usedAmount = creditTransactionRepository
@@ -166,6 +182,17 @@ public class CreditTransactionService {
 	    refund.setTransactionTime(LocalDateTime.now());
 	    refund.setCashback(original.getCashback().negate());
 
+	    
+	    int reversePoints = original.getCashback()
+                .setScale(0, java.math.RoundingMode.DOWN)
+                .intValue();
+	    if (reversePoints > 0) {
+	        cardRewardService.earnFromTransaction(
+	            original.getCardDetail().getCardId(),
+	            -reversePoints,
+	            "REFUND:" + original.getTransactionId() // 防重：退款對應原交易
+	        );
+	    }
 	    return creditTransactionRepository.save(refund);
 	}
 	
