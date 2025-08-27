@@ -13,24 +13,25 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bank.fund.dto.FundDto;
 import com.bank.fund.entity.Fund;
 import com.bank.fund.service.FundService;
 
 @RestController
-@RequestMapping(path = "/funds")
+@RequestMapping(path = "/fund")
 public class FundController {
 	
 	@Autowired
 	private FundService fundService;
 
 	@GetMapping
-	public ResponseEntity<List<Fund>> getAllFunds() {
+	public ResponseEntity<List<FundDto>> getAllFunds() {
 		return ResponseEntity.ok(fundService.getAll());
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<Optional<Fund>> getFundById(@PathVariable Integer id) {
-		return ResponseEntity.ok(fundService.getById(id));
+	public ResponseEntity<Fund> getFundById(@PathVariable Integer id) {
+		return ResponseEntity.ok(fundService.getById(id).orElseThrow());
 	}
 
 	@PostMapping

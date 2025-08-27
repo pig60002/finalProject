@@ -49,12 +49,12 @@ public class FundTransactionController {
 	}
 
 	@PutMapping("/buy/{id}")
-	public ResponseEntity<FundTransaction> agreeBuyFund(@PathVariable Integer id, @RequestBody FundTransaction fundTransaction) {
-			return ResponseEntity.ok(fundTransactionService.agreeBuyFund(id, fundTransaction));
+	public ResponseEntity<FundTransaction> agreeBuyFund(@PathVariable Integer id) {
+			return ResponseEntity.ok(fundTransactionService.agreeBuyFund(id));
 	}
 
 	@PutMapping("/sell/{id}")
-	public ResponseEntity<FundTransaction> agreeSellFund(@PathVariable Integer id, @RequestBody FundTransaction fundTransaction) {
-		return ResponseEntity.ok(fundTransactionService.agreeSellFund(id, fundTransaction));
+	public ResponseEntity<FundTransaction> agreeSellFund(@PathVariable Integer id) {
+		return ResponseEntity.ok(fundTransactionService.agreeSellFund(id));
 	}
 }

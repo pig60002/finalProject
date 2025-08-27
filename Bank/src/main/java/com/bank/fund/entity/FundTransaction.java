@@ -14,7 +14,7 @@ public class FundTransaction {
     private Integer fundTranId;
 
     @OneToOne
-    @JoinColumn(name = "transaction_id", nullable = false)
+    @JoinColumn(name = "transaction_id")
     private Transactions transactions;
 
     @ManyToOne
