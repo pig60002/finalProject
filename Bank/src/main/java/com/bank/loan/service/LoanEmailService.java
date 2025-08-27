@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -16,6 +17,7 @@ public class LoanEmailService {
     @Autowired
     private JavaMailSender mailSender;
     
+    @Async
     public void sendReviewDecisionEmail(String to, String name, String decision, String notes) {
         String subject = "【柚子銀行】您的貸款審核結果通知";
         String content = getEmailTemplate(name, decision, notes); // HTML 內容中 img src 將使用 cid:logoImage
