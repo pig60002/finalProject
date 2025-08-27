@@ -22,6 +22,8 @@ public class CardApplicationDTO {
     private String financialProof;
     @JsonFormat(pattern ="yyyy-MM-dd")
     private LocalDateTime applyDate;
+    @JsonFormat(pattern ="yyyy-MM-dd")
+    private LocalDateTime reviewDate;
     private String status;
     private MemberDto member;
     @JsonFormat(pattern ="yyyy-MM-dd")
