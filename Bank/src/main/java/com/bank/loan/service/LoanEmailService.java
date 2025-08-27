@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -16,6 +17,7 @@ public class LoanEmailService {
     @Autowired
     private JavaMailSender mailSender;
     
+    @Async
     public void sendReviewDecisionEmail(String to, String name, String decision, String notes) {
         String subject = "【柚子銀行】您的貸款審核結果通知";
         String content = getEmailTemplate(name, decision, notes); // HTML 內容中 img src 將使用 cid:logoImage
@@ -138,11 +140,11 @@ public class LoanEmailService {
                     "}" +
                     
                     ".status-approved .status-text {" +
-                        "color: #28a745;" +
-                        "background: rgba(40, 167, 69, 0.1);" +
-                        "padding: 8px 16px;" +
-                        "border-radius: 6px;" +
-                        "border: 1px solid rgba(40, 167, 69, 0.3);" +
+	                    "color: #EBB211;" +
+	                    "background: rgba(235, 178, 17, 0.1);" +
+	                    "padding: 8px 16px;" +
+	                    "border-radius: 6px;" +
+	                    "border: 1px solid rgba(235, 178, 17, 0.3);" +
                     "}" +
                     
                     ".status-rejected .status-text {" +
@@ -160,6 +162,14 @@ public class LoanEmailService {
                         "border-radius: 6px;" +
                         "border: 1px solid rgba(235, 178, 17, 0.3);" +
                     "}" +
+                        
+					".status-supplement .status-text {" +
+                    "color: #28a745;" +
+                    "background: rgba(40, 167, 69, 0.1);" +
+                    "padding: 8px 16px;" +
+                    "border-radius: 6px;" +
+                    "border: 1px solid rgba(40, 167, 69, 0.3);" +
+					"}" +
                     
                     ".status-text {" +
                         "font-size: 18px;" +
@@ -332,6 +342,9 @@ public class LoanEmailService {
             case "審核中":
             case "pending":
                 return "status-pending";
+            case "補件中":
+            case "supplement":
+                return "status-supplement";
             default:
                 return "status-pending";
         }

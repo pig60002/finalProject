@@ -28,6 +28,11 @@ public class LoanPaymentController {
     public List<LoanPayment> getPayments(@PathVariable String loanId) {
         return lpService.getPaymentsByLoanId(loanId);
     }
+    
+	@GetMapping("/{loanId}/payments_dto")
+    public List<LoanPaymentDto> getPaymentsByLoanIdDto(@PathVariable String loanId) {
+        return lpService.getPaymentsByLoanIdDto(loanId);
+    }
 
     // 新增還款紀錄
     @PostMapping("/{loanId}/payments")

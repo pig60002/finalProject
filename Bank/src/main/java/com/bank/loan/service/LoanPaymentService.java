@@ -26,6 +26,26 @@ public class LoanPaymentService {
     public List<LoanPayment> getPaymentsByLoanId(String loanId) {
         return lpRepo.findByLoanId(loanId);
     }
+    
+    public List<LoanPaymentDto> getPaymentsByLoanIdDto(String loanId) {
+        return lpRepo.findByLoanId(loanId)
+                     .stream()
+                     .map(this::convertToDto)
+                     .collect(Collectors.toList());
+    }
+    
+    private LoanPaymentDto convertToDto(LoanPayment entity) {
+        LoanPaymentDto dto = new LoanPaymentDto();
+        dto.setPaymentId(entity.getPaymentId());
+        dto.setLoanId(entity.getLoan().getLoanId());
+        dto.setScheduleId(entity.getSchedule() != null ? entity.getSchedule().getScheduleId() : null);
+        dto.setPaymentDate(entity.getPaymentDate());
+        dto.setAmountPaid(entity.getAmountPaid());
+        dto.setPaymentMethod(entity.getPaymentMethod());
+        dto.setPaymentReference(entity.getPaymentReference());
+        dto.setCreatedAt(entity.getCreatedAt());
+        return dto;
+    }
 
     public LoanPayment save(LoanPayment payment) {
         return lpRepo.save(payment);
