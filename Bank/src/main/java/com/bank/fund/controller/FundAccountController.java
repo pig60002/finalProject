@@ -1,6 +1,7 @@
 package com.bank.fund.controller;
 
 import com.bank.fund.entity.FundAccount;
+import com.bank.fund.entity.FundHoldings;
 import com.bank.fund.service.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,9 @@ public class FundAccountController {
 
 	@Autowired
 	private FundAccountService fundAccountService;
+	
+	@Autowired
+    private FundHoldingsService fundHoldingsService;
 
 	@GetMapping
 	public ResponseEntity<List<FundAccount>> getAllFundAccounts() {

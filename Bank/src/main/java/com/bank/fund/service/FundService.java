@@ -8,8 +8,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bank.fund.entity.Fund;
-import com.bank.fund.entity.FundHoldings;
 import com.bank.fund.repository.FundRepository;
+import com.bank.fund.dto.FundDto;
+
+
 
 @Service
 public class FundService {
@@ -17,9 +19,15 @@ public class FundService {
 	@Autowired
 	private FundRepository fundRepository;
 	
+	//查詢所有基金並包含最新淨值
 	@Transactional(readOnly = true)
-	public List<Fund> getAll(){
-		return fundRepository.findAll();
+	public List<FundDto> getAll() {
+		return fundRepository.findAllFundsWithLatestNav();
+	}
+	
+	//根據條件查詢基金
+	public List<FundDto> findByConditions(String fundType, Integer riskLevel, String status) {
+		return fundRepository.findFundsByConditionsWithLatestNav(fundType, riskLevel, status);
 	}
 	
 	@Transactional(readOnly = true)
@@ -40,5 +48,7 @@ public class FundService {
 		}
 		return fundRepository.save(fund);
 	}
-
+	
 }
+
+

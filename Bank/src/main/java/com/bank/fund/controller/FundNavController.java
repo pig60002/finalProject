@@ -18,7 +18,7 @@ import com.bank.fund.service.FundNavService;
 
 
 @RestController
-@RequestMapping(path = "/fund-navs")
+@RequestMapping(path = "/fundNav")
 public class FundNavController {
 	
 	@Autowired
@@ -30,8 +30,8 @@ public class FundNavController {
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<Optional<FundNav>> getFundNavById(@PathVariable Integer id) {
-		return ResponseEntity.ok(fundNavService.getById(id));
+	public ResponseEntity<FundNav> getFundNavById(@PathVariable Integer id) {
+		return ResponseEntity.ok(fundNavService.getById(id).orElseThrow());
 	}
 
 	@PostMapping

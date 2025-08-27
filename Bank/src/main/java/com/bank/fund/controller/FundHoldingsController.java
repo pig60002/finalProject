@@ -1,5 +1,6 @@
 package com.bank.fund.controller;
 
+import com.bank.fund.dto.FundHoldingsDto;
 import com.bank.fund.entity.FundHoldings;
 import com.bank.fund.service.*;
 
@@ -17,8 +18,8 @@ public class FundHoldingsController {
     private FundHoldingsService fundHoldingsService;
     
     @GetMapping
-    public ResponseEntity<List<FundHoldings>> getFundHoldingsByFundAccId(@RequestParam Integer fundAccId){
-    	return ResponseEntity.ok(fundHoldingsService.getByFundAccId(fundAccId));
+    public ResponseEntity<List<FundHoldingsDto>> getFundHoldingsByFundAccId(@RequestParam Integer fundAccId){
+    	return ResponseEntity.ok(fundHoldingsService.getHoldingsByFundAccId(fundAccId));
     }
 
 }
