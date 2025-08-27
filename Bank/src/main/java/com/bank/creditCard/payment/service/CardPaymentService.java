@@ -42,6 +42,27 @@ public class CardPaymentService {
 	private static final String BILL_STATUS_PAID= "已繳清";
 	private static final String BILL_STATUS_MINIMUM_PAID = "已繳最低";
 	private static final String BILL_STATUS_UNPAID="未繳";
+	
+	private void increasePaidAndRecalcStatus(CreditBillBean bill, BigDecimal increase) {
+        if (increase == null || increase.signum() <= 0) return;
+
+        BigDecimal total = nvl(bill.getTotalAmount());
+        BigDecimal oldPaid = nvl(bill.getPaidAmount());
+        BigDecimal newPaid = oldPaid.add(increase);
+
+        // 夾限避免超繳
+        if (newPaid.compareTo(total) >= 0) {
+            newPaid = total;
+            bill.setStatus(BILL_STATUS_PAID);
+        } else if (newPaid.compareTo(nvl(bill.getMinimumPayment())) >= 0) {
+            bill.setStatus(BILL_STATUS_MINIMUM_PAID);
+        } else {
+            bill.setStatus(BILL_STATUS_UNPAID);
+        }
+
+        bill.setPaidAmount(newPaid);
+        creditBillRepository.save(bill);
+    }
 	 
 	
 	//信用卡扣款及建立繳費紀錄
@@ -81,22 +102,7 @@ public class CardPaymentService {
             payment.setStatus(mappedStatus);
             
             if ("COMPLETED".equals(mappedStatus)) {
-                // 更新帳單已繳金額
-                BigDecimal oldPaid = bill.getPaidAmount() == null ? BigDecimal.ZERO : bill.getPaidAmount();
-                BigDecimal newPaid = oldPaid.add(payAmount);
-                bill.setPaidAmount(newPaid);
-
-                // 判斷帳單狀態
-                if (newPaid.compareTo(bill.getTotalAmount()) >= 0) {
-                    bill.setStatus(BILL_STATUS_PAID);
-                } else if (newPaid.compareTo(bill.getMinimumPayment()) >= 0) {
-                    bill.setStatus(BILL_STATUS_MINIMUM_PAID);
-                } else {
-                    bill.setStatus(BILL_STATUS_UNPAID);
-                }
-                creditBillRepository.save(bill);
-                System.out.println("【LOG】帳單已更新: " + bill);
-                System.out.println("【LOG】txRes.status=" + txRes.getStatus() + ", mappedStatus=" + mappedStatus);
+            	increasePaidAndRecalcStatus(bill, payAmount);
             }
 
 		} catch (Exception e) {
@@ -155,13 +161,16 @@ public class CardPaymentService {
 	                return "FAILED";
 	        }
 	    }
+	
 	@Transactional(rollbackFor = Exception.class)
     public PayWithRewardResult payWithReward(Integer billId, Integer cardId, Integer memberId,
                                              String payerAccountId, BigDecimal plannedPayAmount,
                                              Integer redeemPointsWanted) {
 
-        Objects.requireNonNull(billId); Objects.requireNonNull(cardId);
-        Objects.requireNonNull(memberId); Objects.requireNonNull(payerAccountId);
+        Objects.requireNonNull(billId);
+        Objects.requireNonNull(cardId);
+        Objects.requireNonNull(memberId);
+        Objects.requireNonNull(payerAccountId);
         Objects.requireNonNull(plannedPayAmount);
 
         if (plannedPayAmount.signum() < 0) throw new IllegalArgumentException("付款金額不可為負");
@@ -173,7 +182,7 @@ public class CardPaymentService {
         if (!bill.getCardDetail().getCardId().equals(cardId)) throw new IllegalStateException("帳單與卡片不一致");
 
         BigDecimal total = nvl(bill.getTotalAmount());
-        BigDecimal paid  = nvl(bill.getPaidAmount());
+        BigDecimal paid = nvl(bill.getPaidAmount());
         BigDecimal outstanding = total.subtract(paid);
         if (outstanding.signum() <= 0) {
             PayWithRewardResult r = new PayWithRewardResult();
@@ -213,14 +222,24 @@ public class CardPaymentService {
             }
         }
 
-        // 5) 組結果（可選：重新查一次帳單拿到最新未繳）
+        // 5) ✅ 把「折抵點數（1點=1元）」也加到帳單已繳金額，並重算狀態
+        if (actualRedeem > 0) {
+            CreditBillBean fresh = creditBillRepository.findById(billId)
+                    .orElseThrow(() -> new IllegalArgumentException("找不到帳單"));
+            increasePaidAndRecalcStatus(fresh, BigDecimal.valueOf(actualRedeem));
+        }
+
+        // 回傳結果（用最新帳單計算未繳）
+        CreditBillBean latest = creditBillRepository.findById(billId)
+                .orElseThrow(() -> new IllegalArgumentException("找不到帳單"));
+
         PayWithRewardResult r = new PayWithRewardResult();
         r.setStatus("COMPLETED");
         r.setBillId(billId); r.setCardId(cardId);
         r.setPlannedPay(plannedPayAmount); r.setPlannedRedeem(wantRedeem);
         r.setActualPay(actualPay); r.setActualRedeem(actualRedeem);
         r.setRemainPoints(remainPoints);
-        r.setOutstandingAfter(outstanding.subtract(BigDecimal.valueOf(actualRedeem)).subtract(actualPay).max(BigDecimal.ZERO));
+        r.setOutstandingAfter(nvl(latest.getTotalAmount()).subtract(nvl(latest.getPaidAmount())).max(BigDecimal.ZERO));
         r.setMessage("折抵與付款已完成");
         return r;
     }

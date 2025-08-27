@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.bank.creditCard.application.model.CardApplicationBean;
@@ -21,9 +22,16 @@ public interface CardApplicationRepository extends JpaRepository<CardApplication
 		SELECT a FROM CardApplicationBean a
 		JOIN FETCH a.member m
 		WHERE a.status= :status
-		ORDER BY a.applyDate ASC			
+		ORDER BY a.applyDate DESC			
 	""")
 	List<CardApplicationBean> findWithMemberByStatus(String status);
 	
+	 @Query("""
+		        SELECT a FROM CardApplicationBean a
+		        JOIN FETCH a.member m
+		        WHERE a.status IN :statuses
+		        ORDER BY a.applyDate DESC
+		    """)
+	 List<CardApplicationBean> findWithMemberByStatuses(@Param("statuses") List<String> statuses);
 
 }

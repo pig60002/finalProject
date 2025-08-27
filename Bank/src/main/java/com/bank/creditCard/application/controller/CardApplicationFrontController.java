@@ -150,8 +150,10 @@ public class CardApplicationFrontController {
 	            dto.setIdPhotoFront(e.getIdPhotoFront());
 	            dto.setIdPhotoBack(e.getIdPhotoBack());
 	            dto.setFinancialProof(e.getFinancialProof());
+	            dto.setReviewDate(e.getReviewDate());
 	            dto.setApplyDate(e.getApplyDate());
 	            dto.setStatus(e.getStatus());
+	            dto.setReviewComment(e.getReviewComment()); 
 	            
 	            Member m = e.getMember();
 	            MemberDto mDto = new MemberDto();
