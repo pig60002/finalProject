@@ -134,7 +134,7 @@ public class RoleController {
 	    	      }
 	    	      
 	    	        
-	    	        workerLogService.logAction(worker1.getwId(),"修改","資料更動"+oldPageMessage+"_>"+newPageMessage);	
+	    	        workerLogService.logAction(worker1.getwId(),"修改","資料更動"+oldPageMessage+"->"+newPageMessage);	
 	    	      
 	    	    }
 	    	
