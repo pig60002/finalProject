@@ -46,7 +46,7 @@ public class LoanEmailService {
         String statusClass = getStatusClass(decision);
         String defaultNotes = getDefaultNotes(decision);
         String finalNotes = (notes != null && !notes.trim().isEmpty()) ? notes : defaultNotes;
-        
+        String localizedDecision = getLocalizedDecision(decision);
         return "<!DOCTYPE html>" +
             "<html lang='zh-TW'>" +
             "<head>" +
@@ -123,7 +123,6 @@ public class LoanEmailService {
                         "border-radius: 10px;" +
                         "padding: 25px;" +
                         "margin: 30px 0;" +
-                        "border-left: 5px solid #EBB211;" +
                     "}" +
                     
                     ".result-label {" +
@@ -289,7 +288,7 @@ public class LoanEmailService {
                         "<div class='result-section'>" +
                             "<div class='result-label'>審核結果</div>" +
                             "<div class='result-status " + statusClass + "'>" +
-                                "<div class='status-text'>" + decision + "</div>" +
+                                "<div class='status-text'>" + localizedDecision + "</div>" +
                             "</div>" +
                             
                             "<div class='details-section'>" +
@@ -322,6 +321,27 @@ public class LoanEmailService {
             "</body>" +
             "</html>";
     }
+    
+    /**
+     * 審核狀態更改為中文
+     */
+    private String getLocalizedDecision(String decision) {
+        if (decision == null) return "待審核";
+        
+        switch (decision.trim().toLowerCase()) {
+            case "approved":
+                return "審核通過";
+            case "rejected":
+                return "審核拒絕";
+            case "pending":
+                return "待審核";
+            case "supplement":
+                return "補件中";
+            default:
+                return decision; // 如果是中文就直接回傳
+        }
+    }
+
     
     /**
      * 根據審核結果決定狀態樣式
