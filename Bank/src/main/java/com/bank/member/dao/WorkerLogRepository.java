@@ -15,6 +15,9 @@ public interface WorkerLogRepository extends JpaRepository<WorkerLog, Integer> {
 	@Query("SELECT wl FROM WorkerLog wl WHERE wl.worker.wId = :workerId")
 	List<WorkerLog> findByWorker_Id(@Param("workerId") Integer workerId);
 	
+	@Query("SELECT wl FROM WorkerLog wl WHERE wl.worker.wAccount = :wAccount")
+	List<WorkerLog> findByWorker_wAccount(@Param("wAccount") String wAccount);
+	
     @Query("SELECT wl FROM WorkerLog wl " +
             "JOIN wl.worker w " +
             "WHERE (:action IS NULL OR wl.action LIKE %:action%) " +
