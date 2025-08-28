@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.bank.member.bean.Member;
@@ -54,7 +55,7 @@ public class WorkerLogService {
      * @return 所有 WorkerLog 記錄
      */
     public List<WorkerLog> getAllLogs() {
-        return workerLogRepository.findAll();
+        return workerLogRepository.findAll(Sort.by(Sort.Direction.DESC, "time"));
     }
 
     /**
