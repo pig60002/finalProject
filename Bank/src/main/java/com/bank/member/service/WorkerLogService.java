@@ -43,6 +43,10 @@ public class WorkerLogService {
     		workerLogRepository.save(log);
     	
     }
+    
+    public List<WorkerLog> findByWorker_wAccount(String wAccount){
+    	return workerLogRepository.findByWorker_wAccount(wAccount);
+    }
 
     /**
      * 查詢所有 WorkerLog 記錄
@@ -106,6 +110,8 @@ public class WorkerLogService {
         Pageable pageable = PageRequest.of(page, size);  // 0-based page index
         return workerLogRepository.findByActionAndWorkerAccount(action, account, pageable);
     }
+    
+    
     
 
 }

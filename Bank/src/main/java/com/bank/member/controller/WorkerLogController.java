@@ -56,6 +56,7 @@ public class WorkerLogController {
      */
     @GetMapping("/worker/{workerId}")
     public List<WorkerLog> getLogsByWorkerId(@PathVariable Integer workerId) {
+ 
     	List<WorkerLog> wls = workerLogService.getLogsByWorkerId(workerId);
     
         return wls;
@@ -118,15 +119,25 @@ public class WorkerLogController {
     
 
     @GetMapping("/api/download-workerlogs")
-    public void downloadWorkerLogs(HttpServletResponse response) throws IOException {
-        List<WorkerLog> logs = workerLogService.getAllLogs();
+    public void downloadWorkerLogs(@RequestParam(required = false) String workerName,HttpServletResponse response) throws IOException {
+        
+    	List<WorkerLog> logs = null;
+    	
+    	if(workerName == "") {
+    		 logs = workerLogService.getAllLogs();
+
+    	}else {
+    		 logs = workerLogService.findByWorker_wAccount(workerName);
+			
+		}
+    	
 
         // 設定 response header，告訴瀏覽器下載檔案
         response.setContentType("text/csv");
         response.setHeader("Content-Disposition", "attachment; filename=\"worker_logs.csv\"");
         byte[] bom = {(byte)0xEF, (byte)0xBB, (byte)0xBF};
         // 建立 CSV header
-        String header = "ID,WorkerName,Action,Message,Time\n";
+        String header = "ID,wid,WorkerName,Action,Message,Time\n";
 
         // 使用 StringBuilder 儲存 CSV 內容
         StringBuilder csvBuilder = new StringBuilder();
@@ -136,11 +147,13 @@ public class WorkerLogController {
 
         for (WorkerLog log : logs) {
             // 注意：這裡假設 Worker 有 getName() 方法取得姓名
-            String workerName = log.getWorker() != null ? log.getWorker().getwName() : "無資料";
+            String workerName1 = log.getWorker() != null ? log.getWorker().getwName() : "無資料";
+            Integer wid = log.getWorker() != null ? log.getWorker().getwId() :0;
 
             // 把欄位用逗號隔開，字串用雙引號包起來（簡單處理，避免逗號斷行問題）
             csvBuilder.append(log.getId()).append(",");
-            csvBuilder.append("\"").append(workerName).append("\",");
+            csvBuilder.append("\"").append(wid).append("\",");
+            csvBuilder.append("\"").append(workerName1).append("\",");
             csvBuilder.append("\"").append(log.getAction()).append("\",");
             csvBuilder.append("\"").append(log.getMessage()).append("\",");
             csvBuilder.append(sdf.format(log.getTime())).append("\n");

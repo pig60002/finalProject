@@ -55,7 +55,7 @@ public class AccountUtils {
 	}
 
 	// 處理檔案照片 回傳路徑字串
-	public String savePicture(MultipartFile m, Integer mid) {
+	public String savePicture(MultipartFile m, Integer mid, String idPart) {
 		/*
 		 * System是Java標準類別 可以取得系統層級的資訊或輸入輸出 getProperty( ) 靜態方法，取得指定的系統屬性 "user.dir"
 		 * 系統屬性名稱，代表工作目錄路徑
@@ -91,7 +91,7 @@ public class AccountUtils {
 		 */
 		String timeStamp = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss").format(LocalDateTime.now());
 
-		String newFileName = mid + "_" + timeStamp + extension;
+		String newFileName = mid + "_" + timeStamp + idPart + extension;
 
 		// 寫入檔案
 		/*

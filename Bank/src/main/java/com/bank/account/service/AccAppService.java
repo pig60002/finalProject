@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,12 +40,12 @@ public class AccAppService {
 		AccountApplication accApp = new AccountApplication();
 		
 		AccountUtils accountUtil = new AccountUtils();
-		accApp.setIdCardFront( accountUtil.savePicture(idfront, mid) );
-		accApp.setIdCardBack( accountUtil.savePicture(idback, mid) );
+		accApp.setIdCardFront( accountUtil.savePicture(idfront, mid, "front") );
+		accApp.setIdCardBack( accountUtil.savePicture(idback, mid, "back") );
 		String saveSecDoc = null;
 		
 		if( secdoc != null && !secdoc.isEmpty() ) {
-			saveSecDoc = accountUtil.savePicture(secdoc, mid);
+			saveSecDoc = accountUtil.savePicture(secdoc, mid, "sec");
 		} 
 		accApp.setSecondDoc(saveSecDoc);
 		
