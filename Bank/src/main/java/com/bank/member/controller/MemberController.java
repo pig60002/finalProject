@@ -78,7 +78,7 @@ public class MemberController {
 		 m= memberService.insertMember(member);
 		if(check(principal)) {
 			Worker worker  = (Worker) principal;
-			workerLogService.logAction(worker.getwId(),newAction,"編號:"+m.getmId()+",名子:"+m.getmName()+"的會員");
+			workerLogService.logAction(worker.getwId(),newAction,"會員編號:"+m.getmId()+",名字:"+m.getmName()+"的會員");
 		}
 	     return ResponseEntity.ok(m);
 	}
@@ -90,7 +90,7 @@ public class MemberController {
 			Member OldMember =memberService.getMemberById(id);
 			String message = CompareMembers(OldMember,member);
 			if(!message.isEmpty()) {
-				workerLogService.logAction(worker.getwId(),updateAction,"編號"+id+"資料更動:"+message);		
+				workerLogService.logAction(worker.getwId(),updateAction,"會員編號:"+id+",資料更動:"+message);		
 			}
 			
 		}
@@ -267,7 +267,17 @@ public class MemberController {
     		message = message+"信箱:"+oldMember.getmEmail()+"->"+newMember.getmEmail()+" ";
     	}
     	if(!oldMember.getmState().equals(newMember.getmState())) {
-    		message = message+"狀態:"+oldMember.getmState()+"->"+newMember.getmState()+" ";
+    		String oldState =null;
+			String newState =null;
+    		if(oldMember.getmState().equals(1)) {
+    			oldState ="正常";
+    			newState ="停權";
+    		}else {
+    			 oldState ="停權";
+    			 newState ="正常";
+			}
+    		
+    		message = message+"狀態:"+oldState+"->"+newState+" ";
     	}
     	return message;
     }

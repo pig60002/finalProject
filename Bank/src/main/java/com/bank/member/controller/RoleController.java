@@ -25,6 +25,7 @@ import com.bank.member.bean.Worker;
 import com.bank.member.service.PageService;
 import com.bank.member.service.PermissionService;
 import com.bank.member.service.RoleService;
+import com.bank.member.service.WorkerLogService;
 
 @RestController
 @RequestMapping(path="/api/roles")
@@ -40,6 +41,9 @@ public class RoleController {
 	    
 	    @Autowired
 	    private PageService pageService;
+	    
+		@Autowired
+		private WorkerLogService workerLogService;
 
 	    // GET /api/roles/{roleId}/pages
 	    // 取得指定角色的頁面列表
@@ -83,13 +87,19 @@ public class RoleController {
 	    
 	    @PostMapping("/updatePermissions")
 	    public ResponseEntity<?> updatePermissions(@RequestBody List<RoleWithPagesDto> roleUpdates) {
+	    	
+	    	Object principal =SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+  				Worker worker1  = (Worker) principal;
+  				
+  	
 	    	 for (RoleWithPagesDto roleUpdate : roleUpdates) {
 	    	        // 根據角色 ID 查詢角色
 	    	        Role role = roleService.getRoleById(roleUpdate.getRole().getRoleId());
 	    	        if(role==null) {
 	    	        	return ResponseEntity.ok("沒有這個角色");
 	    	        }
-	    	        
+	    	      
+	    	        String deletePageMessage="取消";
 
 	    	        // 獲取該角色現有的頁面權限
 	    	        Set<Integer> currentPageIds = role.getPermissions().stream()
@@ -101,6 +111,7 @@ public class RoleController {
 	    	            if (!roleUpdate.getPages().contains(oldPage)) {
 	    	            	permissionService.deletRolewithPage(role.getRoleId(), oldPage.getPageId());
 	    	            }
+	    	       
 	    	        }
 
 	    	        // 新增未選擇的頁面權限
@@ -111,6 +122,20 @@ public class RoleController {
 	    	                permissionService.saveRolewithPage(permission);
 	    	            }
 	    	        }
+	    	        String oldPageMessage = "";
+	    	        String newPageMessage = "";
+	    	      for(Page pagess: roleUpdate.getPages()) {
+	    	    	  newPageMessage = newPageMessage+pagess.getPageName()+",";
+	    	    	  
+	    	      }
+	    	      for(Page pagess: pages) {
+	    	    	  oldPageMessage = oldPageMessage+pagess.getPageName()+",";
+	    	    	  
+	    	      }
+	    	      
+	    	        
+	    	        workerLogService.logAction(worker1.getwId(),"修改","資料更動"+oldPageMessage+"_>"+newPageMessage);	
+	    	      
 	    	    }
 	    	
 	    	return ResponseEntity.ok("Permissions updated successfully");
@@ -126,13 +151,25 @@ public class RoleController {
 	    		Permission ps = new Permission(role,page);	
 	    		permissionService.saveRolewithPage(ps);
 	    	}
-	    	
+	    	Object principal =SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+	    	if(principal instanceof Worker) {
+	    		Worker worker1  = (Worker) principal;
+	    		workerLogService.logAction(worker1.getwId(),"新增","角色編號:"+role.getRoleId()+",名稱:"+role.getRoleName());
+	    	}
 		    return ResponseEntity.ok("角色新增成功");
 		}
 	    @DeleteMapping("/{roleId}")
 	    public ResponseEntity<?> deleteRole(@PathVariable Integer roleId) {
 	        boolean deleted = roleService.deleteRoleById(roleId);
+	        Object principal =SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+	    
+	        
 	        if (deleted) {
+	        	if(principal instanceof Worker) {
+		    		Worker worker1  = (Worker) principal;
+		    		workerLogService.logAction(worker1.getwId(),"刪除","角色編號:"+roleId);
+		    	}
 	            return ResponseEntity.ok("角色已刪除");
 	        } else {
 	            return ResponseEntity.status(404).body("找不到指定的角色");
