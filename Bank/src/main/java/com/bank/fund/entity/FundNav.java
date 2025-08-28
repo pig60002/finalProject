@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "fund_nav")
 public class FundNav {
@@ -24,6 +26,7 @@ public class FundNav {
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fund_id", insertable = false, updatable = false)
+    @JsonIgnore
     private Fund fund;
     
     // 建構子

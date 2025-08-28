@@ -97,7 +97,8 @@ public class FundService {
             LocalDate actualNavDate = navDate != null ? navDate : LocalDate.now();
             
             FundNav fundNav = new FundNav();
-            fundNav.setFund(savedFund);
+            fundNav.setFund(savedFund);  // 設定完整的 Fund 物件
+            fundNav.setFundId(savedFund.getFundId());  // 明確設定 fundId
             fundNav.setNavDate(actualNavDate);
             fundNav.setNav(initialNav);
             
