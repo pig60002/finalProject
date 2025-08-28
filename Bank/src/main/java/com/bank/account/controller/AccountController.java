@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,9 +16,15 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bank.account.bean.Account;
 import com.bank.account.service.AccountServcie;
 import com.bank.member.bean.Member;
+import com.bank.member.bean.Worker;
+import com.bank.member.service.WorkerLogService;
 
 @RestController
 public class AccountController {
+	
+	@Autowired
+	private WorkerLogService workerLogService;
+	
 	
 	@Autowired
 	private AccountServcie accountServcie;
@@ -32,12 +39,17 @@ public class AccountController {
 	@PostMapping("/account/insert")
 	// Postman 測試 {"mId":1000,"accountName":"保險費","currency":"NT"}
 	public ResponseEntity<String> processInsertAccountAction(@RequestBody Account acc) {
-		
+		Object principal =SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		Account insertRS = accountServcie.insertAccount(
 				acc.getmId(), 
 				acc.getAccountName(), 
 				acc.getCurrency()
-		);
+				);
+		
+		if(principal instanceof Worker) {
+			Worker worker  = (Worker) principal;
+			workerLogService.logAction(worker.getwId(),"新增","會員編號:"+acc.getmId()+",帳戶編號:"+insertRS.getAccountId()+",帳戶名稱:"+insertRS.getAccountName());
+		}
 		if( insertRS != null ) {
 			return ResponseEntity.ok("新增成功");
 		} else {
@@ -48,12 +60,24 @@ public class AccountController {
 	// 修改帳戶-狀態
 	@PutMapping("/account/update")
 	public ResponseEntity<String> processUpdateAccountAction(@RequestBody Account acc) {
+		Object principal =SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		
+		String oldStatus = accountServcie.getByAccountId(acc.getAccountId()).getStatus();
+		String newStatus = acc.getStatus();
+		
+		
+		
 		int updateRS = accountServcie.updateAccountStatus(
 				acc.getStatus(), 
 				acc.getMemo(), 
 				acc.getOperatorId(), 
 				acc.getAccountId()
 		);
+		
+		if(principal instanceof Worker) {
+			Worker worker  = (Worker) principal;
+			workerLogService.logAction(worker.getwId(),"修改","帳戶編號:"+acc.getAccountId()+",狀態:"+oldStatus+"->"+newStatus+",備註:"+acc.getMemo());
+		}
 		
 		if( updateRS > 0 ) {
 			return ResponseEntity.ok("更新狀態成功");
