@@ -109,9 +109,9 @@ public class CreditTransactionService {
     	if(useCustomRule) {
     		BigDecimal categoryRate=getCategoryRate(merchantType);
     		//取高(不疊加)
-    		cashbackRate=categoryRate.max(baseRate);
+    		//cashbackRate=categoryRate.max(baseRate);
     		//加成
-    		//cashbackRate = baseRate.add(categoryRate);
+    		cashbackRate = baseRate.add(categoryRate);
     	}
     	return amount.multiply(cashbackRate).divide(new BigDecimal("100"))
     				 .setScale(2,BigDecimal.ROUND_HALF_UP);
