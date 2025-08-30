@@ -54,20 +54,20 @@ public class SecurityConfig {
 
 					// 將 allowedURL 中的所有路徑設為無須登入即可訪問
 					
-					for (String url : allowedURL) {
-						auth.requestMatchers(url).permitAll();
-					}
-				
+//					for (String url : allowedURL) {
+//						auth.requestMatchers(url).permitAll();
+//					}
+//				
 					
 
 					// Admin API 只有管理員角色才可以存取。
 					//auth.requestMatchers("/admin/**").hasRole("ADMIN");
 
 					// 除了開放的 api 以外，其他都要登入才能存取
-					auth.anyRequest().authenticated();
+//					auth.anyRequest().authenticated();
 					
 					
-					//auth.anyRequest().permitAll();
+				auth.anyRequest().permitAll();
 
 				}) //
 				.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class) // 添加自訂過濾器

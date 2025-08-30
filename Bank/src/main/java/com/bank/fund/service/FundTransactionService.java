@@ -66,7 +66,7 @@ public class FundTransactionService {
 		transactions.setTransactionType("基金扣款");
 		transactions.setToAccountId(fundRepository.findById(
 				fundTransaction.getFund().getFundId()).orElseThrow()
-				.getCompanyAccount().getAccountId());
+				.getAccount().getAccountId());
 		transactions.setAmount(fundTransaction.getAmount());
 		transactions.setOperatorId(1);
 		transactions.setMemo("");
@@ -200,6 +200,8 @@ public class FundTransactionService {
 	@Transactional
 	public FundTransaction agreeSellFund(Integer id) {
 		FundTransaction fundTransaction = fundTransactionRepository.findById(id).orElseThrow();
+		if(fundTransaction.getStatus() == "交易成功")
+			return null;
 		
 		FundNav fundNav = fundNavRepository.findTopByFundFundIdOrderByNavDateDesc(fundTransaction.getFund().getFundId()).orElseThrow();
 		fundTransaction.setNav(fundNav.getNav());
@@ -207,7 +209,7 @@ public class FundTransactionService {
 		fundTransaction.setAmount(fundTransaction.getNav().multiply(fundTransaction.getUnits()));
 		
 		Transactions transactions = new Transactions();
-		transactions.setAccountId(fundTransaction.getFund().getCompanyAccount().getAccountId());
+		transactions.setAccountId(fundTransaction.getFund().getAccount().getAccountId());
 		transactions.setTransactionType("基金扣款");
 		transactions.setToAccountId(fundTransaction.getFundAccount().getAccount().getAccountId());
 		transactions.setAmount(fundTransaction.getAmount());

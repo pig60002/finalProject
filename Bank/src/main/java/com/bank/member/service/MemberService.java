@@ -87,7 +87,7 @@ public class MemberService {
 	        int page,
 	        int size
 	    ) {
-	        Pageable pageable = PageRequest.of(page, size, Sort.by("mId").ascending());
+	        Pageable pageable = PageRequest.of(page, size, Sort.by("mId").descending());
 
 	        return mRepos.searchByConditions(
 	            isBlank(identity) ? null : identity,

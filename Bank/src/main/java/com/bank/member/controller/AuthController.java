@@ -5,13 +5,13 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.bank.member.bean.Member;
 import com.bank.member.bean.MemberDto;
-import com.bank.member.bean.Page;
 import com.bank.member.bean.Worker;
 import com.bank.member.bean.WorkerDto;
 import com.bank.member.service.MemberService;
@@ -104,6 +104,22 @@ public class AuthController {
 	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("帳密錯誤");
 	    }
 	    
+	    @PostMapping("/backSignOut")
+	    public ResponseEntity<?> backlogin() {
+	    	Object principal =SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+	    	if(principal==null) {return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("token時效已過");}
+	    	Worker worker  = (Worker) principal;		    		    			  	    	           
+	            workerLogService.logAction(worker.getwId(),"登出","");
+	            return ResponseEntity.ok("成功登出");
+	        
+
+
+	    }
+	    public static class SignOutRequest {
+	        private Integer id;
+	        public Integer getId() { return id; }
+	        public void setId(Integer id) { this.id = id; }
+	    }
 
 
 	   
