@@ -336,7 +336,7 @@ public class LoanEmailService {
             case "pending":
                 return "待審核";
             case "supplement":
-                return "補件中";
+                return "需補件：財力證明";
             default:
                 return decision; // 如果是中文就直接回傳
         }
@@ -376,7 +376,7 @@ public class LoanEmailService {
     private String getDefaultNotes(String decision) {
         if (decision == null) return "您的申請正在審核中，我們將盡快通知您結果。";
         
-        switch (decision.trim()) {
+        switch (decision.trim().toLowerCase()) {
             case "審核通過":
             case "通過":
             case "approved":
@@ -389,8 +389,13 @@ public class LoanEmailService {
             case "審核中":
             case "pending":
                 return "您的申請正在審核中，我們將盡快通知您結果。審核期間如有需要補件，我們會主動與您聯繫。";
+            case "補件中":
+            case "supplement":
+                return "為完成您的貸款審核，請您重新上傳最新的財力證明文件（例如薪資單、扣繳憑單或銀行存摺影本）。" +
+                       "您可以透過本行線上貸款系統上傳，或洽客服專員協助處理。請儘速提供，以免影響您的核貸進度。";
             default:
                 return "感謝您的申請，如有任何疑問，請聯繫我們的客服中心。";
         }
     }
+
 }

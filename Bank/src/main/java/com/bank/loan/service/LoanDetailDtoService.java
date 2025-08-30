@@ -1,6 +1,8 @@
 package com.bank.loan.service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
+import java.math.BigDecimal;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,7 +52,21 @@ public class LoanDetailDtoService {
 
         // 根據 member mid 找信用資料
         CreditProfiles profile = cpRepo.findByMember_mId(loan.getMid());
+        if (profile == null) {
+            profile = new CreditProfiles();
+            profile.setmId(member.getmId());
+            profile.setEmployerName("台大醫院");
+            profile.setOccupationType("醫療業");
+            profile.setYearsOfService(6);
+            profile.setMonthlyIncome(BigDecimal.valueOf(120000.00));
+            profile.setMonthlyDebt(BigDecimal.valueOf(15000.00));
+            profile.setDtiRatio(BigDecimal.valueOf(0.13));
+            profile.setCreditScore(850); // 預設分數
+            profile.setCreatedAt(LocalDateTime.now());
+            profile.setUpdatedAt(LocalDateTime.parse("2025-03-30T00:00:00"));
 
+            profile = cpRepo.save(profile); // 存入 DB
+        }
         // 取得最新一筆審核紀錄
         Optional<CreditReviewLogs> crlOptional = crlRepo.findTopByLoanIdOrderByReviewTimeDesc(loanId);
         CreditReviewLogs crl = crlOptional.orElse(null);
