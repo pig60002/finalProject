@@ -1,8 +1,5 @@
 package com.bank.fund.service;
 
-import com.bank.account.bean.Account;
-import com.bank.account.dao.AccountRepository;
-import com.bank.account.service.utils.SerialControlService;
 import com.bank.fund.dto.FundAccountDto;
 import com.bank.fund.entity.FundAccount;
 import com.bank.fund.repository.FundAccountRepository;
@@ -18,17 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class FundAccountService {
 
-	private final SerialControlService serialControlService;
-
-	@Autowired
-	private AccountRepository accountRepository;
-
 	@Autowired
 	private FundAccountRepository fundAccountRepository;
-
-	FundAccountService(SerialControlService serialControlService) {
-		this.serialControlService = serialControlService;
-	}
 
 	public List<FundAccountDto> fundAccountDto(List<FundAccount> fundAccounts) {
 		List<FundAccountDto> fundAccountDtos = new ArrayList<FundAccountDto>();

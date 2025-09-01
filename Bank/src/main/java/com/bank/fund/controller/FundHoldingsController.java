@@ -1,7 +1,6 @@
 package com.bank.fund.controller;
 
 import com.bank.fund.dto.FundHoldingsDto;
-import com.bank.fund.entity.FundHoldings;
 import com.bank.fund.service.*;
 
 import java.util.List;
