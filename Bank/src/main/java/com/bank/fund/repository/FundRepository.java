@@ -21,7 +21,7 @@ public interface FundRepository extends JpaRepository<Fund, Integer> {
            "OR f.fundNavs IS EMPTY " +
            "ORDER BY f.fundId")
     List<Fund> findAllWithLatestNav();
-    
+
     /**
      * 取得單一基金及其最新淨值記錄
      */
@@ -31,55 +31,54 @@ public interface FundRepository extends JpaRepository<Fund, Integer> {
            "AND (fn.navDate = (SELECT MAX(fn2.navDate) FROM FundNav fn2 WHERE fn2.fund = f) " +
            "OR f.fundNavs IS EMPTY)")
     Optional<Fund> findByIdWithLatestNav(@Param("fundId") Integer fundId);
+
     /**
      * 根據基金代碼查詢基金
      */
     Optional<Fund> findByFundCode(String fundCode);
-    
+
     /**
      * 檢查基金代碼是否已存在
      */
     boolean existsByFundCode(String fundCode);
-    
+
     /**
      * 根據基金名稱查詢基金（模糊查詢）
      */
     List<Fund> findByFundNameContaining(String fundName);
-    
+
     /**
      * 根據基金類型查詢基金
      */
     List<Fund> findByFundType(String fundType);
-    
+
     /**
      * 根據狀態查詢基金
      */
     List<Fund> findByStatus(String status);
-    
+
     /**
      * 根據風險等級查詢基金
      */
     List<Fund> findByRiskLevel(Integer riskLevel);
-    
-    
+
     /**
      * 根據幣別查詢基金
      */
     List<Fund> findByCurrency(String currency);
-    
+
     /**
      * 查詢開放中的基金
      */
     @Query("SELECT f FROM Fund f WHERE f.status = 'OPEN'")
     List<Fund> findOpenFunds();
-    
+
     /**
      * 根據公司帳戶查詢基金
      */
     @Query("SELECT f FROM Fund f WHERE f.account.accountId = :accountId")
     List<Fund> findByAccountId(@Param("accountId") Integer accountId);
-    
-   
+
     /**
      * 複合查詢：根據多個條件查詢基金
      */
@@ -92,10 +91,24 @@ public interface FundRepository extends JpaRepository<Fund, Integer> {
                                        @Param("status") String status,
                                        @Param("riskLevel") Integer riskLevel,
                                        @Param("currency") String currency);
-    
+
     /**
      * 根據基金ID列表查詢基金
      */
     @Query("SELECT f FROM Fund f WHERE f.fundId IN :fundIds")
     List<Fund> findByFundIdIn(@Param("fundIds") List<Integer> fundIds);
+    
+    // ===== Service中需要使用的新增方法 =====
+    
+    /**
+     * 查詢所有活躍基金（ACTIVE狀態）
+     */
+    @Query("SELECT f FROM Fund f WHERE f.status = 'ACTIVE'")
+    List<Fund> findActiveFunds();
+    
+    /**
+     * 根據基金代碼查詢基金（返回單個Fund對象，兼容Service中的用法）
+     */
+    @Query("SELECT f FROM Fund f WHERE f.fundCode = :fundCode")
+    Fund findFundByCode(@Param("fundCode") String fundCode);
 }

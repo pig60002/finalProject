@@ -11,4 +11,6 @@ public interface FundTransactionRepository extends JpaRepository<FundTransaction
 	List<FundTransaction> findByFundAccountFundAccId(Integer fundAccId);
 	
 	List<FundTransaction> findByStatus(String status);
+	
+	List<FundTransaction> findAllByOrderByFundTranIdDesc();
 }

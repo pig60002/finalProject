@@ -43,7 +43,7 @@ public class FundTransactionService {
 
 	@Transactional(readOnly = true)
 	public List<FundTransaction> getAll() {
-		return fundTransactionRepository.findAll();
+		return fundTransactionRepository.findAllByOrderByFundTranIdDesc();
 	}
 
 	@Transactional(readOnly = true)

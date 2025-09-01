@@ -205,4 +205,17 @@ public class FundService {
             .orElseThrow(() -> new RuntimeException("基金不存在"));
         return fundNavService.getNavByFundAndDate(fund, date);
     }
+    
+    @Transactional
+    public Fund updateFundStatus(Integer id) {
+    	Fund existingFund = fundRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("基金不存在"));
+    	if (existingFund.getStatus() == "OPEN") {
+    		existingFund.setStatus("CLOSE");
+		}else {
+			existingFund.setStatus("OPEN");
+		}
+    	return fundRepository.save(existingFund);
+	} 
+    
 }

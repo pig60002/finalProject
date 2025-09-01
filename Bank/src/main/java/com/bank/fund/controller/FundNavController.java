@@ -1,198 +1,160 @@
 package com.bank.fund.controller;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
-import java.util.List;
-import java.util.Optional;
-
+import com.bank.fund.service.FundNavUpdateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.bank.fund.entity.FundNav;
-import com.bank.fund.service.FundNavService;
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping(path = "/fundNav")
 public class FundNavController {
     
     @Autowired
-    private FundNavService fundNavService;
+    private FundNavUpdateService fundNavUpdateService;
     
     /**
-     * 根據基金ID取得淨值歷史
+     * 批量更新所有活躍基金的淨值
+     * @param navDate 淨值日期（可選，默認今天）
+     * @return 更新結果
      */
-    @GetMapping
-    public ResponseEntity<List<FundNav>> getFundNavsByFundId(@RequestParam Integer fundId) {
-        List<FundNav> navs = fundNavService.getByFundId(fundId);
-        return ResponseEntity.ok(navs);
-    }
-    
-    /**
-     * 根據淨值ID取得單筆淨值記錄
-     */
-    @GetMapping("/{id}")
-    public ResponseEntity<FundNav> getFundNavById(@PathVariable Integer id) {
-        Optional<FundNav> nav = fundNavService.getById(id);
-        return nav.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
-    }
-    
-    /**
-     * 新增淨值記錄
-     */
-    @PostMapping
-    public ResponseEntity<?> createFundNav(@RequestBody FundNav fundNav) {
+    @PostMapping("/batch-update-all")
+    public ResponseEntity<Map<String, Object>> batchUpdateAllFunds(
+            @RequestParam(required = false) 
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate navDate) {
+        
+        Map<String, Object> response = new HashMap<>();
+        
         try {
-            FundNav createdNav = fundNavService.create(fundNav);
-            return ResponseEntity.ok(createdNav);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest()
-                .body(new ErrorResponse(e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                .body(new ErrorResponse("系統發生錯誤：" + e.getMessage()));
-        }
-    }
-    
-    /**
-     * 更新淨值記錄
-     */
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateFundNav(@PathVariable Integer id, @RequestBody FundNav fundNav) {
-        try {
-            FundNav updatedNav = fundNavService.update(id, fundNav);
-            return ResponseEntity.ok(updatedNav);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest()
-                .body(new ErrorResponse(e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                .body(new ErrorResponse("系統發生錯誤：" + e.getMessage()));
-        }
-    }
-    
-    /**
-     * 刪除淨值記錄
-     */
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteFundNav(@PathVariable Integer id) {
-        try {
-            fundNavService.delete(id);
-            return ResponseEntity.ok(new SuccessResponse("淨值記錄刪除成功"));
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest()
-                .body(new ErrorResponse(e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                .body(new ErrorResponse("系統發生錯誤：" + e.getMessage()));
-        }
-    }
-    
-    /**
-     * 手動觸發每日淨值更新（當日）
-     */
-    @PostMapping("/update/daily")
-    public ResponseEntity<?> updateDailyNav() {
-        try {
-            fundNavService.updateDailyNav();
-            return ResponseEntity.ok(new SuccessResponse("每日淨值更新完成"));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                .body(new ErrorResponse("淨值更新失敗：" + e.getMessage()));
-        }
-    }
-    
-    /**
-     * 手動觸發指定日期的淨值更新
-     */
-    @PostMapping("/update/daily/{date}")
-    public ResponseEntity<?> updateDailyNavForDate(
-            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        try {
-            fundNavService.updateDailyNav(date);
-            return ResponseEntity.ok(new SuccessResponse("指定日期淨值更新完成：" + date));
-        } catch (DateTimeParseException e) {
-            return ResponseEntity.badRequest()
-                .body(new ErrorResponse("日期格式錯誤，請使用 YYYY-MM-DD 格式"));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                .body(new ErrorResponse("淨值更新失敗：" + e.getMessage()));
-        }
-    }
-    
-    /**
-     * 手動更新單一基金的淨值
-     */
-    @PostMapping("/update/single")
-    public ResponseEntity<?> updateSingleFundNav(
-            @RequestParam Integer fundId,
-            @RequestParam BigDecimal nav,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate navDate) {
-        try {
-            FundNav updatedNav = fundNavService.updateSingleFundNav(fundId, nav, navDate);
-            return ResponseEntity.ok(updatedNav);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest()
-                .body(new ErrorResponse(e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                .body(new ErrorResponse("淨值更新失敗：" + e.getMessage()));
-        }
-    }
-    
-    /**
-     * 批量更新淨值記錄
-     */
-    @PostMapping("/batch")
-    public ResponseEntity<?> createBatchFundNavs(@RequestBody List<FundNav> fundNavs) {
-        try {
-            if (fundNavs == null || fundNavs.isEmpty()) {
-                return ResponseEntity.badRequest()
-                    .body(new ErrorResponse("淨值清單不能為空"));
-            }
+            FundNavUpdateService.BatchUpdateResult result = 
+                fundNavUpdateService.batchUpdateAllFunds(navDate);
             
-            List<FundNav> createdNavs = fundNavService.createOrUpdateBatch(fundNavs);
-            return ResponseEntity.ok(createdNavs);
+            response.put("success", true);
+            response.put("message", "批量更新完成");
+            response.put("totalCount", result.getTotalCount());
+            response.put("successCount", result.getSuccessCount());
+            response.put("skippedCount", result.getSkippedCount());
+            response.put("errorCount", result.getErrorCount());
+            response.put("navDate", result.getNavDate());
+            response.put("successRate", String.format("%.1f%%", result.getSuccessRate()));
+            response.put("isFullSuccess", result.isFullSuccess());
+            
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                .body(new ErrorResponse("批量處理失敗：" + e.getMessage()));
+            response.put("success", false);
+            response.put("message", "批量更新失敗: " + e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         }
     }
     
-    // 內部類別用於回應格式
-    public static class ErrorResponse {
-        private String message;
-        private boolean success = false;
+    /**
+     * 批量更新指定基金的淨值
+     * @param fundCodes 基金代碼列表
+     * @param navDate 淨值日期（可選，默認今天）
+     * @return 更新結果
+     */
+    @PostMapping("/batch-update-specific")
+    public ResponseEntity<Map<String, Object>> batchUpdateSpecificFunds(
+            @RequestBody List<String> fundCodes,
+            @RequestParam(required = false) 
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate navDate) {
         
-        public ErrorResponse(String message) {
-            this.message = message;
+        Map<String, Object> response = new HashMap<>();
+        
+        if (fundCodes == null || fundCodes.isEmpty()) {
+            response.put("success", false);
+            response.put("message", "基金代碼列表不能為空");
+            return ResponseEntity.badRequest().body(response);
         }
         
-        public String getMessage() {
-            return message;
-        }
-        
-        public boolean isSuccess() {
-            return success;
+        try {
+            FundNavUpdateService.BatchUpdateResult result = 
+                fundNavUpdateService.batchUpdateSpecificFunds(fundCodes, navDate);
+            
+            response.put("success", true);
+            response.put("message", "指定基金批量更新完成");
+            response.put("requestedFunds", fundCodes);
+            response.put("totalCount", result.getTotalCount());
+            response.put("successCount", result.getSuccessCount());
+            response.put("skippedCount", result.getSkippedCount());
+            response.put("errorCount", result.getErrorCount());
+            response.put("navDate", result.getNavDate());
+            response.put("successRate", String.format("%.1f%%", result.getSuccessRate()));
+            response.put("isFullSuccess", result.isFullSuccess());
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "批量更新失敗: " + e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         }
     }
     
-    public static class SuccessResponse {
-        private String message;
-        private boolean success = true;
+    /**
+     * 獲取系統統計資訊
+     * @param navDate 查詢日期（可選，默認今天）
+     * @return 統計資訊
+     */
+    @GetMapping("/system-info")
+    public ResponseEntity<Map<String, Object>> getSystemInfo(
+            @RequestParam(required = false) 
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate navDate) {
         
-        public SuccessResponse(String message) {
-            this.message = message;
+        Map<String, Object> response = new HashMap<>();
+        
+        if (navDate == null) {
+            navDate = LocalDate.now();
         }
         
-        public String getMessage() {
-            return message;
+        try {
+            int activeFundCount = fundNavUpdateService.getActiveFundCount();
+            int pendingNavCount = fundNavUpdateService.getPendingNavCount(navDate);
+            int completedNavCount = activeFundCount - pendingNavCount;
+            
+            response.put("success", true);
+            response.put("queryDate", navDate);
+            response.put("activeFundCount", activeFundCount);
+            response.put("completedNavCount", completedNavCount);
+            response.put("pendingNavCount", pendingNavCount);
+            response.put("completionRate", activeFundCount > 0 ? 
+                String.format("%.1f%%", (double) completedNavCount / activeFundCount * 100) : "0.0%");
+            response.put("needsUpdate", pendingNavCount > 0);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "獲取系統資訊失敗: " + e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         }
+    }
+    
+    /**
+     * 健康檢查端點
+     * @return 服務狀態
+     */
+    @GetMapping("/health")
+    public ResponseEntity<Map<String, Object>> healthCheck() {
+        Map<String, Object> response = new HashMap<>();
         
-        public boolean isSuccess() {
-            return success;
+        try {
+            int activeFundCount = fundNavUpdateService.getActiveFundCount();
+            
+            response.put("status", "UP");
+            response.put("service", "FundNavUpdateService");
+            response.put("timestamp", LocalDate.now());
+            response.put("activeFundCount", activeFundCount);
+            response.put("message", "淨值更新服務運行正常");
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("status", "DOWN");
+            response.put("message", "服務異常: " + e.getMessage());
+            return ResponseEntity.status(503).body(response);
         }
     }
 }
