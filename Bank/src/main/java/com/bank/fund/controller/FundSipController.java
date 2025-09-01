@@ -1,7 +1,6 @@
 package com.bank.fund.controller;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bank.fund.entity.Fund;
 import com.bank.fund.entity.FundSip;
-import com.bank.fund.service.FundService;
 import com.bank.fund.service.FundSipService;
 
 @RestController
