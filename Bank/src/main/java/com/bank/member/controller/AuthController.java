@@ -51,7 +51,7 @@ public class AuthController {
 		    }
 		  
 	        if (member.getmAccount().equals(login.mAccount) && member.getmPassword().equals(login.mPassword)) {
-	            String token = jwtUtil.generateToken(member.getmId(),"member"); // 模擬 userId 為 1001
+	            String token = JwtUtil.generateToken(member.getmId(),"member"); // 模擬 userId 為 1001
 	            MemberDto mDto = new MemberDto(member,token);
 	            
 
@@ -94,7 +94,7 @@ public class AuthController {
 		    if(w==null) {return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("查無帳號");}
 		  
 	        if (w.getwAccount().equals(login.mAccount) && w.getwPassword().equals(login.mPassword)) {
-	            String token = jwtUtil.generateToken(w.getwId(),"worker"); // 模擬 userId 為 1001
+	            String token = JwtUtil.generateToken(w.getwId(),"worker"); // 模擬 userId 為 1001
 	            
 	            WorkerDto wDto = new WorkerDto(w,token); 
 	            workerLogService.logAction(w.getwId(),"登入","");

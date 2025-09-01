@@ -35,6 +35,8 @@ import com.bank.member.service.MemberService;
 import com.bank.member.service.PasswordResetTokenService;
 import com.bank.member.service.WorkerLogService;
 
+import jakarta.mail.MessagingException;
+
 @RestController
 @RequestMapping(path = "/member")
 public class MemberController {
@@ -152,7 +154,7 @@ public class MemberController {
         }
     }
     @PostMapping("/forgot-password")
-    public ResponseEntity<String> forgotPassword(@RequestBody EmailRequest email) {
+    public ResponseEntity<String> forgotPassword(@RequestBody EmailRequest email) throws MessagingException {
     	System.out.println("我有近來喔");
     	Member member =memberService.getMemberByEmail(email.getEmail());
         if (member == null) {
@@ -161,7 +163,7 @@ public class MemberController {
 
         // 產生 token
         String token = UUID.randomUUID().toString();
-        Date expiry = Date.from(Instant.now().plus(1, ChronoUnit.HOURS)); // 1小時後過期
+        Date expiry = Date.from(Instant.now().plus(15, ChronoUnit.MINUTES)); // 15分鐘後過期
 
         PasswordResetToken resetToken = new PasswordResetToken(member, token, expiry);
         PRTService.insertPasswordResetToken(resetToken);
