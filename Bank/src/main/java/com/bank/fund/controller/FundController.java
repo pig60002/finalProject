@@ -110,7 +110,19 @@ public class FundController {
                 .body(new ErrorResponse("系統發生錯誤：" + e.getMessage()));
         }
     }
-    
+    @PutMapping("/{id}/status")
+    public ResponseEntity<?> updateFundStatus(@PathVariable Integer id) {
+        try {
+            Fund updatedFund = fundService.updateFundStatus(id);
+            return ResponseEntity.ok(updatedFund);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest()
+                .body(new ErrorResponse(e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                .body(new ErrorResponse("系統發生錯誤：" + e.getMessage()));
+        }
+    }
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteFund(@PathVariable Integer id) {
         try {
