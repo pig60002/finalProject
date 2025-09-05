@@ -13,10 +13,10 @@ public class LineRequestParam {
 
 	private Integer amount;
 	private String currency = "TWD";
-	private Integer orderId;
+	private String orderId;
 	private RedirectUrls redirectUrls;
 	private List<Package> packages = new ArrayList<>();
-
+	
 	@Getter
 	@Setter
 	public static class RedirectUrls {

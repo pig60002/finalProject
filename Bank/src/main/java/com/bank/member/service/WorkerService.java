@@ -18,6 +18,8 @@ public class WorkerService {
 	private WorkerRepository wRepos;
 	
 	public Worker inserWorker(Worker worker) {
+		Integer id =wRepos.findMaxId();
+		worker.setwId(id+1);
 		return wRepos.save(worker);
 	}
 	public Worker updateWorker(Worker worker) {

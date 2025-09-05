@@ -10,13 +10,16 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebAppConfig implements WebMvcConfigurer {
+	
 	@Override
 	public void addCorsMappings(CorsRegistry registry) {
 		registry.addMapping("/**")
-			.allowedMethods("GET","POST","PUT","DELETE")
-			.allowedOrigins("*")
+			.allowedOrigins("http://localhost:5173")
+			.allowedMethods("GET","POST","PUT","DELETE","OPTIONS")
+			//.allowedOrigins("*")
 			.allowedHeaders("*")
-			.allowCredentials(false);
+			.exposedHeaders("*")
+			.allowCredentials(true);
 	}
 	
 	@Override
@@ -30,9 +33,6 @@ public class WebAppConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/uploadImg/creditCardImg/**")
                 .addResourceLocations(realPath);
         System.out.println("realPath: " + realPath);
-        // 第二個資料夾，映射到 /accountImg/user2/**
-        registry.addResourceHandler("/uploadImg/accountImg/**")
-                .addResourceLocations("file:C:/bankSpringBoot/Bank/uploadImg/accountImg/");
         
         registry.addResourceHandler("/uploadImg/memberImg/**")
         .addResourceLocations("file:C:/bankSpringBoot/Bank/uploadImg/memberImg/");
@@ -52,6 +52,12 @@ public class WebAppConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/uploadImg/contract/**")
                 .addResourceLocations(contractPath);
 
+        // 帳戶
+        String accountPath = "file:" + Paths.get(basePath, "uploadImg", "accountImg").toString() + "/";
+        
+        registry.addResourceHandler("/uploadImg/accountImg/**")
+        .addResourceLocations(accountPath);
+        
 
     }
 	

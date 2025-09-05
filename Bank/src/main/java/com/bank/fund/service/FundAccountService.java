@@ -2,21 +2,23 @@ package com.bank.fund.service;
 
 import com.bank.account.bean.Account;
 import com.bank.account.dao.AccountRepository;
+import com.bank.account.service.utils.SerialControlService;
 import com.bank.fund.dto.FundAccountDto;
 import com.bank.fund.entity.FundAccount;
 import com.bank.fund.repository.FundAccountRepository;
-import com.bank.member.bean.Member;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 @Service
 public class FundAccountService {
+
+	private final SerialControlService serialControlService;
 
 	@Autowired
 	private AccountRepository accountRepository;
@@ -24,13 +26,17 @@ public class FundAccountService {
 	@Autowired
 	private FundAccountRepository fundAccountRepository;
 
+	FundAccountService(SerialControlService serialControlService) {
+		this.serialControlService = serialControlService;
+	}
+
 	public List<FundAccountDto> fundAccountDto(List<FundAccount> fundAccounts) {
 		List<FundAccountDto> fundAccountDtos = new ArrayList<FundAccountDto>();
 
 		for (FundAccount fundAccount : fundAccounts) {
 			FundAccountDto fundAccountDto = new FundAccountDto();
 
-			fundAccountDto.setId(fundAccount.getId());
+			fundAccountDto.setId(fundAccount.getFundAccId());
 			fundAccountDto.setMemberId(fundAccount.getMember().getmId());
 			fundAccountDto.setName(fundAccount.getMember().getmName());
 			fundAccountDto.setRiskType(fundAccount.getRiskType());
@@ -40,19 +46,16 @@ public class FundAccountService {
 		}
 		return fundAccountDtos;
 	}
+	
 
 	@Transactional(readOnly = true)
-	public List<FundAccountDto> getFundAccounts(String status, String name) {
-
-		if (status != null && name != null) {
-			return fundAccountDto(fundAccountRepository.findByStatusAndMemberMNameContaining(status, name));
-		} else if (status != null) {
-			return fundAccountDto(fundAccountRepository.findByStatus(status));
-		} else if (name != null) {
-			return fundAccountDto(fundAccountRepository.findByMemberMNameContaining(name));
-		} else {
-			return fundAccountDto(fundAccountRepository.findAll());
-		}
+	public List<FundAccount> getAll() {
+		return fundAccountRepository.findAll();
+	}
+	
+	@Transactional(readOnly = true)
+	public List<FundAccount> getByStatus(String status){
+		return fundAccountRepository.findByStatus(status);
 	}
 
 	@Transactional(readOnly = true)
@@ -60,51 +63,42 @@ public class FundAccountService {
 		return fundAccountRepository.findById(id);
 	}
 
-	@Transactional
-	public boolean create(Integer memberId, String riskType) {
-		FundAccount fundAccount = new FundAccount();
+	@Transactional(readOnly = true)
+	public Optional<FundAccount> getByMId(Integer mId) {
+		return fundAccountRepository.findByMemberMId(mId);
+	}
 
-		Member member = new Member();
-		member.setmId(memberId);
-		fundAccount.setMember(member);
-
-		Account account = accountRepository.findByMIdAndAccountNameAndCurrency(memberId, "活期存款", "NT");
-		fundAccount.setAccount(account);
-
-		fundAccount.setRiskType(riskType);
-		fundAccount.setStatus("審核中");
-
-		fundAccountRepository.save(fundAccount);
-
-		return true;
+	public String createRiskType(List<Integer> riskAnswers) {
+		Integer score = 0;
+		for(Integer riskAnswer: riskAnswers) {
+			score += riskAnswer;
+		}
+		
+		if (score <= 0) {
+			return "保守型";
+		} else if(score <= 50) {
+			return "穩健型";
+		} else {
+			return "積極型";
+		}
 	}
 
 	@Transactional
-	public boolean update(Integer id, String riskType, String status) {
-		if (!fundAccountRepository.existsById(id)) {
-			return false;
-		}
-		FundAccount fundAccount = fundAccountRepository.findById(id)
-				.orElseThrow(() -> new RuntimeException("FundAccount not found"));
-
-		if (riskType != null) {
-			fundAccount.setRiskType(riskType);
-		}
-
-		if (status != null) {
-			fundAccount.setStatus(status);
-		}
-
-		fundAccountRepository.save(fundAccount);
-		return true;
+	public FundAccount create(FundAccount fundAccount) {
+		return fundAccountRepository.save(fundAccount);
 	}
 
 	@Transactional
-	public boolean delete(Integer id) {
-		if (!fundAccountRepository.existsById(id)) {
-			return false;
+	public FundAccount update(Integer id, FundAccount updatedFundAccount) {
+		FundAccount fundAccount = fundAccountRepository.findById(id).orElseThrow();
+
+		if (updatedFundAccount.getRiskType() != null) {
+			fundAccount.setRiskType(updatedFundAccount.getRiskType());
 		}
-		fundAccountRepository.deleteById(id);
-		return true;
+		if (updatedFundAccount.getStatus() != null) {
+			fundAccount.setStatus(updatedFundAccount.getStatus());
+		}
+
+		return fundAccountRepository.save(fundAccount);
 	}
 }

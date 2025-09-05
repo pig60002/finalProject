@@ -1,5 +1,7 @@
 package com.bank.member.bean;
 
+import java.util.List;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,6 +20,7 @@ public class WorkerDto{
 	private String wName;
 	private String wAccount;
 	private String token;
+	private Role role;
 	
 	public WorkerDto(Integer wId, String wName, String wAccount, String token) {
 		super();
@@ -31,6 +34,8 @@ public class WorkerDto{
 		this.wName = worker.getwName();
 		this.wAccount = worker.getwAccount();
 		this.token = token;
+		this.role = worker.getRole();
+		
 	}
 	
 	

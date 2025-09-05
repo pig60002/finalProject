@@ -22,7 +22,7 @@ public class AccountController {
 	@Autowired
 	private AccountServcie accountServcie;
 	
-	// 獲得個人所有帳戶  **未來JWT要改接(HttpServletRequest request)**
+	// 獲得個人所有帳戶 
 	@GetMapping("/account/getmemberaccounts/{mid}")
 	public List<Account> processGetAccountByMIdAction(@PathVariable Integer mid){
 		return accountServcie.getAccountsByMId(mid);

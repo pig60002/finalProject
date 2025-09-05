@@ -7,7 +7,8 @@ import org.springframework.stereotype.Component;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Component
@@ -30,6 +31,10 @@ public class Worker implements Serializable{
 	private String wAccount;
 	@Column(name = "w_Password")
 	private String wPassword;
+	
+	@ManyToOne
+    @JoinColumn(name = "role_id")
+	private Role role;
 
 	public Integer getwId() {
 		return wId;
@@ -58,22 +63,20 @@ public class Worker implements Serializable{
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
-
 	
-	
-	/*@ManyToOne
-    @JoinColumn(name = "role_id")
-	private Role role;
-	*/
-	
-
-	
-	/*
 	public Role getRole() {
 		return role;
 	}
 	public void setRole(Role role) {
 		this.role = role;
 	}
-	*/
+
+	
+	
+	
+	
+	
+
+	
+	
 }

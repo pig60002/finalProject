@@ -1,5 +1,7 @@
 package com.bank.member.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,9 +11,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.bank.member.bean.Member;
 import com.bank.member.bean.MemberDto;
+import com.bank.member.bean.Page;
 import com.bank.member.bean.Worker;
 import com.bank.member.bean.WorkerDto;
 import com.bank.member.service.MemberService;
+import com.bank.member.service.RoleService;
+import com.bank.member.service.WorkerLogService;
 import com.bank.member.service.WorkerService;
 import com.bank.utils.JwtUtil;
 
@@ -26,11 +31,16 @@ public class AuthController {
 	  
 	  @Autowired
 	  private WorkerService workerService;
+	  @Autowired
+	  private RoleService roleService;
+	  
+	  @Autowired
+		private WorkerLogService workerLogService;
 	  
 	  
 	  @PostMapping("/login")
 	    public ResponseEntity<?> login(@RequestBody LoginRequest login) {
-	        // 假設帳密驗證成功（這裡沒用資料庫，為了簡單）
+	        
 		    Member member = memberService.getMemberByIdentity(login.mIdentity);
 		    
 		    if(member==null) {return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("查無身分證");}
@@ -80,8 +90,9 @@ public class AuthController {
 		  
 	        if (w.getwAccount().equals(login.mAccount) && w.getwPassword().equals(login.mPassword)) {
 	            String token = jwtUtil.generateToken(w.getwId(),"worker"); // 模擬 userId 為 1001
-	            WorkerDto wDto = new WorkerDto(w,token);
 	            
+	            WorkerDto wDto = new WorkerDto(w,token); 
+	            workerLogService.logAction(w.getwId(),"登入","");
 	            return ResponseEntity.ok().header("Authorization", "Bearer " + token).body(wDto);
 	        }
 

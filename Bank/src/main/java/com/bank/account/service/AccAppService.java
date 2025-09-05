@@ -1,5 +1,6 @@
 package com.bank.account.service;
 
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -11,7 +12,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.bank.account.bean.AccountApplication;
 import com.bank.account.dao.AccAppRepository;
+import com.bank.account.service.utils.MailService;
+import com.bank.account.service.utils.SerialControlService;
+import com.bank.member.bean.Member;
 import com.bank.utils.AccountUtils;
+
+import jakarta.mail.MessagingException;
 
 
 @Service
@@ -22,9 +28,13 @@ public class AccAppService {
 	private AccAppRepository accAppRepos;
 	@Autowired
 	private SerialControlService scService;
-
+	@Autowired
+	private MailService mailService;
+	@Autowired
+	private AccountServcie accountServcie;
+	
 	// 新增 
-	public AccountApplication insertAccApp(MultipartFile idfront, MultipartFile idback, MultipartFile secdoc,Integer mid ,String status) {
+	public AccountApplication insertAccApp(MultipartFile idfront, MultipartFile idback, MultipartFile secdoc,Integer mid ,String status, String mName, String mEmail) {
 		
 		AccountApplication accApp = new AccountApplication();
 		
@@ -44,19 +54,63 @@ public class AccAppService {
 		accApp.setStatus(status);
 		accApp.setApplyTime( LocalDateTime.now() );
 
-		return accAppRepos.save(accApp);
+		AccountApplication saveRS = accAppRepos.save(accApp);
+		try {
+			mailService.sendApplicationSubmittedEmail(mName, mEmail, id);
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return saveRS;
 	}
 	
-	
-
 	// 修改 updateAccApp(AccountApplication accApp)
 	public AccountApplication updateAccApp(AccountApplication accApp) {
 		return accAppRepos.save(accApp);
 	}
 
 	// 修改單筆開戶申請表 (審核狀態) updateAccApp(String appId, String status, String reason, int reviewerId)
-	public int updateAccApp( String status, Integer reviewerId, String reason,String appId) {
-		return accAppRepos.updateAccApp(status, reviewerId, LocalDateTime.now(), reason, appId);
+	public int updateAccApp( String status, Integer reviewerId, String reason,String appId,Integer mId) {
+		// 修改狀態
+		int rs = accAppRepos.updateAccApp(status, reviewerId, LocalDateTime.now(), reason, appId);
+		Member member = accAppRepos.findByApplicationId(appId).getMember();
+		String mEmail = member.getmEmail();
+		String mName = member.getmName();
+		
+		if (rs > 0) {
+			try {
+				
+				// 狀態：“通過”，新增一個帳戶
+				if("通過".equals(status)) {
+					accountServcie.insertAccount(mId, "台幣活存帳戶", "NT");
+				}
+				
+				// 修改狀態成功，判斷狀態寄送信件
+				if("通過".equals(status) || "未通過".equals(status)) {
+				
+					mailService.sendApplicationRSEmail(mName, mEmail, status);
+
+				}else if("待補件".equals(status)) {
+					
+					String supplementUrl = ""+appId;
+					mailService.sendApplicationRSEmail(mName, mEmail, status, supplementUrl);
+				}
+
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (MessagingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return rs;
 	}
 
 	// 刪除 deleteAccAppById(String id)
@@ -88,5 +142,12 @@ public class AccAppService {
 		}
 		return null;
 	}
+	
+	public String getLatestStatus(Integer mId){
+		AccountApplication accapp = accAppRepos.findTopByMIdOrderByApplyTimeDesc(mId);
+		return accapp.getStatus();       
+	}
+	
+	
 
 }

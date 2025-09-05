@@ -15,7 +15,8 @@ import java.nio.file.Paths;
 @RestController
 public class FileDownloadController {
 
-    private final String uploadDir = "C:/bankSpringBoot/Bank/uploadImg/loanImg/";
+//    private final String uploadDir = "C:/bankSpringBoot/Bank/uploadImg/loanImg/";
+    private final String uploadDir = "uploadImg/loanImg/";
 
     @GetMapping("/download/loanImg/{filename:.+}")
     public ResponseEntity<Resource> downloadLoanImage(@PathVariable String filename) throws MalformedURLException {
@@ -33,7 +34,8 @@ public class FileDownloadController {
     
     @GetMapping("/download/contract/{filename:.+}")
     public ResponseEntity<Resource> downloadContractFile(@PathVariable String filename) throws MalformedURLException {
-        String contractDir = "C:/bankSpringBoot/Bank/uploadImg/contract/";
+//        String contractDir = "C:/bankSpringBoot/Bank/uploadImg/contract/";
+        String contractDir = "uploadImg/loanImg/";
         Path filePath = Paths.get(contractDir).resolve(filename).normalize();
         Resource resource = new UrlResource(filePath.toUri());
 

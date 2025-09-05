@@ -1,6 +1,7 @@
 package com.bank.creditCard.application.service;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -76,7 +77,13 @@ public class CardApplicationService {
 	}
 
 	public List<CardApplicationDTO> findApprovedWithMemberInfo(){
-		List<CardApplicationBean> list = cardApplicationRepos.findWithMemberByStatus("APPROVED");
+		List<CardApplicationBean> list =
+	            cardApplicationRepos.findWithMemberByStatuses(
+	                Arrays.asList(
+	                    CardApplicationBean.STATUS_APPROVED,
+	                    CardApplicationBean.STATUS_ISSUED
+	                )
+	            );
 		return list.stream().map(this::toDto).collect(Collectors.toList());
 	}
 	
