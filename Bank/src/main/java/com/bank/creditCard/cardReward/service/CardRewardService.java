@@ -44,7 +44,7 @@ public class CardRewardService {
 	//交易入帳後 新增紅利表
 	@Transactional
 	public void earnFromTransaction(Integer cardId,int points,String txnIdOrMemo) {
-		if(points<=0)return;
+		if(points==0)return;
 		CardDetailBean card = cardDetailRepository.findById(cardId).orElseThrow(()->new IllegalArgumentException("卡片不存在"));
 		
 		String desc=(txnIdOrMemo!=null)?"TXN:"+txnIdOrMemo:"TXN";

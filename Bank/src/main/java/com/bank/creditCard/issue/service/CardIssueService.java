@@ -116,11 +116,21 @@ public class CardIssueService {
     	        CardDetailBean.STATUS_INACTIVE.toLowerCase(),
     	        CardDetailBean.STATUS_SUSPEND.toLowerCase()
     	    );
+
     	    if (!validStatuses.contains(status.toLowerCase())) {
     	        return false;
     	    }
+
     	    return cardDetailRepository.findById(cardId).map(cardDetail -> {
+    	        // 如果是從 inactive → active，初始化可用額度
+    	        if (CardDetailBean.STATUS_ACTIVE.equalsIgnoreCase(status)) {
+    	            if (CardDetailBean.STATUS_INACTIVE.equalsIgnoreCase(cardDetail.getStatus())) {
+    	                cardDetail.setCurrentBalance(cardDetail.getCreditLimit());
+    	            }
+    	        }
+
     	        cardDetail.setStatus(status.toLowerCase());
+
     	        cardDetailRepository.save(cardDetail);
     	        return true;
     	    }).orElse(false);

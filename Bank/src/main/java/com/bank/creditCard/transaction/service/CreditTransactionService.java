@@ -77,7 +77,7 @@ public class CreditTransactionService {
             );
         }
 
-        // ✅ 以「交易淨額」重算可用額度（currentBalance）
+        // 以「交易淨額」重算可用額度（currentBalance）
         recalcAndSaveCurrentBalance(card.getCardId());
 
         attachToBillIfExists(card, saved);

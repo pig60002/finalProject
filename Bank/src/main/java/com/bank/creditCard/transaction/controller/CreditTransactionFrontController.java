@@ -37,7 +37,7 @@ public class CreditTransactionFrontController {
     }
 
     // =========================
-    // A.（Card Fields 必備）拿 client token
+    // A.（Card Fields 必備）拿 client token(沒用到)
     // =========================
     @PostMapping("/paypal/client-token")
     public Map<String, String> getClientToken() {
